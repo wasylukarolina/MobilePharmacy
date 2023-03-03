@@ -2,7 +2,7 @@
     <!-- Base application theme. -->
     <style name="Theme.MobilePharmacy" parent="Theme.MaterialComponents.DayNight.DarkActionBar">
         <!-- Primary brand color. -->
-        <item name="colorPrimary">@color/purple_500</item>
+        <item name="colorPrimary">@color/purple</item>
         <item name="colorPrimaryVariant">@color/purple</item>
         <item name="colorOnPrimary">@color/white</item>
         <!-- Secondary brand color. -->
@@ -12,6 +12,14 @@
         <!-- Status bar color. -->
         <item name="android:statusBarColor">?attr/colorPrimaryVariant</item>
         <!-- Customize your theme here. -->
+    </style>
+
+    <style name="button">
+        <item name="android:background">@drawable/button</item>
+        <item name="fontFamily">@font/AlegreyaSans</item>
+        <item name="android:textColor">@color/darkblue</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:textStyle">bold</item>
     </style>
 
     <style name="Theme.MobilePharmacy.NoActionBar">

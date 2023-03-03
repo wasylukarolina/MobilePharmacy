@@ -9,4 +9,11 @@
 
     <string name="hello_first_fragment">Hello first fragment</string>
     <string name="hello_second_fragment">Hello second fragment. Arg: %1$s</string>
+    <string name="startingTitle">Witaj w aplikacji Mobilna Apteka!</string>
+    <string name="loginInfo">Zaloguj się, aby uruchomić aplikację.
+    <br><b>Zaloguj się</b> jeśli posiadasz konto</br>
+    <br><b>Zarejestruj się</b> jeśli nie posiadasz konta</br></string>
+    <string name="openImage">Open Image</string>
+    <string name="registerButton">Załóż konto</string>
+    <string name="loginButton">ZALOGUJ SIĘ</string>
 </resources>
