@@ -14,6 +14,6 @@
     <br><b>Zaloguj się</b> jeśli posiadasz konto</br>
     <br><b>Zarejestruj się</b> jeśli nie posiadasz konta</br></string>
     <string name="openImage">Open Image</string>
-    <string name="registerButton">Załóż konto</string>
+    <string name="registerButton">ZAŁÓŻ KONTO</string>
     <string name="loginButton">ZALOGUJ SIĘ</string>
 </resources>

@@ -56,7 +56,7 @@
 
         android:layout_width="361dp"
         android:layout_height="39dp"
-        android:text="@string/registerButton"
+        android:text="@string/loginButton"
         tools:layout_editor_absoluteX="25dp"
         tools:layout_editor_absoluteY="579dp"></and>
 
