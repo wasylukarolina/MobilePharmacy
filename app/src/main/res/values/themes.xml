@@ -17,7 +17,7 @@
     <style name="button">
         <item name="android:background">@drawable/button</item>
         <item name="fontFamily">@font/AlegreyaSans</item>
-        <item name="android:textColor">@color/darkblue</item>
+        <item name="android:textColor">@color/red</item>
         <item name="android:textSize">14sp</item>
         <item name="android:textStyle">bold</item>
     </style>
