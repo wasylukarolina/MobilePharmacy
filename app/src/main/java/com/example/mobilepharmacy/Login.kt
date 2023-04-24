@@ -10,12 +10,33 @@ import android.widget.Toast
 import androidx.databinding.DataBindingUtil
 import com.example.mobilepharmacy.databinding.ActivityLogin2Binding
 import com.example.mobilepharmacy.databinding.ActivityMainBinding
+import com.google.firebase.auth.FirebaseAuth
 
 class Login : AppCompatActivity() {
 
+    private lateinit var binding: ActivityLogin2Binding
+    private lateinit var firebaseAuth: FirebaseAuth
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_login2)
+        binding = ActivityLogin2Binding.inflate(layoutInflater)
+        setContentView(binding.root)
+
+        binding.buttonLogin.setOnClickListener {
+            val email = binding.editTextEmail.text.toString()
+            val haslo = binding.editTextPassword.text.toString()
+
+
+            if (email.isNotEmpty() && haslo.isNotEmpty()) {
+                firebaseAuth.signInWithEmailAndPassword(email, haslo).addOnCompleteListener {
+                    if (it.isSuccessful) {
+                        val intent = Intent(this, RegisterActivity::class.java)
+                        startActivity(intent)
+                    } else {
+                        Toast.makeText(this, it.exception.toString(), Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
+        }
 
         val leftIcon: ImageView = findViewById(R.id.backButton)
 
