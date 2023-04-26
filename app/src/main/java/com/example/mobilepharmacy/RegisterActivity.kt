@@ -7,6 +7,7 @@ import android.os.Bundle
 import android.widget.ImageView
 import android.widget.Toast
 import com.example.mobilepharmacy.databinding.ActivityRegisterBinding
+import com.google.android.material.navigation.NavigationView
 import com.google.firebase.auth.FirebaseAuth
 
 class RegisterActivity : AppCompatActivity() {
@@ -19,7 +20,6 @@ class RegisterActivity : AppCompatActivity() {
 
         binding = ActivityRegisterBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
         firebaseAuth = FirebaseAuth.getInstance()
 
 
@@ -34,7 +34,7 @@ class RegisterActivity : AppCompatActivity() {
                 if (haslo == hasloRepeat) {
                     firebaseAuth.createUserWithEmailAndPassword(email, haslo).addOnCompleteListener {
                             if (it.isSuccessful) {
-                                val intent = Intent(this, RegisterActivity::class.java)
+                                val intent = Intent(this, Login::class.java)
                                 startActivity(intent)
                             } else {
                                 Toast.makeText(this, it.exception.toString(), Toast.LENGTH_SHORT)
@@ -57,5 +57,6 @@ class RegisterActivity : AppCompatActivity() {
             startActivity(intent)
             finish()
         }
+
     }
 }
