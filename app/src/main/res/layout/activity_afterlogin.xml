@@ -27,11 +27,24 @@
             android:layout_alignParentStart="true"
             android:layout_alignParentTop="true"
             android:layout_centerHorizontal="true"
-            android:layout_marginStart="36dp"
-            android:layout_marginTop="164dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="116dp"
             android:text="LEKI"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"></androidx.appcompat.widget.AppCompatButton>
+
+        <ImageView
+            android:id="@+id/addDrugIcon"
+            android:layout_width="39dp"
+            android:layout_height="37dp"
+            android:layout_alignParentTop="true"
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="3dp"
+            android:layout_toEndOf="@+id/updateDrugs"
+            android:src="@drawable/add"
+            app:layout_constraintStart_toEndOf="@+id/updateDrugs"
+            app:layout_constraintTop_toTopOf="@+id/updateDrugs" />
+
 
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/updateHealth"
@@ -41,8 +54,8 @@
             android:layout_alignParentStart="true"
             android:layout_alignParentTop="true"
             android:layout_centerHorizontal="true"
-            android:layout_marginStart="36dp"
-            android:layout_marginTop="244dp"
+            android:layout_marginStart="52dp"
+            android:layout_marginTop="208dp"
             android:text="STAN ZDROWIA"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"></androidx.appcompat.widget.AppCompatButton>
@@ -57,6 +70,18 @@
             android:layout_marginTop="360dp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"></CalendarView>
+
+        <TextView
+            android:id="@+id/historyTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="316dp"
+            android:text="Twoja historia:"
+            android:textColor="@color/black"
+            android:textSize="24sp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
 
     </androidx.constraintlayout.widget.ConstraintLayout>

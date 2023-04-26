@@ -80,6 +80,13 @@ class AfterLoginActivity : AppCompatActivity() {
                 }
         }
 
+        val addDrugIcon = findViewById<ImageView>(R.id.addDrugIcon)
+        addDrugIcon.setOnClickListener {
+            val intent = Intent(this, AddDrugActivity::class.java)
+            startActivity(intent)
+        }
+
+
     }
 
     private fun logout() {

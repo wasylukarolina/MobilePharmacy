@@ -12,6 +12,12 @@
         android:theme="@style/Theme.MobilePharmacy"
         tools:targetApi="31">
         <activity
+            android:name=".AddDrugActivity"
+            android:exported="false" />
+        <activity
+            android:name=".AddDrugsActivity"
+            android:exported="true" />
+        <activity
             android:name=".AfterLoginActivity"
             android:exported="true" />
         <activity
@@ -23,7 +29,6 @@
             android:exported="true"
             android:label="@string/app_name"
             android:launchMode="singleTop"
-
             android:theme="@style/Theme.MobilePharmacy.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
