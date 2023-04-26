@@ -4,7 +4,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:tools="http://schemas.android.com/tools"
-    tools:context=".RegisterActivity">
+    tools:context=".RegisterActivity"
+    android:background="@color/white">
 
     <include
         android:id="@+id/include"
@@ -26,6 +27,8 @@
             android:layout_marginBottom="16dp"
             android:layout_marginTop="90dp"
             android:hint="Email"
+            android:textColor="@color/black"
+            android:textColorHint="@color/black"
             android:inputType="textEmailAddress" />
 
         <EditText
@@ -34,6 +37,8 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
             android:hint="Imię"
+            android:textColor="@color/black"
+            android:textColorHint="@color/black"
             android:inputType="text" />
 
         <EditText
@@ -42,6 +47,8 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
             android:hint="Nazwisko"
+            android:textColor="@color/black"
+            android:textColorHint="@color/black"
             android:inputType="text" />
 
         <EditText
@@ -50,6 +57,8 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
             android:hint="Hasło"
+            android:textColor="@color/black"
+            android:textColorHint="@color/black"
             android:inputType="textPassword" />
 
         <EditText
@@ -58,6 +67,8 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="32dp"
             android:hint="Powtórz hasło"
+            android:textColor="@color/black"
+            android:textColorHint="@color/black"
             android:inputType="textPassword" />
 
         <androidx.appcompat.widget.AppCompatButton

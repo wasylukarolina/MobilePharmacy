@@ -49,24 +49,11 @@ class Login : AppCompatActivity() {
         val leftIcon: ImageView = findViewById(R.id.backButton)
 
         leftIcon.setOnClickListener{
-            val intent = Intent(this@Login, MainActivity::class.java)
+            val intent = Intent(this, MainActivity::class.java)
             startActivity(intent)
             finish()
         }
         // Sprawdzenie, czy dane logowania zostały zapamiętane w SharedPreferences
-        val sharedPreferences = getSharedPreferences("login", MODE_PRIVATE)
-        val email = sharedPreferences.getString("email", null)
-        val password = sharedPreferences.getString("password", null)
 
-        if (email != null && password != null) {
-            firebaseAuth.signInWithEmailAndPassword(email, password).addOnCompleteListener {
-                if (it.isSuccessful) {
-                    val intent = Intent(this, AfterLoginActivity::class.java)
-                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK)
-                    startActivity(intent)
-                    finish()
-                }
-            }
-        }
     }
 }

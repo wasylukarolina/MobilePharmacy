@@ -21,16 +21,25 @@ class MainActivity : AppCompatActivity() {
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        binding = ActivityMainBinding.inflate(layoutInflater)
-        setContentView(binding.root)
 
-        firebaseAuth = FirebaseAuth.getInstance()
-        if (firebaseAuth.currentUser != null) {
-            startActivity(Intent(this, AfterLoginActivity::class.java))
+        super.onCreate(savedInstanceState)
+
+        val sharedPreferences = getSharedPreferences("login", MODE_PRIVATE)
+        val email = sharedPreferences.getString("email", null)
+        val password = sharedPreferences.getString("password", null)
+
+        if (email != null && password != null) {
+            // Przekierowanie do AfterLoginActivity, jeśli użytkownik jest zalogowany
+            val intent = Intent(this, AfterLoginActivity::class.java)
+            startActivity(intent)
             finish()
+                } else {
+            setContentView(R.layout.activity_main)
         }
 
+
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
 
 

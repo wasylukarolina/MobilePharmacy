@@ -26,14 +26,6 @@ class AfterLoginActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_afterlogin)
 
-        // Inicjalizacja pola calendarView
-        calendarView = findViewById(R.id.calendarView)
-
-        // Ustawienie listenera dla zmiany wybranej daty
-        calendarView.setOnDateChangeListener { _, year, month, dayOfMonth ->
-            // Tutaj można wpisać kod, który wykona się po zmianie wybranej daty
-        }
-
         val drawerLayout : DrawerLayout = findViewById(R.id.calendar)
         val navigationView : NavigationView = findViewById(R.id.nav_view)
 
@@ -66,19 +58,20 @@ class AfterLoginActivity : AppCompatActivity() {
             }
         }
 
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
 
-        val sharedPref = getSharedPreferences("myPrefs", MODE_PRIVATE)
-        val email = sharedPref.getString("email", null)
-        val haslo = sharedPref.getString("password", null)
-
-        if (email != null && haslo != null) {
-            FirebaseAuth.getInstance().signInWithEmailAndPassword(email, haslo)
-                .addOnCompleteListener {
-                    if (it.isSuccessful) {
-                        // użytkownik zalogowany automatycznie
-                    }
-                }
-        }
+//        val sharedPref = getSharedPreferences("myPrefs", MODE_PRIVATE)
+//        val email = sharedPref.getString("email", null)
+//        val haslo = sharedPref.getString("password", null)
+//
+//        if (email != null && haslo != null) {
+//            FirebaseAuth.getInstance().signInWithEmailAndPassword(email, haslo)
+//                .addOnCompleteListener {
+//                    if (it.isSuccessful) {
+//                        // użytkownik zalogowany automatycznie
+//                    }
+//                }
+//        }
 
         val addDrugIcon = findViewById<ImageView>(R.id.addDrugIcon)
         addDrugIcon.setOnClickListener {
@@ -86,16 +79,18 @@ class AfterLoginActivity : AppCompatActivity() {
             startActivity(intent)
         }
 
-
     }
 
     private fun logout() {
         // Usunięcie informacji o zalogowanym użytkowniku
-        val sharedPreferences = getSharedPreferences("my_preferences", MODE_PRIVATE)
-        sharedPreferences.edit().remove("user_id").apply()
+        val sharedPreferences = getSharedPreferences("login", MODE_PRIVATE)
+        val editor = sharedPreferences.edit()
+        editor.remove("email")
+        editor.remove("password")
+        editor.apply()
 
-        // Przejście do ekranu logowania
-        val intent = Intent(this, Login::class.java)
+        val intent = Intent(this, MainActivity::class.java)
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK)
         startActivity(intent)
         finish()
     }

@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/white"
     tools:context=".Login">
 
     <include
@@ -27,6 +28,8 @@
             android:layout_marginBottom="16dp"
             android:layout_marginTop="90dp"
             android:hint="Email"
+            android:textColorHint="@color/black"
+            android:textColor="@color/black"
             android:inputType="textEmailAddress"
             android:minHeight="48dp" />
 
@@ -36,6 +39,8 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="32dp"
             android:hint="Hasło"
+            android:textColor="@color/black"
+            android:textColorHint="@color/black"
             android:inputType="textPassword"
             android:minHeight="48dp" />
 
