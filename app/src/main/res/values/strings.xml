@@ -1,4 +1,7 @@
 <resources>
+    <string name="open">Open</string>
+    <string name="close">Close</string>
+
     <string name="app_name">MobilePharmacy</string>
     <string name="action_settings">Settings</string>
     <!-- Strings used for fragments for navigation -->
