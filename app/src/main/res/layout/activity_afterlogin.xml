@@ -72,6 +72,7 @@
             android:textColor="@color/black"
             android:dateTextAppearance="@style/CalendarTextStyle"
             android:background="@drawable/calendar_border"
+            android:textColorPrimary="@color/black"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 

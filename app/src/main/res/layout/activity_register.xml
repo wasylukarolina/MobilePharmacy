@@ -29,7 +29,8 @@
             android:hint="Email"
             android:textColor="@color/black"
             android:textColorHint="@color/black"
-            android:inputType="textEmailAddress" />
+            android:inputType="textEmailAddress"
+            android:theme="@style/EditTextStyle"/>
 
         <EditText
             android:id="@+id/editTextFirstName"
@@ -39,7 +40,8 @@
             android:hint="Imię"
             android:textColor="@color/black"
             android:textColorHint="@color/black"
-            android:inputType="text" />
+            android:inputType="text"
+            android:theme="@style/EditTextStyle"/>
 
         <EditText
             android:id="@+id/editTextLastName"
@@ -49,7 +51,8 @@
             android:hint="Nazwisko"
             android:textColor="@color/black"
             android:textColorHint="@color/black"
-            android:inputType="text" />
+            android:inputType="text"
+            android:theme="@style/EditTextStyle"/>
 
         <EditText
             android:id="@+id/editTextPassword"
@@ -59,7 +62,8 @@
             android:hint="Hasło"
             android:textColor="@color/black"
             android:textColorHint="@color/black"
-            android:inputType="textPassword" />
+            android:inputType="textPassword"
+            android:theme="@style/EditTextStyle"/>
 
         <EditText
             android:id="@+id/editTextConfirmPassword"
@@ -69,7 +73,8 @@
             android:hint="Powtórz hasło"
             android:textColor="@color/black"
             android:textColorHint="@color/black"
-            android:inputType="textPassword" />
+            android:inputType="textPassword"
+            android:theme="@style/EditTextStyle"/>
 
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/buttonRegister"

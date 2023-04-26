@@ -31,7 +31,9 @@
             android:textColorHint="@color/black"
             android:textColor="@color/black"
             android:inputType="textEmailAddress"
-            android:minHeight="48dp" />
+            android:minHeight="48dp"
+            android:theme="@style/EditTextStyle" />
+
 
         <EditText
             android:id="@+id/editTextPassword"
@@ -42,7 +44,8 @@
             android:textColor="@color/black"
             android:textColorHint="@color/black"
             android:inputType="textPassword"
-            android:minHeight="48dp" />
+            android:minHeight="48dp"
+            android:theme="@style/EditTextStyle"/>
 
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/buttonLogin"
