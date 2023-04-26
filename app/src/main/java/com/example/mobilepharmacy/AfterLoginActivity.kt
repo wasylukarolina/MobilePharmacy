@@ -1,5 +1,6 @@
 package com.example.mobilepharmacy
 
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.Menu
@@ -42,19 +43,29 @@ class AfterLoginActivity : AppCompatActivity() {
 
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
-        navigationView.setNavigationItemSelectedListener {
-            when(it.itemId){
-
-                R.id.nav_home -> Toast.makeText(applicationContext, "Kliknąłęś dom", Toast.LENGTH_SHORT).show()
-                R.id.nav_account -> Toast.makeText(applicationContext, "Kliknąłęś konto", Toast.LENGTH_SHORT).show()
-                R.id.nav_settings -> Toast.makeText(applicationContext, "Kliknąłęś ustawienia", Toast.LENGTH_SHORT).show()
-                R.id.nav_logout -> Toast.makeText(applicationContext, "Kliknąłęś logout", Toast.LENGTH_SHORT).show()
-
-
+        navigationView.setNavigationItemSelectedListener { menuItem ->
+            when (menuItem.itemId) {
+                R.id.nav_home -> {
+                    // Obsługa kliknięcia przycisku "Home"
+                    true
+                }
+                R.id.nav_account -> {
+                    // Obsługa kliknięcia przycisku "Account"
+                    true
+                }
+                R.id.nav_settings -> {
+                    // Obsługa kliknięcia przycisku "Settings"
+                    true
+                }
+                R.id.nav_logout -> {
+                    // Obsługa kliknięcia przycisku "Logout"
+                    logout()
+                    true
+                }
+                else -> false
             }
-
-            true
         }
+
 
         val sharedPref = getSharedPreferences("myPrefs", MODE_PRIVATE)
         val email = sharedPref.getString("email", null)
@@ -71,17 +82,39 @@ class AfterLoginActivity : AppCompatActivity() {
 
     }
 
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+    private fun logout() {
+        // Usunięcie informacji o zalogowanym użytkowniku
+        val sharedPreferences = getSharedPreferences("my_preferences", MODE_PRIVATE)
+        sharedPreferences.edit().remove("user_id").apply()
 
-        if(toggle.onOptionsItemSelected(item)) {
-            return true
-        }
-        return super.onOptionsItemSelected(item)
+        // Przejście do ekranu logowania
+        val intent = Intent(this, Login::class.java)
+        startActivity(intent)
+        finish()
     }
 
     override fun onBackPressed() {
         // zakaz cofania
     }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
+            R.id.nav_logout -> {
+                FirebaseAuth.getInstance().signOut()
+                val intent = if (FirebaseAuth.getInstance().currentUser == null) {
+                    Intent(this, MainActivity::class.java)
+                } else {
+                    Intent(this, Login::class.java)
+                }
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                startActivity(intent)
+                finish()
+                return true
+            }
+            else -> return super.onOptionsItemSelected(item)
+        }
+    }
+
 
 
 }
