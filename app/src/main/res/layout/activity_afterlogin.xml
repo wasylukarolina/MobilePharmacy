@@ -40,7 +40,7 @@
             android:layout_width="39dp"
             android:layout_height="37dp"
             android:layout_alignParentTop="true"
-            android:layout_marginStart="24dp"
+            android:layout_marginStart="4dp"
             android:layout_marginTop="8dp"
             android:layout_toEndOf="@+id/updateDrugs"
             android:src="@drawable/add"
