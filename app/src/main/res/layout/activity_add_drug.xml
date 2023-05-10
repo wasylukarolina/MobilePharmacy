@@ -16,26 +16,48 @@
         android:layout_height="wrap_content"
         android:text="Data ważności"/>
 
-    <DatePicker
-        android:id="@+id/datePickerWaznosc"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <NumberPicker
+            android:id="@+id/numberPickerDay"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            />
+
+        <NumberPicker
+            android:id="@+id/numberPickerMonth"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            />
+
+        <NumberPicker
+            android:id="@+id/numberPickerYear"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            />
+    </LinearLayout>
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Dawkowanie"/>
 
-    <NumberPicker
-        android:id="@+id/numberPickerDawkowanie"
+    <Spinner
+        android:id="@+id/spinnerDawkowanie"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:descendantFocusability="blocksDescendants"/>
+        android:layout_height="wrap_content"/>
 
-    <Button
+    <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/buttonDodaj"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="DODAJ"
+        style="@style/button"
         android:layout_marginTop="16dp"/>
 </LinearLayout>
