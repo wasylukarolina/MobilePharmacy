@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "659189292401",
+    "project_id": "mobile-pharmacyzpo",
+    "storage_bucket": "mobile-pharmacyzpo.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:659189292401:android:ee0ba3f61643dbfac7ead0",
+        "android_client_info": {
+          "package_name": "com.example.mobilepharmacy"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "659189292401-d3qg83jm345o3u8bfd8u26r8keig30r9.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBleyH8Z13JoJqt_fcsxaIMgIrhBz242_Q"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "659189292401-d3qg83jm345o3u8bfd8u26r8keig30r9.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

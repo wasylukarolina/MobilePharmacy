@@ -22,7 +22,7 @@
         <item name="android:background">@drawable/calendar_border</item>
         <item name="android:datePickerMode">calendar</item>
         <item name="android:datePickerDialogTheme">@style/ThemeOverlay.MaterialComponents.Dialog</item>
-        <item name="android:datePickerTextColor">#AD4027</item>
+<!--        <item name="android:datePickerTextColor">#AD4027</item>-->
     </style>
 
     <style name="button">
