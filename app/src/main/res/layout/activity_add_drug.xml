@@ -5,6 +5,7 @@
     android:layout_height="match_parent"
     android:padding="16dp">
 
+    <!--        tutaj powinno być wyszukiwanie leków-->
     <EditText
         android:id="@+id/editTextNazwaLeku"
         android:layout_width="match_parent"
@@ -53,6 +54,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"/>
 
+<!--    po kliknięciu tego przycisku dane powinny się dodawać do firebase użytkownika-->
     <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/buttonDodaj"
         android:layout_width="match_parent"

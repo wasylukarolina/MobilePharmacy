@@ -10,6 +10,8 @@ import androidx.appcompat.app.AlertDialog
 
 class AddDrugActivity : AppCompatActivity() {
 
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_add_drug)

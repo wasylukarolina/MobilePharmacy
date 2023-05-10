@@ -19,7 +19,7 @@
             android:id="@+id/toolbar"
             layout="@layout/sessiontoolbar" />
 
-
+<!--    po kliknięciu wyswietla się lista leków pacjenta wraz z godiznami o których je bierze-->
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/updateDrugs"
             style="@style/button"
@@ -34,7 +34,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"></androidx.appcompat.widget.AppCompatButton>
 
-
+<!--po kliknięciu wyświetla się opcja dodaj lek-->
         <ImageView
             android:id="@+id/addDrugIcon"
             android:layout_width="39dp"
