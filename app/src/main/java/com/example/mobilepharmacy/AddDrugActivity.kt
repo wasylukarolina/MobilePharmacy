@@ -29,15 +29,15 @@ class AddDrugActivity : AppCompatActivity() {
 
         // Konfiguracja slidów
 
-// Slid dla dni
+    // Slide dla dni
         numberPickerDay.minValue = 1
         numberPickerDay.maxValue = 31
 
-// Slid dla miesięcy
+    // Slide dla miesięcy
         numberPickerMonth.minValue = 1
         numberPickerMonth.maxValue = 12
 
-// Slid dla lat
+    // Slide dla lat
         numberPickerYear.minValue = 2023
         numberPickerYear.maxValue = 2035
 
@@ -50,10 +50,6 @@ class AddDrugActivity : AppCompatActivity() {
             }
             numberPickerDay.maxValue = daysInMonth
         }
-
-
-
-
 
         //        Lista leków
         val drugsList: ArrayList<String> = ArrayList()
