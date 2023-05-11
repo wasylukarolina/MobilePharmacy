@@ -7,12 +7,15 @@ import android.view.MenuItem
 import android.view.View
 import android.widget.*
 import androidx.appcompat.app.AlertDialog
+import com.google.android.material.textfield.TextInputLayout
 import org.xmlpull.v1.XmlPullParser
 import org.xmlpull.v1.XmlPullParserException
 import org.xmlpull.v1.XmlPullParserFactory
 import java.io.IOException
 
 class AddDrugActivity : AppCompatActivity() {
+    private var quantity: Int = 0
+    private lateinit var timePickerLayout: TextInputLayout
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -35,35 +38,9 @@ class AddDrugActivity : AppCompatActivity() {
         numberPickerMonth.maxValue = 12
 
         // Slid dla lat
-        numberPickerYear.minValue = 1900
-        numberPickerYear.maxValue = 2100
+        numberPickerYear.minValue = 2019
+        numberPickerYear.maxValue = 2023
 
-
-        val spinnerDawkowanie = findViewById<Spinner>(R.id.spinnerDawkowanie)
-
-        val dawkowanieOptions = arrayOf("Opcja 1", "Opcja 2", "Opcja 3", "Własne")
-
-        val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, dawkowanieOptions)
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        spinnerDawkowanie.adapter = adapter
-
-        spinnerDawkowanie.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(
-                parent: AdapterView<*>?,
-                view: View?,
-                position: Int,
-                id: Long
-            ) {
-                val selectedItem = parent?.getItemAtPosition(position).toString()
-                if (selectedItem == "Własne") {
-                    showCustomValueDialog()
-                }
-            }
-
-            override fun onNothingSelected(parent: AdapterView<*>?) {
-                // Nie wykonujemy żadnej akcji
-            }
-        }
 
         //        Lista leków
         val drugsList: ArrayList<String> = ArrayList()
@@ -102,40 +79,42 @@ class AddDrugActivity : AppCompatActivity() {
             e.printStackTrace()
         }
 
+        //obsługa wyboru dawkowania
 
+        val quantityOptions = resources.getStringArray(R.array.quantity_options)
+        val quantityAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, quantityOptions)
+        quantityAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        val quantitySpinner = findViewById<Spinner>(R.id.quantitySpinner)
+        quantitySpinner.adapter = quantityAdapter
 
+        timePickerLayout = findViewById(R.id.timePickerLayout)
+
+        quantitySpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                quantity = position + 1
+                updateTimeWindows()
+            }
+
+            override fun onNothingSelected(parent: AdapterView<*>?) {
+                // Nie wykonujemy żadnej akcji
+            }
+        }
     }
 
-    private fun showCustomValueDialog() {
-        val editText = EditText(this)
-        val dialog = AlertDialog.Builder(this)
-            .setTitle("Wprowadź własną wartość")
-            .setView(editText)
-            .setPositiveButton("Dodaj") { dialog, _ ->
-                val customValue = editText.text.toString()
-                if (customValue.isNotEmpty()) {
-                    val value = customValue.toIntOrNull()
-                    if (value != null && value in 1..25) {
-                        val spinnerDawkowanie = findViewById<Spinner>(R.id.spinnerDawkowanie)
-                        val adapter = spinnerDawkowanie.adapter as ArrayAdapter<String>
-                        adapter.add(customValue)
-                        spinnerDawkowanie.setSelection(adapter.count - 1)
-                    } else {
-                        Toast.makeText(
-                            applicationContext,
-                            "Wprowadź liczbę z zakresu 1-25",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                    }
-                }
-                dialog.dismiss()
-            }
-            .setNegativeButton("Anuluj") { dialog, _ ->
-                dialog.dismiss()
-            }
-            .create()
-        dialog.show()
+    private fun updateTimeWindows() {
+        timePickerLayout.removeAllViews()
+
+        for (i in 1..quantity) {
+            val timePicker = TimePicker(this)
+            timePicker.setIs24HourView(true)
+
+            timePickerLayout.addView(timePicker)
+        }
+
+        timePickerLayout.visibility = View.VISIBLE
     }
+
+
 
     @Throws(XmlPullParserException::class, IOException::class)
     fun parseXml(parser: XmlPullParser): ArrayList<Drugs>? {
@@ -165,4 +144,6 @@ class AddDrugActivity : AppCompatActivity() {
         }
         return drugs
     }
+
+
 }

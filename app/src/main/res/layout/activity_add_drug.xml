@@ -1,73 +1,83 @@
-<LinearLayout
+<ScrollView
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:padding="16dp">
 
-    <!--        tutaj powinno być wyszukiwanie leków-->
-    <com.google.android.material.textfield.TextInputLayout
+    <LinearLayout
+        android:orientation="vertical"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="Wybierz lek"
-        style = "@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
-        >
+        android:layout_height="wrap_content">
 
-        <AutoCompleteTextView
-            android:id="@+id/auto_complete_txt"
+        <!--        tutaj powinno być wyszukiwanie leków-->
+
+        <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:inputType="none"/>
-    </com.google.android.material.textfield.TextInputLayout>
+            android:hint="Wybierz lek"
+            style = "@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu">
 
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Data ważności"/>
+            <AutoCompleteTextView
+                android:id="@+id/auto_complete_txt"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="none"/>
+        </com.google.android.material.textfield.TextInputLayout>
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
-
-        <NumberPicker
-            android:id="@+id/numberPickerDay"
-            android:layout_width="0dp"
+        <TextView
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            />
+            android:text="Data ważności"/>
 
-        <NumberPicker
-            android:id="@+id/numberPickerMonth"
-            android:layout_width="0dp"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            />
+            android:orientation="horizontal">
 
-        <NumberPicker
-            android:id="@+id/numberPickerYear"
-            android:layout_width="0dp"
+            <NumberPicker
+                android:id="@+id/numberPickerDay"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"/>
+
+            <NumberPicker
+                android:id="@+id/numberPickerMonth"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"/>
+
+            <NumberPicker
+                android:id="@+id/numberPickerYear"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"/>
+        </LinearLayout>
+
+        <TextView
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            />
+            android:text="Dawkowanie"/>
+
+        <Spinner
+            android:id="@+id/quantitySpinner"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:entries="@array/quantity_options" />
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/timePickerLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:visibility="gone" />
+
+        <!--    po kliknięciu tego przycisku dane powinny się dodawać do firebase użytkownika-->
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/buttonDodaj"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="DODAJ"
+            style="@style/button"
+            android:layout_marginTop="16dp"/>
     </LinearLayout>
-
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Dawkowanie"/>
-
-    <Spinner
-        android:id="@+id/spinnerDawkowanie"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
-
-<!--    po kliknięciu tego przycisku dane powinny się dodawać do firebase użytkownika-->
-    <androidx.appcompat.widget.AppCompatButton
-        android:id="@+id/buttonDodaj"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="DODAJ"
-        style="@style/button"
-        android:layout_marginTop="16dp"/>
-</LinearLayout>
+</ScrollView>
