@@ -29,17 +29,30 @@ class AddDrugActivity : AppCompatActivity() {
 
         // Konfiguracja slidów
 
-        // Slid dla dni
+// Slid dla dni
         numberPickerDay.minValue = 1
         numberPickerDay.maxValue = 31
 
-        // Slid dla miesięcy
+// Slid dla miesięcy
         numberPickerMonth.minValue = 1
         numberPickerMonth.maxValue = 12
 
-        // Slid dla lat
-        numberPickerYear.minValue = 2019
-        numberPickerYear.maxValue = 2023
+// Slid dla lat
+        numberPickerYear.minValue = 2023
+        numberPickerYear.maxValue = 2035
+
+        numberPickerMonth.setOnValueChangedListener { _, _, newVal ->
+            val selectedMonth = newVal
+            val daysInMonth = when (selectedMonth) {
+                2 -> if (isLeapYear(numberPickerYear.value)) 29 else 28
+                4, 6, 9, 11 -> 30
+                else -> 31
+            }
+            numberPickerDay.maxValue = daysInMonth
+        }
+
+
+
 
 
         //        Lista leków
@@ -99,6 +112,11 @@ class AddDrugActivity : AppCompatActivity() {
                 // Nie wykonujemy żadnej akcji
             }
         }
+    }
+
+    // Funkcja sprawdzająca, czy rok jest przestępny
+    private fun isLeapYear(year: Int): Boolean {
+        return year % 4 == 0 && (year % 100 != 0 || year % 400 == 0)
     }
 
     private fun updateTimeWindows() {
