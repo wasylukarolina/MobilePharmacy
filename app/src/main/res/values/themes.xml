@@ -27,13 +27,26 @@
         <item name="android:height">40dp</item>
     </style>
 
+    <style name="FilledBoxStyle" parent="Widget.MaterialComponents.TextInputLayout.FilledBox">
+        <item name="boxBackgroundColor">#aa412a</item>
+    </style>
 
 
 
-
-
-
-
+    <style name="Widget.MaterialComponents.TextInputLayout.FilledBox" parent="Base.Widget.MaterialComponents.TextInputLayout">
+        <item name="materialThemeOverlay">
+            @style/ThemeOverlay.MaterialComponents.TextInputEditText.FilledBox
+        </item>
+        <item name="boxBackgroundMode">filled</item>
+        <item name="boxBackgroundColor">#aa412a</item>
+        <item name="endIconTint">@color/mtrl_filled_icon_tint</item>
+        <item name="startIconTint">@color/mtrl_filled_icon_tint</item>
+        <item name="boxCollapsedPaddingTop">10dp</item>
+        <item name="boxStrokeColor">@color/mtrl_filled_stroke_color</item>
+        <item name="shapeAppearanceOverlay">
+            @style/ShapeAppearanceOverlay.MaterialComponents.TextInputLayout.FilledBox
+        </item>
+    </style>
 
     <style name="CalendarViewStyle" parent="@android:style/Widget.CalendarView">
         <item name="android:textColor">@color/black</item>
