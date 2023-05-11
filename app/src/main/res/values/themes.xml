@@ -32,7 +32,6 @@
     </style>
 
 
-
     <style name="Widget.MaterialComponents.TextInputLayout.FilledBox" parent="Base.Widget.MaterialComponents.TextInputLayout">
         <item name="materialThemeOverlay">
             @style/ThemeOverlay.MaterialComponents.TextInputEditText.FilledBox
