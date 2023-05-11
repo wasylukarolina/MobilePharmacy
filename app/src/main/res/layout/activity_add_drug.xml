@@ -70,8 +70,7 @@
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:visibility="gone"
-            style="@style/FilledBoxStyle"
-            android:background="#aa412a">
+            style="@style/FilledBoxStyle">
 
 
         <!-- Pozostałe elementy wewnątrz TextInputLayout -->
