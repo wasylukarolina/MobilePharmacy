@@ -8,10 +8,11 @@ import android.view.View
 import android.widget.*
 import androidx.appcompat.app.AlertDialog
 import org.xmlpull.v1.XmlPullParser
+import org.xmlpull.v1.XmlPullParserException
 import org.xmlpull.v1.XmlPullParserFactory
+import java.io.IOException
 
 class AddDrugActivity : AppCompatActivity() {
-
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -47,7 +48,12 @@ class AddDrugActivity : AppCompatActivity() {
         spinnerDawkowanie.adapter = adapter
 
         spinnerDawkowanie.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+            override fun onItemSelected(
+                parent: AdapterView<*>?,
+                view: View?,
+                position: Int,
+                id: Long
+            ) {
                 val selectedItem = parent?.getItemAtPosition(position).toString()
                 if (selectedItem == "Własne") {
                     showCustomValueDialog()
@@ -61,38 +67,43 @@ class AddDrugActivity : AppCompatActivity() {
 
         //        Lista leków
         val drugsList: ArrayList<String> = ArrayList()
-        var xml_data = assets.open("Rejestr_Produktow_Leczniczych_calosciowy_stan_na_dzien_20230511.xml")
-        var factory: XmlPullParserFactory = XmlPullParserFactory.newInstance()
-        var parser: XmlPullParser = factory.newPullParser()
 
-        parser.setInput(xml_data, null)
+        var pullParserFactory: XmlPullParserFactory
+        try {
+            pullParserFactory = XmlPullParserFactory.newInstance()
+            val parser = pullParserFactory.newPullParser()
+            val inputStream =
+                applicationContext.assets.open("Rejestr_Produktow_Leczniczych_calosciowy_stan_na_dzien_20230511.xml")
+            parser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, false)
+            parser.setInput(inputStream, null)
 
-        var event: Int = parser.eventType
-        while (event != XmlPullParser.END_DOCUMENT) {
-            var tag_name: String = parser.name
-            when (event) {
-                XmlPullParser.END_TAG -> {
-                    if (tag_name == "produktLeczniczy") {
-                        var name: String = "\n" + parser.getAttributeValue(0)
-                        drugsList.add(name)
-                    }
-                }
+            val drugs = parseXml(parser)
+            val drugsList: ArrayList<String> = ArrayList()
+
+            for (drug in drugs!!) {
+                drugsList.add(drug.nazwaProduktu)
             }
-            event = parser.next()
+
+            //       rozwijalne menu
+            val autoComplete: AutoCompleteTextView = findViewById(R.id.auto_complete_txt)
+
+            val adapter2 = ArrayAdapter(this, R.layout.list_drugs, drugsList)
+
+            autoComplete.setAdapter(adapter2)
+
+            autoComplete.onItemClickListener =
+                AdapterView.OnItemClickListener { adapterView, view, i, l ->
+                    val itemSelected = adapterView.getItemAtPosition(i)
+                    Toast.makeText(this, "$itemSelected", Toast.LENGTH_SHORT).show()
+                }
+        } catch (e: XmlPullParserException) {
+            e.printStackTrace()
+        } catch (e: IOException) {
+            e.printStackTrace()
         }
 
-//       rozwijalne menu
-        val autoComplete: AutoCompleteTextView = findViewById(R.id.auto_complete_txt)
 
-        val adapter2 = ArrayAdapter(this, R.layout.list_drugs, drugsList)
 
-        autoComplete.setAdapter(adapter2)
-
-        autoComplete.onItemClickListener =
-            AdapterView.OnItemClickListener { adapterView, view, i, l ->
-                val itemSelected = adapterView.getItemAtPosition(i)
-                Toast.makeText(this, "$itemSelected",Toast.LENGTH_SHORT).show()
-            }
     }
 
     private fun showCustomValueDialog() {
@@ -110,7 +121,11 @@ class AddDrugActivity : AppCompatActivity() {
                         adapter.add(customValue)
                         spinnerDawkowanie.setSelection(adapter.count - 1)
                     } else {
-                        Toast.makeText(applicationContext, "Wprowadź liczbę z zakresu 1-25", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(
+                            applicationContext,
+                            "Wprowadź liczbę z zakresu 1-25",
+                            Toast.LENGTH_SHORT
+                        ).show()
                     }
                 }
                 dialog.dismiss()
@@ -122,5 +137,32 @@ class AddDrugActivity : AppCompatActivity() {
         dialog.show()
     }
 
+    @Throws(XmlPullParserException::class, IOException::class)
+    fun parseXml(parser: XmlPullParser): ArrayList<Drugs>? {
+        var drugs: ArrayList<Drugs>? = null
+        var eventType = parser.eventType
+        var drug: Drugs? = null
 
+        while (eventType != XmlPullParser.END_DOCUMENT) {
+            val name: String
+            when (eventType) {
+                XmlPullParser.START_DOCUMENT -> drugs = ArrayList()
+                XmlPullParser.START_TAG -> {
+                    name = parser.name
+                    if (name == "produktLeczniczy") {
+                        drug = Drugs()
+                        drug.nazwaProduktu = parser.getAttributeValue(null, "nazwaProduktu")
+                    }
+                }
+                XmlPullParser.END_TAG -> {
+                    name = parser.name
+                    if (name.equals("produktLeczniczy", ignoreCase = true) && drug != null) {
+                        drugs!!.add(drug)
+                    }
+                }
+            }
+            eventType = parser.next()
+        }
+        return drugs
+    }
 }
