@@ -12,6 +12,10 @@ import org.xmlpull.v1.XmlPullParser
 import org.xmlpull.v1.XmlPullParserException
 import org.xmlpull.v1.XmlPullParserFactory
 import java.io.IOException
+import com.google.firebase.database.DatabaseReference
+import com.google.firebase.database.FirebaseDatabase
+
+
 
 class AddDrugActivity : AppCompatActivity() {
     private var quantity: Int = 0
@@ -21,6 +25,44 @@ class AddDrugActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_add_drug)
+        var databaseRef = FirebaseDatabase.getInstance().reference
+
+        fun saveDataToFirebase() {
+            val autoComplete: AutoCompleteTextView = findViewById(R.id.auto_complete_txt)
+            val nazwaProduktu = autoComplete.text.toString()
+
+            val numberPickerDay = findViewById<NumberPicker>(R.id.numberPickerDay)
+            val numberPickerMonth = findViewById<NumberPicker>(R.id.numberPickerMonth)
+            val numberPickerYear = findViewById<NumberPicker>(R.id.numberPickerYear)
+            val day = numberPickerDay.value
+            val month = numberPickerMonth.value
+            val year = numberPickerYear.value
+            val dataWaznosci = String.format("%02d.%02d.%d", day, month, year)
+
+            val timePickerLayout = findViewById<TextInputLayout>(R.id.timePickerLayout)
+            val dawkowanie = ArrayList<String>()
+            for (i in 0 until timePickerLayout.childCount) {
+                val timePicker = timePickerLayout.getChildAt(i) as TimePicker
+                val hour = timePicker.hour
+                val minute = timePicker.minute
+                val timeString = String.format("%02d:%02d", hour, minute)
+                dawkowanie.add(timeString)
+            }
+
+            val drugRef = databaseRef.child("leki").push()
+            drugRef.child("nazwaProduktu").setValue(nazwaProduktu)
+            drugRef.child("dataWaznosci").setValue(dataWaznosci)
+            drugRef.child("dawkowanie").setValue(dawkowanie)
+
+            Toast.makeText(this, "Dane zostały zapisane do Firebase.", Toast.LENGTH_SHORT).show()
+        }
+
+        val buttonZapisz = findViewById<Button>(R.id.buttonDodaj)
+        buttonZapisz.setOnClickListener {
+            saveDataToFirebase()
+        }
+
+
 
         // Uzyskanie referencji do slidów
         val numberPickerDay = findViewById<NumberPicker>(R.id.numberPickerDay)
