@@ -1,7 +1,9 @@
 package com.example.mobilepharmacy
 
+import android.content.ContentValues.TAG
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -12,9 +14,7 @@ import org.xmlpull.v1.XmlPullParser
 import org.xmlpull.v1.XmlPullParserException
 import org.xmlpull.v1.XmlPullParserFactory
 import java.io.IOException
-import com.google.firebase.database.DatabaseReference
-import com.google.firebase.database.FirebaseDatabase
-
+import com.google.firebase.firestore.FirebaseFirestore
 
 
 class AddDrugActivity : AppCompatActivity() {
@@ -25,40 +25,9 @@ class AddDrugActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_add_drug)
-        var databaseRef = FirebaseDatabase.getInstance().reference
 
-        fun saveDataToFirebase() {
-            val autoComplete: AutoCompleteTextView = findViewById(R.id.auto_complete_txt)
-            val nazwaProduktu = autoComplete.text.toString()
-
-            val numberPickerDay = findViewById<NumberPicker>(R.id.numberPickerDay)
-            val numberPickerMonth = findViewById<NumberPicker>(R.id.numberPickerMonth)
-            val numberPickerYear = findViewById<NumberPicker>(R.id.numberPickerYear)
-            val day = numberPickerDay.value
-            val month = numberPickerMonth.value
-            val year = numberPickerYear.value
-            val dataWaznosci = String.format("%02d.%02d.%d", day, month, year)
-
-            val timePickerLayout = findViewById<TextInputLayout>(R.id.timePickerLayout)
-            val dawkowanie = ArrayList<String>()
-            for (i in 0 until timePickerLayout.childCount) {
-                val timePicker = timePickerLayout.getChildAt(i) as TimePicker
-                val hour = timePicker.hour
-                val minute = timePicker.minute
-                val timeString = String.format("%02d:%02d", hour, minute)
-                dawkowanie.add(timeString)
-            }
-
-            val drugRef = databaseRef.child("leki").push()
-            drugRef.child("nazwaProduktu").setValue(nazwaProduktu)
-            drugRef.child("dataWaznosci").setValue(dataWaznosci)
-            drugRef.child("dawkowanie").setValue(dawkowanie)
-
-            Toast.makeText(this, "Dane zostały zapisane do Firebase.", Toast.LENGTH_SHORT).show()
-        }
-
-        val buttonZapisz = findViewById<Button>(R.id.buttonDodaj)
-        buttonZapisz.setOnClickListener {
+        val buttonDodaj = findViewById<Button>(R.id.buttonDodaj)
+        buttonDodaj.setOnClickListener {
             saveDataToFirebase()
         }
 
@@ -71,15 +40,15 @@ class AddDrugActivity : AppCompatActivity() {
 
         // Konfiguracja slidów
 
-    // Slide dla dni
+        // Slide dla dni
         numberPickerDay.minValue = 1
         numberPickerDay.maxValue = 31
 
-    // Slide dla miesięcy
+        // Slide dla miesięcy
         numberPickerMonth.minValue = 1
         numberPickerMonth.maxValue = 12
 
-    // Slide dla lat
+        // Slide dla lat
         numberPickerYear.minValue = 2023
         numberPickerYear.maxValue = 2035
 
@@ -112,7 +81,7 @@ class AddDrugActivity : AppCompatActivity() {
                 drugsList.add(drug.nazwaProduktu)
             }
 
-            //       rozwijalne menu
+            //  rozwijalne menu
             val autoComplete: AutoCompleteTextView = findViewById(R.id.auto_complete_txt)
 
             val adapter2 = ArrayAdapter(this, R.layout.list_drugs, drugsList)
@@ -133,7 +102,8 @@ class AddDrugActivity : AppCompatActivity() {
         //obsługa wyboru dawkowania
 
         val quantityOptions = resources.getStringArray(R.array.quantity_options)
-        val quantityAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, quantityOptions)
+        val quantityAdapter =
+            ArrayAdapter(this, android.R.layout.simple_spinner_item, quantityOptions)
         quantityAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         val quantitySpinner = findViewById<Spinner>(R.id.quantitySpinner)
         quantitySpinner.adapter = quantityAdapter
@@ -141,7 +111,12 @@ class AddDrugActivity : AppCompatActivity() {
         timePickerLayout = findViewById(R.id.timePickerLayout)
 
         quantitySpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+            override fun onItemSelected(
+                parent: AdapterView<*>?,
+                view: View?,
+                position: Int,
+                id: Long
+            ) {
                 quantity = position + 1
                 updateTimeWindows()
             }
@@ -151,6 +126,50 @@ class AddDrugActivity : AppCompatActivity() {
             }
         }
     }
+
+    private fun saveDataToFirebase() {
+        val autoComplete: AutoCompleteTextView = findViewById(R.id.auto_complete_txt)
+        val nazwaProduktu = autoComplete.text.toString()
+
+        val numberPickerDay = findViewById<NumberPicker>(R.id.numberPickerDay)
+        val numberPickerMonth = findViewById<NumberPicker>(R.id.numberPickerMonth)
+        val numberPickerYear = findViewById<NumberPicker>(R.id.numberPickerYear)
+        val day = numberPickerDay.value
+        val month = numberPickerMonth.value
+        val year = numberPickerYear.value
+        val dataWaznosci = String.format("%02d-%02d-%d", day, month, year)
+
+        val timePickerLayout = findViewById<TextInputLayout>(R.id.timePickerLayout)
+        val dawkowanie = ArrayList<String>()
+        for (i in 0 until timePickerLayout.childCount) {
+            val timePicker = timePickerLayout.getChildAt(i) as TimePicker
+            val hour = timePicker.hour
+            val minute = timePicker.minute
+            val timeString = String.format("%02d:%02d", hour, minute)
+            dawkowanie.add(timeString)
+        }
+
+        val firestoreDB = FirebaseFirestore.getInstance()
+
+        // Tworzenie mapy z danymi
+        val dataMap = hashMapOf<String, Any>()
+        dataMap["nazwaProduktu"] = nazwaProduktu
+        dataMap["dataWaznosci"] = dataWaznosci
+        dataMap["dawkowanie"] = dawkowanie
+
+        // Dodawanie danych do Firestore
+        firestoreDB.collection("leki")
+            .add(dataMap)
+            .addOnSuccessListener {
+                Toast.makeText(this, "Dane zostały dodane do Firestore.", Toast.LENGTH_SHORT).show()
+            }
+            .addOnFailureListener { e ->
+                Log.e(TAG, "Błąd podczas dodawania danych do Firestore", e)
+                Toast.makeText(this, "Wystąpił błąd", Toast.LENGTH_SHORT).show()
+            }
+    }
+
+
 
     // Funkcja sprawdzająca, czy rok jest przestępny
     private fun isLeapYear(year: Int): Boolean {
@@ -169,7 +188,6 @@ class AddDrugActivity : AppCompatActivity() {
 
         timePickerLayout.visibility = View.VISIBLE
     }
-
 
 
     @Throws(XmlPullParserException::class, IOException::class)
