@@ -29,7 +29,7 @@ class AfterLoginActivity : AppCompatActivity() {
         val drawerLayout : DrawerLayout = findViewById(R.id.calendar)
         val navigationView : NavigationView = findViewById(R.id.nav_view)
 
-        toggle = ActionBarDrawerToggle(this, drawerLayout,   R.string.open, R.string.close)
+        toggle = ActionBarDrawerToggle(this,  drawerLayout,   R.string.open, R.string.close)
         drawerLayout.addDrawerListener(toggle)
         toggle.syncState()
 

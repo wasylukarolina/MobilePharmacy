@@ -7,5 +7,11 @@
     <color name="purple">#356F90</color>
     <color name="darkgray">#555555</color>
     <color name="red">#AD4027</color>
+    <color name="colorAccent">#AD4027</color>
+
+
+    <color name="custom_timepicker_text">#FF0000</color>
+    <color name="custom_timepicker_background">#00FF00</color>
+
 
 </resources>
