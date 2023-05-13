@@ -133,15 +133,15 @@ class AddDrugActivity : AppCompatActivity() {
 
         // Konfiguracja slidów
 
-    // Slide dla dni
+        // Slide dla dni
         numberPickerDay.minValue = 1
         numberPickerDay.maxValue = 31
 
-    // Slide dla miesięcy
+        // Slide dla miesięcy
         numberPickerMonth.minValue = 1
         numberPickerMonth.maxValue = 12
 
-    // Slide dla lat
+        // Slide dla lat
         numberPickerYear.minValue = 2023
         numberPickerYear.maxValue = 2035
 
@@ -276,13 +276,12 @@ class AddDrugActivity : AppCompatActivity() {
         timePickerLayout.visibility = View.VISIBLE
     }
 
-
-
     @Throws(XmlPullParserException::class, IOException::class)
     fun parseXml(parser: XmlPullParser): ArrayList<Drugs>? {
         var drugs: ArrayList<Drugs>? = null
         var eventType = parser.eventType
         var drug: Drugs? = null
+        var isOTC = false
 
         while (eventType != XmlPullParser.END_DOCUMENT) {
             val name: String
@@ -293,11 +292,14 @@ class AddDrugActivity : AppCompatActivity() {
                     if (name == "produktLeczniczy") {
                         drug = Drugs()
                         drug.nazwaProduktu = parser.getAttributeValue(null, "nazwaProduktu")
+                    } else if (name == "opakowanie") {
+                        val kategoriaDostepnosci = parser.getAttributeValue(null, "kategoriaDostepnosci")
+                        isOTC = kategoriaDostepnosci == "OTC"
                     }
                 }
                 XmlPullParser.END_TAG -> {
                     name = parser.name
-                    if (name.equals("produktLeczniczy", ignoreCase = true) && drug != null) {
+                    if (name.equals("produktLeczniczy", ignoreCase = true) && drug != null && isOTC) {
                         drugs!!.add(drug)
                     }
                 }

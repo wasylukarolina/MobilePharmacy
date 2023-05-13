@@ -2,6 +2,7 @@ package com.example.mobilepharmacy
 
 class Drugs {
 
+
     lateinit var nazwaProduktu: String
     lateinit var rodzajPreparatu: String
     lateinit var nazwaPowszechnieStosowana: String
