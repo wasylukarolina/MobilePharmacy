@@ -11,6 +11,7 @@ import android.view.View
 import android.widget.*
 import androidx.appcompat.app.AlertDialog
 import com.google.android.material.textfield.TextInputLayout
+import com.google.firebase.auth.FirebaseAuth
 import org.xmlpull.v1.XmlPullParser
 import org.xmlpull.v1.XmlPullParserException
 import org.xmlpull.v1.XmlPullParserFactory
@@ -79,22 +80,29 @@ class AddDrugActivity : AppCompatActivity() {
 
 
                 } else {
-                    // Show an error message or handle the invalid input
+                    val timePicker = timePickerLayout.getChildAt(0) as TimePicker
+                    val hour = timePicker.hour
+                    val minute = timePicker.minute
+                    val timeString = String.format("%02d:%02d", hour, minute)
+                    dawkowanie.add(timeString)
                 }
             }
 
 
-
-
-
-
             val firestoreDB = FirebaseFirestore.getInstance()
+
+
+            // Pobieranie ID aktualnie zalogowanego użytkownika z SharedPreferences
+            val sharedPreferences = getSharedPreferences("login", MODE_PRIVATE)
+            val userId = sharedPreferences.getString("userID", "") ?: ""
 
             // Tworzenie mapy z danymi
             val dataMap = hashMapOf<String, Any>()
+            dataMap["userId"] = userId
             dataMap["nazwaProduktu"] = nazwaProduktu
             dataMap["dataWaznosci"] = dataWaznosci
             dataMap["dawkowanie"] = dawkowanie
+
 
             // Dodawanie danych do Firestore
             firestoreDB.collection("leki")

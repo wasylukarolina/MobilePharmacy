@@ -33,7 +33,15 @@ class Login : AppCompatActivity() {
                         val editor = sharedPreferences.edit()
                         editor.putString("email", email)
                         editor.putString("password", haslo)
+
+// Pobieranie ID aktualnie zalogowanego użytkownika
+                        val auth = FirebaseAuth.getInstance()
+                        val currentUser = auth.currentUser
+                        val userId = currentUser?.uid
+                        editor.putString("userID", userId ?: "x") // Jeśli userId jest null, użyj pustego ciągu znaków
+
                         editor.apply()
+
 
                         val intent = Intent(this, AfterLoginActivity::class.java)
                         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK)
