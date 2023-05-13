@@ -1,8 +1,10 @@
 package com.example.mobilepharmacy
 
+import android.content.ContentValues.TAG
 import android.graphics.Color
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -15,7 +17,7 @@ import org.xmlpull.v1.XmlPullParserFactory
 import java.io.IOException
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
-
+import com.google.firebase.firestore.FirebaseFirestore
 
 
 class AddDrugActivity : AppCompatActivity() {
@@ -38,27 +40,76 @@ class AddDrugActivity : AppCompatActivity() {
             val day = numberPickerDay.value
             val month = numberPickerMonth.value
             val year = numberPickerYear.value
-            val dataWaznosci = String.format("%02d.%02d.%d", day, month, year)
+            val dataWaznosci = String.format("%02d-%02d-%d", day, month, year)
 
             val timePickerLayout = findViewById<TextInputLayout>(R.id.timePickerLayout)
-            timePickerLayout.boxBackgroundColor = Color.parseColor("#FF0000")
-
             val dawkowanie = ArrayList<String>()
-            for (i in 0 until timePickerLayout.childCount) {
-                val timePicker = timePickerLayout.getChildAt(i) as TimePicker
+
+            val customCheckbox = findViewById<CheckBox>(R.id.customCheckBox)
+            val customEditText = findViewById<EditText>(R.id.customEditText)
+
+            if (customCheckbox.isChecked) {
+                val timePicker = timePickerLayout.getChildAt(0) as TimePicker
                 val hour = timePicker.hour
                 val minute = timePicker.minute
                 val timeString = String.format("%02d:%02d", hour, minute)
                 dawkowanie.add(timeString)
+
+            } else {
+                val customQuantity = customEditText.text.toString().toIntOrNull()
+                if (customQuantity != null) {
+                    for (i in 0 until timePickerLayout.childCount) {
+                        val timePicker = timePickerLayout.getChildAt(i) as TimePicker
+                        val hour = timePicker.hour
+                        val minute = timePicker.minute
+                        val timeString = String.format("%02d:%02d", hour, minute)
+                        dawkowanie.add(timeString)
+                    }
+
+                    val firstHour = dawkowanie[0].substring(0, 2).toInt()
+                    val firstMinute = dawkowanie[0].substring(3, 5).toInt()
+
+                    for (i in 1 until customQuantity) {
+                        val newHour = (firstHour + customQuantity * i) % 24
+                        val newMinute = firstMinute
+                        val timeString = String.format("%02d:%02d", newHour, newMinute)
+                        dawkowanie.add(timeString)
+                    }
+
+
+
+                } else {
+                    // Show an error message or handle the invalid input
+                }
             }
 
-            val drugRef = databaseRef.child("leki").push()
-            drugRef.child("nazwaProduktu").setValue(nazwaProduktu)
-            drugRef.child("dataWaznosci").setValue(dataWaznosci)
-            drugRef.child("dawkowanie").setValue(dawkowanie)
 
-            Toast.makeText(this, "Dane zostały zapisane do Firebase.", Toast.LENGTH_SHORT).show()
+
+
+
+
+            val firestoreDB = FirebaseFirestore.getInstance()
+
+            // Tworzenie mapy z danymi
+            val dataMap = hashMapOf<String, Any>()
+            dataMap["nazwaProduktu"] = nazwaProduktu
+            dataMap["dataWaznosci"] = dataWaznosci
+            dataMap["dawkowanie"] = dawkowanie
+
+            // Dodawanie danych do Firestore
+            firestoreDB.collection("leki")
+                .add(dataMap)
+                .addOnSuccessListener {
+                    Toast.makeText(this, "Dane zostały dodane do Firestore.", Toast.LENGTH_SHORT).show()
+                }
+                .addOnFailureListener { e ->
+                    Log.e(TAG, "Błąd podczas dodawania danych do Firestore", e)
+                    Toast.makeText(this, "Wystąpił błąd", Toast.LENGTH_SHORT).show()
+                }
         }
+
+
+
 
         val buttonZapisz = findViewById<Button>(R.id.buttonDodaj)
         buttonZapisz.setOnClickListener {
@@ -139,11 +190,14 @@ class AddDrugActivity : AppCompatActivity() {
         val quantityAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, quantityOptions)
         quantityAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         val quantitySpinner = findViewById<Spinner>(R.id.quantitySpinner)
+
         quantitySpinner.adapter = quantityAdapter
 
         timePickerLayout = findViewById(R.id.timePickerLayout)
 
         val customCheckbox = findViewById<CheckBox>(R.id.customCheckBox)
+        val customEditText = findViewById<EditText>(R.id.customEditText)
+        customEditText.visibility = View.VISIBLE
 
         quantitySpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
@@ -151,16 +205,30 @@ class AddDrugActivity : AppCompatActivity() {
                 updateTimeWindows()
 
                 if (customCheckbox.isChecked) {
-                    timePickerLayout.removeAllViews()
-                    for (i in 1..quantity) {
-                        val newTimePicker = TimePicker(this@AddDrugActivity)
-                        newTimePicker.setIs24HourView(true)
-                        timePickerLayout.addView(newTimePicker)
-                    }
+                    customEditText.visibility = View.GONE
+                    customEditText.setText("")
+
                 } else {
+
                     if (timePickerLayout.childCount > 1) {
+                        timePickerLayout.removeAllViews()
+                        val customQuantity = customEditText.text.toString().toIntOrNull()
+                        for (i in 1..(customQuantity ?: quantity)) {
+                            val newTimePicker = TimePicker(this@AddDrugActivity)
+                            newTimePicker.setIs24HourView(true)
+                            timePickerLayout.addView(newTimePicker)
+                        }
+                        if (customQuantity != null && customQuantity > 1) {
+                            customEditText.visibility = View.GONE
+                            customEditText.setText("")
+                        } else {
+                            customEditText.visibility = View.VISIBLE
+                        }
                         timePickerLayout.removeViews(1, timePickerLayout.childCount - 1)
+                    } else {
+                        customEditText.visibility = View.GONE
                     }
+
                 }
             }
 
@@ -171,18 +239,13 @@ class AddDrugActivity : AppCompatActivity() {
 
         customCheckbox.setOnCheckedChangeListener { _, isChecked ->
             if (isChecked) {
-                timePickerLayout.removeAllViews()
-                for (i in 1..quantity) {
-                    val newTimePicker = TimePicker(this@AddDrugActivity)
-                    newTimePicker.setIs24HourView(true)
-                    timePickerLayout.addView(newTimePicker)
-                }
+                customEditText.visibility = View.GONE
             } else {
-                if (timePickerLayout.childCount > 1) {
-                    timePickerLayout.removeViews(1, timePickerLayout.childCount - 1)
-                }
+                customEditText.visibility = View.VISIBLE
+                customEditText.setText("")
             }
         }
+
 
 
     }
