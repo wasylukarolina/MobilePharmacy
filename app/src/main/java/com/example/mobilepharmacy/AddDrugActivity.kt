@@ -281,7 +281,6 @@ class AddDrugActivity : AppCompatActivity() {
         var drugs: ArrayList<Drugs>? = null
         var eventType = parser.eventType
         var drug: Drugs? = null
-        var isOTC = false
 
         while (eventType != XmlPullParser.END_DOCUMENT) {
             val name: String
@@ -292,14 +291,11 @@ class AddDrugActivity : AppCompatActivity() {
                     if (name == "produktLeczniczy") {
                         drug = Drugs()
                         drug.nazwaProduktu = parser.getAttributeValue(null, "nazwaProduktu")
-                    } else if (name == "opakowanie") {
-                        val kategoriaDostepnosci = parser.getAttributeValue(null, "kategoriaDostepnosci")
-                        isOTC = kategoriaDostepnosci == "OTC"
                     }
                 }
                 XmlPullParser.END_TAG -> {
                     name = parser.name
-                    if (name.equals("produktLeczniczy", ignoreCase = true) && drug != null && isOTC) {
+                    if (name.equals("produktLeczniczy", ignoreCase = true) && drug != null) {
                         drugs!!.add(drug)
                     }
                 }

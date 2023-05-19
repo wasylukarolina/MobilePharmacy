@@ -79,6 +79,13 @@ class AfterLoginActivity : AppCompatActivity() {
             startActivity(intent)
         }
 
+        val updateHealthButton= findViewById<ImageView>(R.id.updateHealth)
+        updateHealthButton.setOnClickListener {
+            val intent = Intent(this, AddHealthActivity::class.java)
+            startActivity(intent)
+        }
+
+
     }
 
     private fun logout() {
