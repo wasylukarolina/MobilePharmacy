@@ -1,0 +1,45 @@
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:gravity="center_horizontal"
+    android:paddingTop="160dp">
+
+
+    <TextView
+        android:id="@+id/textViewSelectedSymptom"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Wybrane dolegliwości:"
+        android:textSize="18sp"
+        android:textStyle="bold" />
+
+    <Spinner
+        android:id="@+id/spinnerSymptoms"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/buttonShowMedications"
+        style="@style/button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Pokaż leki" />
+
+    <TextView
+        android:id="@+id/textViewMedications"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Lista leków:"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:visibility="gone"/>
+
+    <ListView
+        android:id="@+id/listViewMedications"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="gone"/>
+</LinearLayout>

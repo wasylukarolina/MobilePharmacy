@@ -50,8 +50,8 @@
 
         <ImageView
             android:id="@+id/addHealthIcon"
-            android:layout_width="39dp"
-            android:layout_height="37dp"
+            android:layout_width="23dp"
+            android:layout_height="24dp"
             android:layout_alignParentTop="true"
             android:layout_marginStart="16dp"
             android:layout_marginTop="100dp"

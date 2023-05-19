@@ -11,6 +11,7 @@ import android.widget.TextView
 import android.widget.Toast
 import android.widget.Toolbar
 import androidx.appcompat.app.ActionBarDrawerToggle
+import androidx.appcompat.widget.AppCompatButton
 import androidx.drawerlayout.widget.DrawerLayout
 import com.google.android.material.navigation.NavigationView
 import com.google.firebase.auth.FirebaseAuth
@@ -79,9 +80,15 @@ class AfterLoginActivity : AppCompatActivity() {
             startActivity(intent)
         }
 
-        val updateHealthButton= findViewById<ImageView>(R.id.updateHealth)
-        updateHealthButton.setOnClickListener {
+        val addHealthButton= findViewById<ImageView>(R.id.addHealthIcon)
+        addHealthButton.setOnClickListener {
             val intent = Intent(this, AddHealthActivity::class.java)
+            startActivity(intent)
+        }
+
+        val updateHealthButton= findViewById<AppCompatButton>(R.id.updateHealth)
+        updateHealthButton.setOnClickListener {
+            val intent = Intent(this, DiseasesActivity::class.java)
             startActivity(intent)
         }
 
