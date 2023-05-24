@@ -92,6 +92,11 @@ class AfterLoginActivity : AppCompatActivity() {
             startActivity(intent)
         }
 
+        val myDrugs = findViewById<AppCompatButton>(R.id.updateDrugs)
+        myDrugs.setOnClickListener {
+            val intent = Intent(this, MedicationsActivity::class.java)
+            startActivity(intent)
+        }
 
     }
 
@@ -101,6 +106,7 @@ class AfterLoginActivity : AppCompatActivity() {
         val editor = sharedPreferences.edit()
         editor.remove("email")
         editor.remove("password")
+        editor.remove("userID") // Usunięcie ID użytkownika
         editor.apply()
 
         val intent = Intent(this, MainActivity::class.java)
@@ -108,6 +114,7 @@ class AfterLoginActivity : AppCompatActivity() {
         startActivity(intent)
         finish()
     }
+
 
     override fun onBackPressed() {
         // zakaz cofania

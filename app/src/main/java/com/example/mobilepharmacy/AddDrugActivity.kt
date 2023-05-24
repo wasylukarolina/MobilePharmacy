@@ -117,8 +117,6 @@ class AddDrugActivity : AppCompatActivity() {
         }
 
 
-
-
         val buttonZapisz = findViewById<Button>(R.id.buttonDodaj)
         buttonZapisz.setOnClickListener {
             saveDataToFirebase()
@@ -304,6 +302,7 @@ class AddDrugActivity : AppCompatActivity() {
         }
         return drugs
     }
+
 
 
 }
