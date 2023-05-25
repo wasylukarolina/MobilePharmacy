@@ -4,6 +4,8 @@ import android.content.ContentValues.TAG
 import android.graphics.Color
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
@@ -24,6 +26,11 @@ import com.google.firebase.firestore.FirebaseFirestore
 class AddDrugActivity : AppCompatActivity() {
     private var quantity: Int = 0
     private lateinit var timePickerLayout: TextInputLayout
+
+    private val drugsList: ArrayList<String> = ArrayList()
+    private val filteredDrugsList: ArrayList<String> = ArrayList()
+    private lateinit var autoComplete: AutoCompleteTextView
+    private lateinit var adapter: ArrayAdapter<String>
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -122,6 +129,29 @@ class AddDrugActivity : AppCompatActivity() {
             saveDataToFirebase()
         }
 
+        autoComplete = findViewById(R.id.auto_complete_txt)
+        adapter = ArrayAdapter(this, R.layout.list_drugs, filteredDrugsList)
+        autoComplete.setAdapter(adapter)
+
+        autoComplete.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {
+                // Niepotrzebne
+            }
+
+            override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {
+                filterDrugs(s.toString())
+                adapter.notifyDataSetChanged()
+            }
+
+            override fun afterTextChanged(s: Editable) {
+                // Niepotrzebne
+            }
+        })
+
+        autoComplete.onItemClickListener = AdapterView.OnItemClickListener { adapterView, view, i, l ->
+            val itemSelected = adapterView.getItemAtPosition(i)
+            Toast.makeText(this, "$itemSelected", Toast.LENGTH_SHORT).show()
+        }
 
 
         // Uzyskanie referencji do slidów
@@ -160,35 +190,44 @@ class AddDrugActivity : AppCompatActivity() {
         try {
             pullParserFactory = XmlPullParserFactory.newInstance()
             val parser = pullParserFactory.newPullParser()
-            val inputStream =
-                applicationContext.assets.open("Rejestr_Produktow_Leczniczych_calosciowy_stan_na_dzien_20230511.xml")
+            val inputStream = applicationContext.assets.open("Rejestr_Produktow_Leczniczych_calosciowy_stan_na_dzien_20230511.xml")
             parser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, false)
             parser.setInput(inputStream, null)
 
             val drugs = parseXml(parser)
-            val drugsList: ArrayList<String> = ArrayList()
 
             for (drug in drugs!!) {
                 drugsList.add(drug.nazwaProduktu)
             }
 
-            //       rozwijalne menu
             val autoComplete: AutoCompleteTextView = findViewById(R.id.auto_complete_txt)
-
             val adapter2 = ArrayAdapter(this, R.layout.list_drugs, drugsList)
-
             autoComplete.setAdapter(adapter2)
 
-            autoComplete.onItemClickListener =
-                AdapterView.OnItemClickListener { adapterView, view, i, l ->
-                    val itemSelected = adapterView.getItemAtPosition(i)
-                    Toast.makeText(this, "$itemSelected", Toast.LENGTH_SHORT).show()
+            autoComplete.addTextChangedListener(object : TextWatcher {
+                override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {
+                    // Niepotrzebne
                 }
+
+                override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {
+                    adapter2.filter.filter(s)
+                }
+
+                override fun afterTextChanged(s: Editable) {
+                    // Niepotrzebne
+                }
+            })
+
+            autoComplete.onItemClickListener = AdapterView.OnItemClickListener { adapterView, view, i, l ->
+                val itemSelected = adapterView.getItemAtPosition(i)
+                Toast.makeText(this, "$itemSelected", Toast.LENGTH_SHORT).show()
+            }
         } catch (e: XmlPullParserException) {
             e.printStackTrace()
         } catch (e: IOException) {
             e.printStackTrace()
         }
+
 
         //obsługa wyboru dawkowania
 
@@ -254,6 +293,15 @@ class AddDrugActivity : AppCompatActivity() {
 
 
 
+    }
+
+    private fun filterDrugs(query: String) {
+        filteredDrugsList.clear()
+        for (drug in drugsList) {
+            if (drug.contains(query, ignoreCase = true)) {
+                filteredDrugsList.add(drug)
+            }
+        }
     }
 
     // Funkcja sprawdzająca, czy rok jest przestępny
