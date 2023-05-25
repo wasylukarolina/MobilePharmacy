@@ -2,7 +2,13 @@ package com.example.mobilepharmacy
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import android.widget.TextView
+import androidx.recyclerview.widget.DividerItemDecoration
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 
@@ -18,7 +24,10 @@ class MedicationsActivity : AppCompatActivity() {
         firestore = FirebaseFirestore.getInstance()
         firebaseAuth = FirebaseAuth.getInstance()
 
-        val medicationsTextView: TextView = findViewById(R.id.medicationsTextView)
+        val medicationsRecyclerView: RecyclerView = findViewById(R.id.medicationsRecyclerView)
+        medicationsRecyclerView.layoutManager = LinearLayoutManager(this)
+        medicationsRecyclerView.addItemDecoration(DividerItemDecoration(this, DividerItemDecoration.VERTICAL))
+        medicationsRecyclerView.adapter = MedicationsAdapter()
 
         val userId = firebaseAuth.currentUser?.uid
 
@@ -31,24 +40,59 @@ class MedicationsActivity : AppCompatActivity() {
 
                     for (document in querySnapshot.documents) {
                         val medicationName = document.getString("nazwaProduktu")
+                        val medicationDose = document.get("dawkowanie") as? List<String>
 
-                        if (medicationName != null) {
-                            medicationsList.add(medicationName)
+                        if (medicationName != null && medicationDose != null) {
+                            val medicationInfo = "$medicationName\nDawkowanie: ${medicationDose.joinToString(", ")}"
+                            medicationsList.add(medicationInfo)
                         }
                     }
 
-                    if (medicationsList.isNotEmpty()) {
-                        val medicationsText = medicationsList.joinToString("\n")
-                        medicationsTextView.text = medicationsText
-                    } else {
-                        medicationsTextView.text = "Brak danych na temat leków."
-                    }
+                    val medicationsAdapter = medicationsRecyclerView.adapter as MedicationsAdapter
+                    medicationsAdapter.setMedicationsList(medicationsList)
                 }
                 .addOnFailureListener { exception ->
-                    medicationsTextView.text = "Błąd pobierania danych."
+                    // Handle failure
                 }
-        } else {
-            medicationsTextView.text = "Błąd: Brak zalogowanego użytkownika."
+        }
+    }
+
+    inner class MedicationsAdapter : RecyclerView.Adapter<MedicationsAdapter.MedicationViewHolder>() {
+
+        private val medicationsList = mutableListOf<String>()
+
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MedicationViewHolder {
+            val view = LayoutInflater.from(parent.context).inflate(R.layout.item_medication, parent, false)
+            return MedicationViewHolder(view)
+        }
+
+        override fun onBindViewHolder(holder: MedicationViewHolder, position: Int) {
+            val medicationInfo = medicationsList[position]
+            holder.bind(medicationInfo)
+        }
+
+        override fun getItemCount(): Int {
+            return medicationsList.size
+        }
+
+        inner class MedicationViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+            private val medicationNameTextView: TextView = itemView.findViewById(R.id.medicationNameTextView)
+            private val medicationDoseTextView: TextView = itemView.findViewById(R.id.medicationDoseTextView)
+
+            fun bind(medicationInfo: String) {
+                val parts = medicationInfo.split("\n")
+                val medicationName = parts[0]
+                val medicationDose = parts[1]
+
+                medicationNameTextView.text = medicationName
+                medicationDoseTextView.text = medicationDose
+            }
+        }
+
+        fun setMedicationsList(medications: List<String>) {
+            medicationsList.clear()
+            medicationsList.addAll(medications)
+            notifyDataSetChanged()
         }
     }
 }
