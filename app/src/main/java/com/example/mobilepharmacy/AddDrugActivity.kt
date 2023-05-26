@@ -57,35 +57,32 @@ class AddDrugActivity : AppCompatActivity() {
             val customEditText = findViewById<EditText>(R.id.customEditText)
 
             if (customCheckbox.isChecked) {
-                val timePicker = timePickerLayout.getChildAt(0) as TimePicker
-                val hour = timePicker.hour
-                val minute = timePicker.minute
-                val timeString = String.format("%02d:%02d", hour, minute)
-                dawkowanie.add(timeString)
-
+                for (i in 0 until timePickerLayout.childCount) {
+                    val timePicker = timePickerLayout.getChildAt(i) as TimePicker
+                    val hour = timePicker.hour
+                    val minute = timePicker.minute
+                    val timeString = String.format("%02d:%02d", hour, minute)
+                    dawkowanie.add(timeString)
+                }
             } else {
                 val customQuantity = customEditText.text.toString().toIntOrNull()
                 if (customQuantity != null) {
-                    for (i in 0 until timePickerLayout.childCount) {
-                        val timePicker = timePickerLayout.getChildAt(i) as TimePicker
-                        val hour = timePicker.hour
-                        val minute = timePicker.minute
-                        val timeString = String.format("%02d:%02d", hour, minute)
-                        dawkowanie.add(timeString)
+                    val firstTimePicker = timePickerLayout.getChildAt(0) as TimePicker
+                    val hour = firstTimePicker.hour
+                    val minute = firstTimePicker.minute
+                    val initialTimeString = String.format("%02d:%02d", hour, minute)
+                    dawkowanie.add(initialTimeString)
+
+                    var multiplier = 1
+                    for (i in 1 until quantity) {
+                        var nextHour = hour + (customQuantity * multiplier)
+                        while (nextHour >= 24) {
+                            nextHour -= 24
+                        }
+                        val nextTimeString = String.format("%02d:%02d", nextHour, minute)
+                        dawkowanie.add(nextTimeString)
+                        multiplier *= 2
                     }
-
-                    val firstHour = dawkowanie[0].substring(0, 2).toInt()
-                    val firstMinute = dawkowanie[0].substring(3, 5).toInt()
-
-                    for (i in 1 until customQuantity) {
-                        val newHour = (firstHour + customQuantity * i) % 24
-                        val newMinute = firstMinute
-                        val timeString = String.format("%02d:%02d", newHour, newMinute)
-                        dawkowanie.add(timeString)
-                    }
-
-
-
                 } else {
                     val timePicker = timePickerLayout.getChildAt(0) as TimePicker
                     val hour = timePicker.hour
@@ -94,7 +91,6 @@ class AddDrugActivity : AppCompatActivity() {
                     dawkowanie.add(timeString)
                 }
             }
-
 
             val firestoreDB = FirebaseFirestore.getInstance()
 
@@ -228,7 +224,6 @@ class AddDrugActivity : AppCompatActivity() {
             e.printStackTrace()
         }
 
-
         //obsługa wyboru dawkowania
 
         val quantityOptions = resources.getStringArray(R.array.quantity_options)
@@ -242,7 +237,8 @@ class AddDrugActivity : AppCompatActivity() {
 
         val customCheckbox = findViewById<CheckBox>(R.id.customCheckBox)
         val customEditText = findViewById<EditText>(R.id.customEditText)
-        customEditText.visibility = View.VISIBLE
+
+        customEditText.visibility = if (customCheckbox.isChecked) View.GONE else View.VISIBLE
 
         quantitySpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
@@ -251,29 +247,27 @@ class AddDrugActivity : AppCompatActivity() {
 
                 if (customCheckbox.isChecked) {
                     customEditText.visibility = View.GONE
-                    customEditText.setText("")
-
-                } else {
-
-                    if (timePickerLayout.childCount > 1) {
-                        timePickerLayout.removeAllViews()
-                        val customQuantity = customEditText.text.toString().toIntOrNull()
-                        for (i in 1..(customQuantity ?: quantity)) {
-                            val newTimePicker = TimePicker(this@AddDrugActivity)
-                            newTimePicker.setIs24HourView(true)
-                            timePickerLayout.addView(newTimePicker)
-                        }
-                        if (customQuantity != null && customQuantity > 1) {
-                            customEditText.visibility = View.GONE
-                            customEditText.setText("")
-                        } else {
-                            customEditText.visibility = View.VISIBLE
-                        }
-                        timePickerLayout.removeViews(1, timePickerLayout.childCount - 1)
-                    } else {
-                        customEditText.visibility = View.GONE
+                    timePickerLayout.removeAllViews()
+                    for (i in 1..quantity) {
+                        val timePicker = TimePicker(this@AddDrugActivity)
+                        timePicker.setIs24HourView(true)
+                        timePickerLayout.addView(timePicker)
                     }
-
+                } else {
+                    val customQuantity = customEditText.text.toString().toIntOrNull()
+                    if (customQuantity != null && customQuantity > 1) {
+                        customEditText.visibility = View.GONE
+                        timePickerLayout.removeAllViews()
+                        val timePicker = TimePicker(this@AddDrugActivity)
+                        timePicker.setIs24HourView(true)
+                        timePickerLayout.addView(timePicker)
+                    } else {
+                        customEditText.visibility = View.VISIBLE
+                        timePickerLayout.removeAllViews()
+                        val timePicker = TimePicker(this@AddDrugActivity)
+                        timePicker.setIs24HourView(true)
+                        timePickerLayout.addView(timePicker)
+                    }
                 }
             }
 
@@ -285,13 +279,15 @@ class AddDrugActivity : AppCompatActivity() {
         customCheckbox.setOnCheckedChangeListener { _, isChecked ->
             if (isChecked) {
                 customEditText.visibility = View.GONE
+                updateTimeWindows()
             } else {
                 customEditText.visibility = View.VISIBLE
-                customEditText.setText("")
+                timePickerLayout.removeAllViews()
+                val timePicker = TimePicker(this@AddDrugActivity)
+                timePicker.setIs24HourView(true)
+                timePickerLayout.addView(timePicker)
             }
         }
-
-
 
     }
 
@@ -350,7 +346,4 @@ class AddDrugActivity : AppCompatActivity() {
         }
         return drugs
     }
-
-
-
 }
