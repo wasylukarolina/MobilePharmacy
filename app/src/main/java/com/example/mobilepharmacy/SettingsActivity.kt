@@ -1,5 +1,6 @@
 package com.example.mobilepharmacy
 
+import android.content.Intent
 import android.os.Bundle
 import android.widget.Button
 import android.widget.EditText
@@ -33,16 +34,24 @@ class SettingsActivity : AppCompatActivity() {
 
             if (newPassword.isNotEmpty() && newPassword == confirmPassword) {
                 // Aktualizacja hasła użytkownika
-                firebaseAuth.currentUser?.updatePassword(newPassword)
-                    ?.addOnCompleteListener { task ->
-                        if (task.isSuccessful) {
-//                            Toast.makeText()
-                        } else {
-//                            Toast.makeText()
+                val user = firebaseAuth.currentUser
+                if (user != null) {
+                    user.updatePassword(newPassword)
+                        .addOnCompleteListener { task ->
+                            if (task.isSuccessful) {
+                                Toast.makeText(this, "Hasło zostało zmienione", Toast.LENGTH_SHORT).show()
+                                val intent = Intent(this, AfterLoginActivity::class.java)
+                                startActivity(intent)
+                            } else {
+                                val errorMessage = task.exception?.message
+                                Toast.makeText(this, "Nie udało się zmienić hasła: $errorMessage", Toast.LENGTH_SHORT).show()
+                            }
                         }
-                    }
+                } else {
+                    Toast.makeText(this, "Nie udało się pobrać informacji o użytkowniku", Toast.LENGTH_SHORT).show()
+                }
             } else {
-//                Toast.makeText()
+                Toast.makeText(this, "Hasła się nie zgadzają", Toast.LENGTH_SHORT).show()
             }
         }
     }
