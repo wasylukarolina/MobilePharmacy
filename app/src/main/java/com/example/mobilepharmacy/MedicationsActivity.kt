@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
 import android.widget.TextView
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -78,6 +79,19 @@ class MedicationsActivity : AppCompatActivity() {
         inner class MedicationViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
             private val medicationNameTextView: TextView = itemView.findViewById(R.id.medicationNameTextView)
             private val medicationDoseTextView: TextView = itemView.findViewById(R.id.medicationDoseTextView)
+            private val deleteButton: Button = itemView.findViewById(R.id.deleteButton)
+
+            init {
+                deleteButton.setOnClickListener {
+                    val position = adapterPosition
+                    if (position != RecyclerView.NO_POSITION) {
+                        val deletedMedication = medicationsList[position]
+                        deleteMedicationFromDatabase(deletedMedication)
+                        medicationsList.removeAt(position)
+                        notifyItemRemoved(position)
+                    }
+                }
+            }
 
             fun bind(medicationInfo: String) {
                 val parts = medicationInfo.split("\n")
@@ -89,6 +103,25 @@ class MedicationsActivity : AppCompatActivity() {
             }
         }
 
+
+        private fun deleteMedicationFromDatabase(medication: String) {
+            val userId = firebaseAuth.currentUser?.uid
+            if (userId != null) {
+                firestore.collection("leki")
+                    .whereEqualTo("userId", userId)
+                    .whereEqualTo("nazwaProduktu", medication.split("\n")[0])
+                    .get()
+                    .addOnSuccessListener { querySnapshot ->
+                        for (document in querySnapshot.documents) {
+                            document.reference.delete()
+                        }
+                    }
+                    .addOnFailureListener { exception ->
+                        // Handle failure
+                    }
+            }
+        }
+
         fun setMedicationsList(medications: List<String>) {
             medicationsList.clear()
             medicationsList.addAll(medications)
@@ -96,3 +129,4 @@ class MedicationsActivity : AppCompatActivity() {
         }
     }
 }
+

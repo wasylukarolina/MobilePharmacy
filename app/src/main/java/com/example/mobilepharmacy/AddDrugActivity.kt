@@ -94,36 +94,56 @@ class AddDrugActivity : AppCompatActivity() {
 
             val firestoreDB = FirebaseFirestore.getInstance()
 
-
             // Pobieranie ID aktualnie zalogowanego użytkownika z SharedPreferences
             val sharedPreferences = getSharedPreferences("login", MODE_PRIVATE)
             val userId = sharedPreferences.getString("userID", "") ?: ""
 
-            // Tworzenie mapy z danymi
-            val dataMap = hashMapOf<String, Any>()
-            dataMap["userId"] = userId
-            dataMap["nazwaProduktu"] = nazwaProduktu
-            dataMap["dataWaznosci"] = dataWaznosci
-            dataMap["dawkowanie"] = dawkowanie
-
-
-            // Dodawanie danych do Firestore
+            // Sprawdź, czy nazwa leku już istnieje w bazie dla danego użytkownika
             firestoreDB.collection("leki")
-                .add(dataMap)
-                .addOnSuccessListener {
-                    Toast.makeText(this, "Dane zostały dodane do Firestore.", Toast.LENGTH_SHORT).show()
+                .whereEqualTo("userId", userId)
+                .whereEqualTo("nazwaProduktu", nazwaProduktu)
+                .get()
+                .addOnSuccessListener { querySnapshot ->
+                    if (querySnapshot.isEmpty) {
+                        // Tworzenie mapy z danymi
+                        val dataMap = hashMapOf<String, Any>()
+                        dataMap["userId"] = userId
+                        dataMap["nazwaProduktu"] = nazwaProduktu
+                        dataMap["dataWaznosci"] = dataWaznosci
+                        dataMap["dawkowanie"] = dawkowanie
+
+                        // Dodawanie danych do Firestore
+                        firestoreDB.collection("leki")
+                            .add(dataMap)
+                            .addOnSuccessListener {
+                                Toast.makeText(this, "Dane zostały dodane do Firestore.", Toast.LENGTH_SHORT).show()
+                            }
+                            .addOnFailureListener { e ->
+                                Log.e(TAG, "Błąd podczas dodawania danych do Firestore", e)
+                                Toast.makeText(this, "Wystąpił błąd", Toast.LENGTH_SHORT).show()
+                            }
+                    } else {
+                        Toast.makeText(this, "Lek o nazwie $nazwaProduktu już istnieje w bazie.", Toast.LENGTH_SHORT).show()
+                    }
                 }
                 .addOnFailureListener { e ->
-                    Log.e(TAG, "Błąd podczas dodawania danych do Firestore", e)
+                    Log.e(TAG, "Błąd podczas sprawdzania danych w Firestore", e)
                     Toast.makeText(this, "Wystąpił błąd", Toast.LENGTH_SHORT).show()
                 }
         }
 
 
+
         val buttonZapisz = findViewById<Button>(R.id.buttonDodaj)
         buttonZapisz.setOnClickListener {
+            val nazwaProduktu = autoComplete.text.toString()
+            if (nazwaProduktu.isEmpty()) {
+                Toast.makeText(this, "Nazwa leku nie może być pusta.", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
             saveDataToFirebase()
         }
+
 
         autoComplete = findViewById(R.id.auto_complete_txt)
         adapter = ArrayAdapter(this, R.layout.list_drugs, filteredDrugsList)
