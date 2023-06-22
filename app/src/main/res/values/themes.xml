@@ -82,4 +82,8 @@
         <item name="colorAccent">@color/red</item>
     </style>
 
+    <style name="MyTextInputLayoutStyle" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu">
+        <item name="boxBackgroundColor">@android:color/white</item>
+    </style>
+
 </resources>

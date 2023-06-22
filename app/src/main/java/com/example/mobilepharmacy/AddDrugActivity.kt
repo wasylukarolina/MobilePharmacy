@@ -118,7 +118,7 @@ class AddDrugActivity : AppCompatActivity() {
                         firestoreDB.collection("leki")
                             .add(dataMap)
                             .addOnSuccessListener {
-                                Toast.makeText(this, "Dane zostały dodane do Firestore.", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(this, "Dodano do bazy", Toast.LENGTH_SHORT).show()
                             }
                             .addOnFailureListener { e ->
                                 Log.e(TAG, "Błąd podczas dodawania danych do Firestore", e)
@@ -168,7 +168,6 @@ class AddDrugActivity : AppCompatActivity() {
 
         autoComplete.onItemClickListener = AdapterView.OnItemClickListener { adapterView, view, i, l ->
             val itemSelected = adapterView.getItemAtPosition(i)
-            Toast.makeText(this, "$itemSelected", Toast.LENGTH_SHORT).show()
         }
 
 
@@ -246,7 +245,6 @@ class AddDrugActivity : AppCompatActivity() {
 
             autoComplete.onItemClickListener = AdapterView.OnItemClickListener { adapterView, view, i, l ->
                 val itemSelected = adapterView.getItemAtPosition(i)
-                Toast.makeText(this, "$itemSelected", Toast.LENGTH_SHORT).show()
             }
         } catch (e: XmlPullParserException) {
             e.printStackTrace()

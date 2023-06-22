@@ -1,13 +1,18 @@
 package com.example.mobilepharmacy
 
+import android.graphics.Color
+import android.graphics.Paint
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import android.widget.CheckBox
 import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.core.graphics.drawable.DrawableCompat
+import androidx.core.widget.CompoundButtonCompat
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -104,15 +109,30 @@ class MedicationsActivity : AppCompatActivity() {
                 // Clear existing views from medicationDoseLayout
                 medicationDoseLayout.removeAllViews()
 
-                // Add TextView for each medication dose
+                // Add CheckBox for each medication dose
                 for (dose in medicationDoseList) {
-                    val doseTextView = TextView(itemView.context)
-                    doseTextView.text = dose
-                    doseTextView.setTextColor(itemView.context.resources.getColor(android.R.color.black))
-                    medicationDoseLayout.addView(doseTextView)
+                    val checkBox = CheckBox(itemView.context)
+                    checkBox.text = dose
+                    checkBox.setTextColor(itemView.context.resources.getColor(android.R.color.black))
+
+                    // Set black color for the checkbox border
+                    val checkBoxButtonDrawable = CompoundButtonCompat.getButtonDrawable(checkBox)
+                    if (checkBoxButtonDrawable != null) {
+                        DrawableCompat.setTint(checkBoxButtonDrawable, Color.BLACK)
+                    }
+
+                    checkBox.setOnCheckedChangeListener { _, isChecked ->
+                        if (isChecked) {
+                            checkBox.paintFlags = checkBox.paintFlags or Paint.STRIKE_THRU_TEXT_FLAG
+                        } else {
+                            checkBox.paintFlags = checkBox.paintFlags and Paint.STRIKE_THRU_TEXT_FLAG.inv()
+                        }
+                    }
+                    medicationDoseLayout.addView(checkBox)
                 }
             }
         }
+
 
 
         private fun deleteMedicationFromDatabase(medication: String) {
