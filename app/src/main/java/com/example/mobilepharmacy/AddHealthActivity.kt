@@ -30,6 +30,25 @@ class AddHealthActivity : AppCompatActivity() {
         firebaseAuth = FirebaseAuth.getInstance()
         firestore = FirebaseFirestore.getInstance()
 
+        val userId = firebaseAuth.currentUser?.uid
+        if (userId != null) {
+            val userDiseasesRef = firestore.collection("diseases").document(userId)
+
+            userDiseasesRef.get()
+                .addOnSuccessListener { documentSnapshot ->
+                    val diseases = documentSnapshot.toObject(Diseases::class.java)
+                    diseases?.let {
+                        checkboxCukrzyca.isChecked = it.conditions.contains("Cukrzyca")
+                        checkboxAstma.isChecked = it.conditions.contains("Astma")
+                        checkboxCiaza.isChecked = it.conditions.contains("Ciąża")
+                        checkboxChorobySerca.isChecked = it.conditions.contains("Choroby serca")
+                    }
+                }
+                .addOnFailureListener { exception ->
+                    // Handle failure
+                }
+        }
+
         val buttonZapiszZmiany: View = findViewById(R.id.buttonZapiszZmiany)
         buttonZapiszZmiany.setOnClickListener {
             saveChanges()
@@ -54,21 +73,52 @@ class AddHealthActivity : AppCompatActivity() {
         if (checkboxChorobySerca.isChecked) {
             selectedHealthConditions.add("Choroby serca")
         }
+
         val userId = firebaseAuth.currentUser?.uid
 
         if (userId != null) {
             val userDiseasesRef = firestore.collection("diseases").document(userId)
 
-            userDiseasesRef.set(mapOf("conditions" to selectedHealthConditions))
-                .addOnSuccessListener {
-                    Toast.makeText(this, "Zmiany zostały zapisane.", Toast.LENGTH_SHORT).show()
+            userDiseasesRef.get().addOnSuccessListener { documentSnapshot ->
+                if (documentSnapshot.exists()) {
+                    // Dokument istnieje, więc aktualizujemy choroby
+                    val existingDiseases = documentSnapshot.toObject(Diseases::class.java)
+                    existingDiseases?.let {
+                        it.conditions = selectedHealthConditions
+
+                        userDiseasesRef.set(it)
+                            .addOnSuccessListener {
+                                Toast.makeText(this, "Zmiany zostały zapisane.", Toast.LENGTH_SHORT).show()
+                            }
+                            .addOnFailureListener {
+                                Toast.makeText(this, "Błąd podczas zapisywania zmian.", Toast.LENGTH_SHORT).show()
+                            }
+                    }
+                } else {
+                    // Dokument nie istnieje, więc tworzymy nowy
+                    val newDiseases = Diseases(userId, selectedHealthConditions)
+
+                    userDiseasesRef.set(newDiseases)
+                        .addOnSuccessListener {
+                            Toast.makeText(this, "Zmiany zostały zapisane.", Toast.LENGTH_SHORT).show()
+                        }
+                        .addOnFailureListener {
+                            Toast.makeText(this, "Błąd podczas zapisywania zmian.", Toast.LENGTH_SHORT).show()
+                        }
                 }
-                .addOnFailureListener {
-                    Toast.makeText(this, "Błąd podczas zapisywania zmian.", Toast.LENGTH_SHORT)
-                        .show()
-                }
+            }
         } else {
             Toast.makeText(this, "Błąd: Brak zalogowanego użytkownika.", Toast.LENGTH_SHORT).show()
         }
     }
+
+
+
+    data class Diseases(
+        val userId: String,
+        var conditions: List<String>
+    ) {
+        constructor() : this("", emptyList())
+    }
+
 }

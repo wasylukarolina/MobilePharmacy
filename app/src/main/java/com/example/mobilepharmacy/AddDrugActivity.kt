@@ -21,6 +21,8 @@ import java.io.IOException
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.firestore.FirebaseFirestore
+import java.util.*
+import kotlin.collections.ArrayList
 
 
 class AddDrugActivity : AppCompatActivity() {
@@ -188,6 +190,14 @@ class AddDrugActivity : AppCompatActivity() {
         // Slide dla lat
         numberPickerYear.minValue = 2023
         numberPickerYear.maxValue = 2035
+
+        val currentDate = Calendar.getInstance()
+        val currentDay = currentDate.get(Calendar.DAY_OF_MONTH)
+        numberPickerDay.minValue = currentDay
+
+        numberPickerMonth.minValue = currentDate.get(Calendar.MONTH) + 1
+        numberPickerYear.minValue = currentDate.get(Calendar.YEAR)
+
 
         numberPickerMonth.setOnValueChangedListener { _, _, newVal ->
             val selectedMonth = newVal

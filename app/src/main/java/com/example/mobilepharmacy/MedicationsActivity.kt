@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -78,7 +79,7 @@ class MedicationsActivity : AppCompatActivity() {
 
         inner class MedicationViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
             private val medicationNameTextView: TextView = itemView.findViewById(R.id.medicationNameTextView)
-            private val medicationDoseTextView: TextView = itemView.findViewById(R.id.medicationDoseTextView)
+            private val medicationDoseLayout: LinearLayout = itemView.findViewById(R.id.medicationDoseLayout)
             private val deleteButton: Button = itemView.findViewById(R.id.deleteButton)
 
             init {
@@ -96,10 +97,20 @@ class MedicationsActivity : AppCompatActivity() {
             fun bind(medicationInfo: String) {
                 val parts = medicationInfo.split("\n")
                 val medicationName = parts[0]
-                val medicationDose = parts[1]
+                val medicationDoseList = parts[1].split(", ")
 
                 medicationNameTextView.text = medicationName
-                medicationDoseTextView.text = medicationDose
+
+                // Clear existing views from medicationDoseLayout
+                medicationDoseLayout.removeAllViews()
+
+                // Add TextView for each medication dose
+                for (dose in medicationDoseList) {
+                    val doseTextView = TextView(itemView.context)
+                    doseTextView.text = dose
+                    doseTextView.setTextColor(itemView.context.resources.getColor(android.R.color.black))
+                    medicationDoseLayout.addView(doseTextView)
+                }
             }
         }
 

@@ -2,7 +2,8 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@color/white">
+    android:background="@color/white"
+    android:clickable="true">
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -15,6 +16,7 @@
             android:id="@+id/backButtonR"
             android:layout_marginStart="10dp"
             android:layout_centerVertical="true"
+            android:clickable="true"
             android:src="@drawable/baseline_menu_24"/>
         <TextView
             android:layout_width="wrap_content"

@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
 import android.widget.CalendarView
 import android.widget.ImageView
 import android.widget.TextView
@@ -27,10 +28,20 @@ class AfterLoginActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_afterlogin)
 
-        val drawerLayout : DrawerLayout = findViewById(R.id.calendar)
-        val navigationView : NavigationView = findViewById(R.id.nav_view)
+        val drawerLayout: DrawerLayout = findViewById(R.id.calendar)
+        val navigationView: NavigationView = findViewById(R.id.nav_view)
 
-        toggle = ActionBarDrawerToggle(this,  drawerLayout,   R.string.open, R.string.close)
+        toggle = object : ActionBarDrawerToggle(this, drawerLayout, R.string.open, R.string.close) {
+            override fun onDrawerOpened(drawerView: View) {
+                super.onDrawerOpened(drawerView)
+                supportActionBar?.title = "Menu"
+            }
+
+            override fun onDrawerClosed(drawerView: View) {
+                super.onDrawerClosed(drawerView)
+                supportActionBar?.title = "After Login"
+            }
+        }
         drawerLayout.addDrawerListener(toggle)
         toggle.syncState()
 
@@ -59,34 +70,19 @@ class AfterLoginActivity : AppCompatActivity() {
             }
         }
 
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
-
-//        val sharedPref = getSharedPreferences("myPrefs", MODE_PRIVATE)
-//        val email = sharedPref.getString("email", null)
-//        val haslo = sharedPref.getString("password", null)
-//
-//        if (email != null && haslo != null) {
-//            FirebaseAuth.getInstance().signInWithEmailAndPassword(email, haslo)
-//                .addOnCompleteListener {
-//                    if (it.isSuccessful) {
-//                        // użytkownik zalogowany automatycznie
-//                    }
-//                }
-//        }
-
         val addDrugIcon = findViewById<ImageView>(R.id.addDrugIcon)
         addDrugIcon.setOnClickListener {
             val intent = Intent(this, AddDrugActivity::class.java)
             startActivity(intent)
         }
 
-        val addHealthButton= findViewById<ImageView>(R.id.addHealthIcon)
+        val addHealthButton = findViewById<ImageView>(R.id.addHealthIcon)
         addHealthButton.setOnClickListener {
             val intent = Intent(this, AddHealthActivity::class.java)
             startActivity(intent)
         }
 
-        val updateHealthButton= findViewById<AppCompatButton>(R.id.updateHealth)
+        val updateHealthButton = findViewById<AppCompatButton>(R.id.updateHealth)
         updateHealthButton.setOnClickListener {
             val intent = Intent(this, DiseasesActivity::class.java)
             startActivity(intent)
@@ -98,6 +94,14 @@ class AfterLoginActivity : AppCompatActivity() {
             startActivity(intent)
         }
 
+        val backButtonR = findViewById<ImageView>(R.id.backButtonR)
+        backButtonR.setOnClickListener {
+            if (drawerLayout.isDrawerOpen(navigationView)) {
+                drawerLayout.closeDrawer(navigationView)
+            } else {
+                drawerLayout.openDrawer(navigationView)
+            }
+        }
     }
 
     private fun logout() {

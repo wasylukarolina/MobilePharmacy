@@ -77,7 +77,7 @@
             android:id="@+id/customEditText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Enter custom quantity"
+            android:hint="Podaj pierwszą godzinę"
             android:inputType="number"
             android:visibility="gone" />
 

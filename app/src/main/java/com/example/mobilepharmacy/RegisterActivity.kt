@@ -9,11 +9,14 @@ import android.widget.Toast
 import com.example.mobilepharmacy.databinding.ActivityRegisterBinding
 import com.google.android.material.navigation.NavigationView
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 
 class RegisterActivity : AppCompatActivity() {
 
-    private lateinit var binding:ActivityRegisterBinding
+    private lateinit var binding: ActivityRegisterBinding
     private lateinit var firebaseAuth: FirebaseAuth
+    private lateinit var firestore: FirebaseFirestore
+
     @SuppressLint("MissingInflatedId")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -21,42 +24,68 @@ class RegisterActivity : AppCompatActivity() {
         binding = ActivityRegisterBinding.inflate(layoutInflater)
         setContentView(binding.root)
         firebaseAuth = FirebaseAuth.getInstance()
-
+        firestore = FirebaseFirestore.getInstance()
 
         binding.buttonRegister.setOnClickListener {
             val email = binding.editTextEmail.text.toString()
-            val imie = binding.editTextFirstName.text.toString()
-            val nazwisko = binding.editTextLastName.text.toString()
-            val haslo = binding.editTextPassword.text.toString()
-            val hasloRepeat = binding.editTextConfirmPassword.text.toString()
+            val firstName = binding.editTextFirstName.text.toString()
+            val lastName = binding.editTextLastName.text.toString()
+            val password = binding.editTextPassword.text.toString()
+            val passwordRepeat = binding.editTextConfirmPassword.text.toString()
 
-            if (email.isNotEmpty() && imie.isNotEmpty() && nazwisko.isNotEmpty() && haslo.isNotEmpty() && hasloRepeat.isNotEmpty()) {
-                if (haslo == hasloRepeat) {
-                    firebaseAuth.createUserWithEmailAndPassword(email, haslo).addOnCompleteListener {
-                            if (it.isSuccessful) {
-                                val intent = Intent(this, Login::class.java)
-                                startActivity(intent)
+            if (email.isNotEmpty() && firstName.isNotEmpty() && lastName.isNotEmpty() && password.isNotEmpty() && passwordRepeat.isNotEmpty()) {
+                if (password == passwordRepeat) {
+                    firebaseAuth.createUserWithEmailAndPassword(email, password).addOnCompleteListener { registrationTask ->
+                        if (registrationTask.isSuccessful) {
+                            val user = firebaseAuth.currentUser
+                            val userId = user?.uid
+                            if (userId != null) {
+                                val userData = hashMapOf(
+                                    "userId" to userId,
+                                    "firstName" to firstName,
+                                    "lastName" to lastName
+                                )
+                                firestore.collection("users").document(userId)
+                                    .set(userData)
+                                    .addOnSuccessListener {
+                                        val intent = Intent(this, Login::class.java)
+                                        startActivity(intent)
+                                    }
+                                    .addOnFailureListener { exception ->
+                                        Toast.makeText(
+                                            this,
+                                            "Registration failed: ${exception.message}",
+                                            Toast.LENGTH_SHORT
+                                        ).show()
+                                    }
                             } else {
-                                Toast.makeText(this, it.exception.toString(), Toast.LENGTH_SHORT)
-                                    .show()
+                                Toast.makeText(
+                                    this,
+                                    "User ID is null",
+                                    Toast.LENGTH_SHORT
+                                ).show()
                             }
+                        } else {
+                            Toast.makeText(
+                                this,
+                                "Registration failed: ${registrationTask.exception?.message}",
+                                Toast.LENGTH_SHORT
+                            ).show()
                         }
+                    }
                 } else {
-                    Toast.makeText(this, "Hasła różnią się", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, "Passwords do not match", Toast.LENGTH_SHORT).show()
                 }
             } else {
-                Toast.makeText(this, "Wypełnij wszystkie pola", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "Please fill in all fields", Toast.LENGTH_SHORT).show()
             }
         }
 
-
         val leftIcon: ImageView = findViewById(R.id.backButtonR)
-
-        leftIcon.setOnClickListener{
+        leftIcon.setOnClickListener {
             val intent = Intent(this@RegisterActivity, MainActivity::class.java)
             startActivity(intent)
             finish()
         }
-
     }
 }
