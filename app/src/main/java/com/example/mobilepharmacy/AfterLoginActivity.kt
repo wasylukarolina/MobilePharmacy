@@ -59,6 +59,8 @@ class AfterLoginActivity : AppCompatActivity() {
                 }
                 R.id.nav_settings -> {
                     // Obsługa kliknięcia przycisku "Settings"
+                    val intent = Intent(this, SettingsActivity::class.java)
+                    startActivity(intent)
                     true
                 }
                 R.id.nav_logout -> {
@@ -69,6 +71,7 @@ class AfterLoginActivity : AppCompatActivity() {
                 else -> false
             }
         }
+
 
         val addDrugIcon = findViewById<ImageView>(R.id.addDrugIcon)
         addDrugIcon.setOnClickListener {
