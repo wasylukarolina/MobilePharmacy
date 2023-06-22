@@ -31,6 +31,7 @@ class AfterLoginActivity : AppCompatActivity() {
         val drawerLayout: DrawerLayout = findViewById(R.id.calendar)
         val navigationView: NavigationView = findViewById(R.id.nav_view)
 
+        // boczne menu
         toggle = object : ActionBarDrawerToggle(this, drawerLayout, R.string.open, R.string.close) {
             override fun onDrawerOpened(drawerView: View) {
                 super.onDrawerOpened(drawerView)

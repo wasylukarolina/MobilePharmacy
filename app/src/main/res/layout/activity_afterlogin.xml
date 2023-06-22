@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.drawerlayout.widget.DrawerLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.drawerlayout.widget.DrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/calendar"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:theme="@style/AppTheme"
     android:fitsSystemWindows="true">
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -68,9 +68,9 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="28dp"
             android:layout_marginTop="360dp"
-            android:textColor="@color/black"
-            android:dateTextAppearance="@style/CalendarTextStyle"
             android:background="@drawable/calendar_border"
+            android:dateTextAppearance="@style/CalendarTextStyle"
+            android:textColor="@color/black"
             android:textColorPrimary="@color/black"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
@@ -94,8 +94,8 @@
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:layout_gravity="start"
+        android:fitsSystemWindows="true"
         app:headerLayout="@layout/header"
-        app:menu="@menu/sessionmenu"
-        android:fitsSystemWindows="true" />
+        app:menu="@menu/sessionmenu" />
 
 </androidx.drawerlayout.widget.DrawerLayout>

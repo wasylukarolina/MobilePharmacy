@@ -34,7 +34,7 @@ class Login : AppCompatActivity() {
                         editor.putString("email", email)
                         editor.putString("password", haslo)
 
-// Pobieranie ID aktualnie zalogowanego użytkownika
+                        // Pobieranie ID aktualnie zalogowanego użytkownika
                         val auth = FirebaseAuth.getInstance()
                         val currentUser = auth.currentUser
                         val userId = currentUser?.uid

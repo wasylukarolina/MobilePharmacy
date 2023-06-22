@@ -37,19 +37,18 @@ class MainActivity : AppCompatActivity() {
             setContentView(R.layout.activity_main)
         }
 
-
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
-
 
         // Ustawienie zdjęcia
         binding.imgStartViewImage.setImageResource(R.drawable.logo)
 
+        //Rejestracja
         binding.registerButton.setOnClickListener {
             startActivity(Intent(this, RegisterActivity::class.java))
         }
 
+        // Logowanie
         binding.loginButton.setOnClickListener {
             startActivity(Intent(this, Login::class.java))
         }

@@ -12,11 +12,11 @@
         <!-- Customize your theme here -->
     </style>
 
-
     <style name="AppTheme" parent="Theme.MaterialComponents.Light">
         <item name="colorPrimary">#AD4027</item>
         <item name="colorPrimaryDark">#AD4027</item>
         <item name="colorAccent">#AD4027</item>
+        <item name="android:windowBackground">#FFFFFF</item>
     </style>
 
 
@@ -24,9 +24,6 @@
     <style name="CustomFilledBoxStyle" parent="Widget.MaterialComponents.TextInputLayout.FilledBox">
         <item name="boxBackgroundColor">#aa412a</item>
     </style>
-
-
-
 
 
     <style name="EditTextStyle">
