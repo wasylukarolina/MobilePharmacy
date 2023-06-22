@@ -33,12 +33,13 @@ class AddDrugActivity : AppCompatActivity() {
     private val filteredDrugsList: ArrayList<String> = ArrayList()
     private lateinit var autoComplete: AutoCompleteTextView
     private lateinit var adapter: ArrayAdapter<String>
-
+    private lateinit var customEditText: EditText
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_add_drug)
         var databaseRef = FirebaseDatabase.getInstance().reference
+        customEditText = findViewById(R.id.customEditText)
 
         fun saveDataToFirebase() {
             val autoComplete: AutoCompleteTextView = findViewById(R.id.auto_complete_txt)
@@ -56,7 +57,6 @@ class AddDrugActivity : AppCompatActivity() {
             val dawkowanie = ArrayList<String>()
 
             val customCheckbox = findViewById<CheckBox>(R.id.customCheckBox)
-            val customEditText = findViewById<EditText>(R.id.customEditText)
 
             if (customCheckbox.isChecked) {
                 for (i in 0 until timePickerLayout.childCount) {
@@ -68,7 +68,7 @@ class AddDrugActivity : AppCompatActivity() {
                 }
             } else {
                 val customQuantity = customEditText.text.toString().toIntOrNull()
-                if (customQuantity != null) {
+                if (customQuantity != null && customQuantity in 1..24) {
                     val firstTimePicker = timePickerLayout.getChildAt(0) as TimePicker
                     val hour = firstTimePicker.hour
                     val minute = firstTimePicker.minute
@@ -118,14 +118,22 @@ class AddDrugActivity : AppCompatActivity() {
                         firestoreDB.collection("leki")
                             .add(dataMap)
                             .addOnSuccessListener {
-                                Toast.makeText(this, "Dodano do bazy", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(
+                                    this,
+                                    "Dane zostały dodane do Firestore.",
+                                    Toast.LENGTH_SHORT
+                                ).show()
                             }
                             .addOnFailureListener { e ->
                                 Log.e(TAG, "Błąd podczas dodawania danych do Firestore", e)
                                 Toast.makeText(this, "Wystąpił błąd", Toast.LENGTH_SHORT).show()
                             }
                     } else {
-                        Toast.makeText(this, "Lek o nazwie $nazwaProduktu już istnieje w bazie.", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(
+                            this,
+                            "Lek o nazwie $nazwaProduktu już istnieje w bazie.",
+                            Toast.LENGTH_SHORT
+                        ).show()
                     }
                 }
                 .addOnFailureListener { e ->
@@ -135,15 +143,20 @@ class AddDrugActivity : AppCompatActivity() {
         }
 
 
-
         val buttonZapisz = findViewById<Button>(R.id.buttonDodaj)
         buttonZapisz.setOnClickListener {
             val nazwaProduktu = autoComplete.text.toString()
+            val customQuantity = customEditText.text.toString().toIntOrNull()
             if (nazwaProduktu.isEmpty()) {
                 Toast.makeText(this, "Nazwa leku nie może być pusta.", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
+            } else {
+                if (customQuantity in 1..23) {
+                    saveDataToFirebase()
+                } else {
+                    Toast.makeText(this, "Niepoprawne dawkowanie", Toast.LENGTH_SHORT).show()
+                }
             }
-            saveDataToFirebase()
         }
 
 
@@ -166,9 +179,11 @@ class AddDrugActivity : AppCompatActivity() {
             }
         })
 
-        autoComplete.onItemClickListener = AdapterView.OnItemClickListener { adapterView, view, i, l ->
-            val itemSelected = adapterView.getItemAtPosition(i)
-        }
+        autoComplete.onItemClickListener =
+            AdapterView.OnItemClickListener { adapterView, view, i, l ->
+                val itemSelected = adapterView.getItemAtPosition(i)
+                Toast.makeText(this, "$itemSelected", Toast.LENGTH_SHORT).show()
+            }
 
 
         // Uzyskanie referencji do slidów
@@ -215,7 +230,8 @@ class AddDrugActivity : AppCompatActivity() {
         try {
             pullParserFactory = XmlPullParserFactory.newInstance()
             val parser = pullParserFactory.newPullParser()
-            val inputStream = applicationContext.assets.open("Rejestr_Produktow_Leczniczych_calosciowy_stan_na_dzien_20230511.xml")
+            val inputStream =
+                applicationContext.assets.open("Rejestr_Produktow_Leczniczych_calosciowy_stan_na_dzien_20230511.xml")
             parser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, false)
             parser.setInput(inputStream, null)
 
@@ -230,7 +246,12 @@ class AddDrugActivity : AppCompatActivity() {
             autoComplete.setAdapter(adapter2)
 
             autoComplete.addTextChangedListener(object : TextWatcher {
-                override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {
+                override fun beforeTextChanged(
+                    s: CharSequence,
+                    start: Int,
+                    count: Int,
+                    after: Int
+                ) {
                     // Niepotrzebne
                 }
 
@@ -243,9 +264,11 @@ class AddDrugActivity : AppCompatActivity() {
                 }
             })
 
-            autoComplete.onItemClickListener = AdapterView.OnItemClickListener { adapterView, view, i, l ->
-                val itemSelected = adapterView.getItemAtPosition(i)
-            }
+            autoComplete.onItemClickListener =
+                AdapterView.OnItemClickListener { adapterView, view, i, l ->
+                    val itemSelected = adapterView.getItemAtPosition(i)
+                    Toast.makeText(this, "$itemSelected", Toast.LENGTH_SHORT).show()
+                }
         } catch (e: XmlPullParserException) {
             e.printStackTrace()
         } catch (e: IOException) {
@@ -255,7 +278,8 @@ class AddDrugActivity : AppCompatActivity() {
         //obsługa wyboru dawkowania
 
         val quantityOptions = resources.getStringArray(R.array.quantity_options)
-        val quantityAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, quantityOptions)
+        val quantityAdapter =
+            ArrayAdapter(this, android.R.layout.simple_spinner_item, quantityOptions)
         quantityAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         val quantitySpinner = findViewById<Spinner>(R.id.quantitySpinner)
 
@@ -269,7 +293,12 @@ class AddDrugActivity : AppCompatActivity() {
         customEditText.visibility = if (customCheckbox.isChecked) View.GONE else View.VISIBLE
 
         quantitySpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+            override fun onItemSelected(
+                parent: AdapterView<*>?,
+                view: View?,
+                position: Int,
+                id: Long
+            ) {
                 quantity = position + 1
                 updateTimeWindows()
 
@@ -284,7 +313,7 @@ class AddDrugActivity : AppCompatActivity() {
                     }
                 } else {
                     val customQuantity = customEditText.text.toString().toIntOrNull()
-                    if (customQuantity != null && customQuantity > 1) {
+                    if (customQuantity != null && customQuantity in 1..24) {
                         customEditText.visibility = View.GONE
                         timePickerLayout.removeAllViews()
                         val timePicker = TimePicker(this@AddDrugActivity)
