@@ -2,13 +2,15 @@
     <!-- Base application theme. -->
     <style name="Theme.MobilePharmacy" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <!-- Primary brand color -->
-        <item name="colorPrimary">@color/white</item>
-        <item name="colorPrimaryVariant">@color/white</item>
         <item name="colorOnPrimary">@color/black</item>
-        <!-- Secondary brand color -->
+        <!-- Secondary brand color. -->
         <item name="colorOnSecondary">@color/black</item>
+        <!-- Background color -->
+        <item name="android:windowBackground">#FFFFFF</item>
+        <!-- Text color -->
+        <item name="android:textColor">@color/black</item>
         <!-- Status bar color -->
-        <item name="android:statusBarColor">?attr/colorPrimaryVariant</item>
+        <item name="android:statusBarColor">@color/white</item>
         <!-- Customize your theme here -->
     </style>
 
@@ -22,7 +24,11 @@
 
     <!--    kolory -->
     <style name="CustomFilledBoxStyle" parent="Widget.MaterialComponents.TextInputLayout.FilledBox">
-        <item name="boxBackgroundColor">#aa412a</item>
+        <item name="boxBackgroundColor" tools:override="true">@color/red
+        </item> <!-- Ustawienie czerwonego koloru akcentu po kliknięciu -->
+        <item name="background" tools:override="true">@color/white</item>
+        <item name="android:textColor" tools:override="true">@color/black</item>
+        <item name="hintTextColor" tools:override="true">@color/red</item>
     </style>
 
 
@@ -71,4 +77,9 @@
     <style name="Theme.MobilePharmacy.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
 
     <style name="Theme.MobilePharmacy.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
+
+    <style name="TimePickerTheme" parent="Theme.AppCompat.Light.Dialog">
+        <item name="colorAccent">@color/red</item>
+    </style>
+
 </resources>

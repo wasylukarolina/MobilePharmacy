@@ -1,6 +1,7 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:theme="@style/TimePickerTheme">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -10,7 +11,11 @@
 
         <!--        tutaj powinno być wyszukiwanie leków-->
         <com.google.android.material.textfield.TextInputLayout
+            android:textColorHint="@color/grey"
+            android:outlineAmbientShadowColor="@color/grey"
+            android:outlineSpotShadowColor="@color/grey"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="Wybierz lek">
@@ -73,18 +78,24 @@
             android:id="@+id/customEditText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Podaj pierwszą godzinę"
+            android:hint="Podaj częstotliwość przyjmowania leków w godzinach"
             android:inputType="number"
             android:visibility="gone" />
 
 
+
         <com.google.android.material.textfield.TextInputLayout
+            android:textColorHint ="@color/red"
+            android:background="@color/white"
             android:id="@+id/timePickerLayout"
-            style="@style/CustomFilledBoxStyle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
+            android:textColor="#FFFCFC"
             android:visibility="gone">
+
+
+            <!--            style="@style/CustomFilledBoxStyle"-->
 
             <!-- Pozostałe elementy wewnątrz TextInputLayout -->
 

@@ -51,11 +51,14 @@ class AfterLoginActivity : AppCompatActivity() {
         navigationView.setNavigationItemSelectedListener { menuItem ->
             when (menuItem.itemId) {
                 R.id.nav_home -> {
-                    // Obsługa kliknięcia przycisku "Home"
+                    val intent = Intent(this, AfterLoginActivity::class.java)
+                    startActivity(intent)
                     true
                 }
                 R.id.nav_account -> {
                     // Obsługa kliknięcia przycisku "Account"
+                    val intent = Intent(this, AccountActivity::class.java)
+                    startActivity(intent)
                     true
                 }
                 R.id.nav_settings -> {

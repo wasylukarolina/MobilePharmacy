@@ -281,6 +281,7 @@ class AddDrugActivity : AppCompatActivity() {
                     for (i in 1..quantity) {
                         val timePicker = TimePicker(this@AddDrugActivity)
                         timePicker.setIs24HourView(true)
+                        timePicker.setBackgroundColor(Color.WHITE)
                         timePickerLayout.addView(timePicker)
                     }
                 } else {
@@ -290,12 +291,14 @@ class AddDrugActivity : AppCompatActivity() {
                         timePickerLayout.removeAllViews()
                         val timePicker = TimePicker(this@AddDrugActivity)
                         timePicker.setIs24HourView(true)
+                        timePicker.setBackgroundColor(Color.WHITE)
                         timePickerLayout.addView(timePicker)
                     } else {
                         customEditText.visibility = View.VISIBLE
                         timePickerLayout.removeAllViews()
                         val timePicker = TimePicker(this@AddDrugActivity)
                         timePicker.setIs24HourView(true)
+                        timePicker.setBackgroundColor(Color.WHITE)
                         timePickerLayout.addView(timePicker)
                     }
                 }
@@ -315,6 +318,7 @@ class AddDrugActivity : AppCompatActivity() {
                 timePickerLayout.removeAllViews()
                 val timePicker = TimePicker(this@AddDrugActivity)
                 timePicker.setIs24HourView(true)
+                timePicker.setBackgroundColor(Color.WHITE)
                 timePickerLayout.addView(timePicker)
             }
         }
@@ -341,7 +345,7 @@ class AddDrugActivity : AppCompatActivity() {
         for (i in 1..quantity) {
             val timePicker = TimePicker(this)
             timePicker.setIs24HourView(true)
-
+            timePicker.setBackgroundColor(Color.WHITE)
             timePickerLayout.addView(timePicker)
         }
 
