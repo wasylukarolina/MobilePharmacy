@@ -19,7 +19,7 @@ class MedicationReminderReceiver : BroadcastReceiver() {
 
     private fun showNotification(context: Context, doseTime: String?) {
         val channelId = "medication_reminder_channel"
-        val channelName = "Medication Reminder"
+        val channelName = "com.example.mobilepharmacy.Medication Reminder"
 
         val notificationBuilder = NotificationCompat.Builder(context, channelId)
             .setSmallIcon(R.drawable.notification_icon)

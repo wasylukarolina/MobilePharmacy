@@ -25,6 +25,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.messaging.FirebaseMessaging
+import java.text.SimpleDateFormat
 import java.util.*
 
 class MedicationsActivity : AppCompatActivity() {
@@ -45,7 +46,12 @@ class MedicationsActivity : AppCompatActivity() {
 
         val medicationsRecyclerView: RecyclerView = findViewById(R.id.medicationsRecyclerView)
         medicationsRecyclerView.layoutManager = LinearLayoutManager(this)
-        medicationsRecyclerView.addItemDecoration(DividerItemDecoration(this, DividerItemDecoration.VERTICAL))
+        medicationsRecyclerView.addItemDecoration(
+            DividerItemDecoration(
+                this,
+                DividerItemDecoration.VERTICAL
+            )
+        )
         medicationsRecyclerView.adapter = MedicationsAdapter()
 
         val userId = firebaseAuth.currentUser?.uid
@@ -62,7 +68,8 @@ class MedicationsActivity : AppCompatActivity() {
                         val medicationDose = document.get("dawkowanie") as? List<String>
 
                         if (medicationName != null && medicationDose != null) {
-                            val medicationInfo = "$medicationName\nDawkowanie: ${medicationDose.joinToString(", ")}"
+                            val medicationInfo =
+                                "$medicationName\nDawkowanie: ${medicationDose.joinToString(", ")}"
                             medicationsList.add(medicationInfo)
                         }
                     }
@@ -76,12 +83,14 @@ class MedicationsActivity : AppCompatActivity() {
         }
     }
 
-    inner class MedicationsAdapter : RecyclerView.Adapter<MedicationsAdapter.MedicationViewHolder>() {
+    inner class MedicationsAdapter :
+        RecyclerView.Adapter<MedicationsAdapter.MedicationViewHolder>() {
 
         private val medicationsList = mutableListOf<String>()
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MedicationViewHolder {
-            val view = LayoutInflater.from(parent.context).inflate(R.layout.item_medication, parent, false)
+            val view =
+                LayoutInflater.from(parent.context).inflate(R.layout.item_medication, parent, false)
             return MedicationViewHolder(view)
         }
 
@@ -95,8 +104,10 @@ class MedicationsActivity : AppCompatActivity() {
         }
 
         inner class MedicationViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-            private val medicationNameTextView: TextView = itemView.findViewById(R.id.medicationNameTextView)
-            private val medicationDoseLayout: LinearLayout = itemView.findViewById(R.id.medicationDoseLayout)
+            private val medicationNameTextView: TextView =
+                itemView.findViewById(R.id.medicationNameTextView)
+            private val medicationDoseLayout: LinearLayout =
+                itemView.findViewById(R.id.medicationDoseLayout)
             private val deleteButton: Button = itemView.findViewById(R.id.deleteButton)
 
             init {
@@ -136,14 +147,73 @@ class MedicationsActivity : AppCompatActivity() {
                     checkBox.setOnCheckedChangeListener { _, isChecked ->
                         if (isChecked) {
                             checkBox.paintFlags = checkBox.paintFlags or Paint.STRIKE_THRU_TEXT_FLAG
-                        } else {
-                            checkBox.paintFlags = checkBox.paintFlags and Paint.STRIKE_THRU_TEXT_FLAG.inv()
+                            decreaseMedicationCount(medicationName) // Zmniejsz liczbę leków w bazie
+                            checkBox.isEnabled =
+                                false // Wyłącz checkbox, aby uniemożliwić odznaczenie
+
+                            val dateFormat =
+                                SimpleDateFormat("dd-MM-yyyy HH:mm", Locale.getDefault())
+                            val currentDateAndTime: String = dateFormat.format(Date())
+
+                            // Dodaj datę zaznaczenia checkboxa do bazy danych
+                            addCheckboxCheckedDateToDatabase(medicationName, currentDateAndTime)
                         }
                     }
                     medicationDoseLayout.addView(checkBox)
+                }
+            }
 
-                    // Schedule notification for medication dose time
-//                    scheduleMedicationReminderNotification(checkBox.text.toString())
+            private fun addCheckboxCheckedDateToDatabase(medicationName: String, dateTime: String) {
+                val userId = firebaseAuth.currentUser?.uid
+                if (userId != null) {
+                    val medicationCheckedDateData = hashMapOf(
+                        "medicationName" to medicationName,
+                        "dateTime" to dateTime,
+                        "userId" to userId
+                    )
+
+                    firestore.collection("checkedMedications")
+                        .add(medicationCheckedDateData)
+                        .addOnSuccessListener {
+                            // Dodanie daty zaznaczenia checkboxa do bazy danych powiodło się
+                        }
+                        .addOnFailureListener { exception ->
+                            // Handle failure
+                        }
+                }
+            }
+
+            private fun decreaseMedicationCount(medicationName: String) {
+                val userId = firebaseAuth.currentUser?.uid
+                if (userId != null) {
+                    firestore.collection("leki")
+                        .whereEqualTo("userId", userId)
+                        .whereEqualTo("nazwaProduktu", medicationName)
+                        .get()
+                        .addOnSuccessListener { querySnapshot ->
+                            for (document in querySnapshot.documents) {
+                                val medicationCountString = document.getString("ilosc tabletek")
+                                var medicationCount = medicationCountString?.toLongOrNull() ?: 0
+
+                                if (medicationCount > 0) {
+                                    medicationCount -= 1
+
+                                    document.reference.update(
+                                        "ilosc tabletek",
+                                        medicationCount.toString()
+                                    )
+                                        .addOnSuccessListener {
+                                            // Aktualizacja liczby leków w bazie powiodła się
+                                        }
+                                        .addOnFailureListener { exception ->
+                                            // Handle failure
+                                        }
+                                }
+                            }
+                        }
+                        .addOnFailureListener { exception ->
+                            // Handle failure
+                        }
                 }
             }
         }
@@ -171,40 +241,5 @@ class MedicationsActivity : AppCompatActivity() {
             medicationsList.addAll(medications)
             notifyDataSetChanged()
         }
-
-//        private fun scheduleMedicationReminderNotification(doseTime: String) {
-//            val calendar = Calendar.getInstance()
-//            val currentTime = calendar.timeInMillis
-//            val doseTimeParts = doseTime.split(":")
-//            if (doseTimeParts.size == 2) {
-//                val doseHour = doseTimeParts[0].toInt()
-//                val doseMinute = doseTimeParts[1].toInt()
-//
-//                calendar.set(Calendar.HOUR_OF_DAY, doseHour)
-//                calendar.set(Calendar.MINUTE, doseMinute)
-//                calendar.set(Calendar.SECOND, 0)
-//
-//                if (calendar.timeInMillis > currentTime) {
-//                    val reminderIntent = MedicationReminderReceiver.(
-//                        this@MedicationsActivity,
-//                        doseTime
-//                    )
-//                    val pendingIntent = PendingIntent.getBroadcast(
-//                        this@MedicationsActivity,
-//                        0,
-//                        reminderIntent,
-//                        PendingIntent.FLAG_UPDATE_CURRENT
-//                    )
-//
-//                    val alarmManager =
-//                        getSystemService(Context.ALARM_SERVICE) as? AlarmManager
-//                    alarmManager?.setExact(
-//                        AlarmManager.RTC_WAKEUP,
-//                        calendar.timeInMillis,
-//                        pendingIntent
-//                    )
-//                }
-//            }
-//        }
     }
 }
