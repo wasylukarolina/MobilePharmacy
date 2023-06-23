@@ -48,6 +48,7 @@ class AddDrugActivity : AppCompatActivity() {
             val numberPickerDay = findViewById<NumberPicker>(R.id.numberPickerDay)
             val numberPickerMonth = findViewById<NumberPicker>(R.id.numberPickerMonth)
             val numberPickerYear = findViewById<NumberPicker>(R.id.numberPickerYear)
+            val iloscTabletek = findViewById<EditText>(R.id.iloscTabletek)
             val day = numberPickerDay.value
             val month = numberPickerMonth.value
             val year = numberPickerYear.value
@@ -113,6 +114,7 @@ class AddDrugActivity : AppCompatActivity() {
                         dataMap["nazwaProduktu"] = nazwaProduktu
                         dataMap["dataWaznosci"] = dataWaznosci
                         dataMap["dawkowanie"] = dawkowanie
+                        dataMap["ilosc tabletek"] = iloscTabletek.text.toString()
 
                         // Dodawanie danych do Firestore
                         firestoreDB.collection("leki")
@@ -120,7 +122,7 @@ class AddDrugActivity : AppCompatActivity() {
                             .addOnSuccessListener {
                                 Toast.makeText(
                                     this,
-                                    "Dane zostały dodane do Firestore.",
+                                    "Lek został dodany.",
                                     Toast.LENGTH_SHORT
                                 ).show()
                             }
@@ -237,9 +239,13 @@ class AddDrugActivity : AppCompatActivity() {
 
             val drugs = parseXml(parser)
 
-            for (drug in drugs!!) {
-                drugsList.add(drug.nazwaProduktu)
+            drugs?.let {
+                for (drug in it) {
+                    val text = drug.nazwaProduktu
+                    drugsList.add(text)
+                }
             }
+
 
             val autoComplete: AutoCompleteTextView = findViewById(R.id.auto_complete_txt)
             val adapter2 = ArrayAdapter(this, R.layout.list_drugs, drugsList)
@@ -391,10 +397,29 @@ class AddDrugActivity : AppCompatActivity() {
                 XmlPullParser.START_DOCUMENT -> drugs = ArrayList()
                 XmlPullParser.START_TAG -> {
                     name = parser.name
+                    drug
+
                     if (name == "produktLeczniczy") {
                         drug = Drugs()
                         drug.nazwaProduktu = parser.getAttributeValue(null, "nazwaProduktu")
+                    } else if (name == "opakowanie" && drug != null) {
+                        val rodzajOpakowania = parser.getAttributeValue(null, "rodzajOpakowania")
+                        val pojemnosc = parser.getAttributeValue(null, "pojemnosc")
+
+                        if (rodzajOpakowania != null) {
+                            drug.rodzajOpakowania = rodzajOpakowania
+                        } else {
+                            // Jeśli rodzajOpakowania jest null, możesz przypisać domyślną wartość
+                            drug.rodzajOpakowania = "tabletki"
+                        }
+
+                        if (pojemnosc != null) {
+                            drug.pojemnosc = pojemnosc
+                        } else {
+                            drug.pojemnosc = "0"
+                        }
                     }
+
                 }
                 XmlPullParser.END_TAG -> {
                     name = parser.name

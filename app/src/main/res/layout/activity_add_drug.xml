@@ -75,13 +75,22 @@
             android:layout_height="wrap_content"
             android:text="Niestandardowe" />
 
+
+        <EditText
+            android:id="@+id/iloscTabletek"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Podaj ilość tabletek w opakowaniu"
+            android:inputType="number"
+            android:visibility="visible" />
+
         <EditText
             android:id="@+id/customEditText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="Podaj częstotliwość przyjmowania leków w godzinach"
             android:inputType="number"
-            android:visibility="gone" />
+            android:visibility="visible" />
 
 
         <com.google.android.material.textfield.TextInputLayout

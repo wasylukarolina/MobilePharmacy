@@ -23,7 +23,7 @@
         style="@style/button"
         android:layout_width="262dp"
         android:layout_height="53dp"
-        android:text="ZAPISZ ZMIANY"
+        android:text="Zmień hasło"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.496"
@@ -31,32 +31,5 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.731" />
 
-    <EditText
-        android:id="@+id/passwordSettings"
-        android:layout_width="231dp"
-        android:layout_height="67dp"
-        android:text="Wprowadź hasło"
-        android:textAlignment="center"
-        android:textColor="@color/grey"
-        android:textColorHint="@color/grey"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.279" />
-
-    <EditText
-        android:id="@+id/repeatSettings"
-        android:layout_width="276dp"
-        android:layout_height="74dp"
-        android:text="Wprowadź ponownie hasło"
-        android:textAlignment="center"
-        android:textColor="@color/grey"
-        android:textColorHint="@color/grey"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.425" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

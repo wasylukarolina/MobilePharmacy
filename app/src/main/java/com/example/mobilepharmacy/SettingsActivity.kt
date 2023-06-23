@@ -1,10 +1,12 @@
 package com.example.mobilepharmacy
 
-import android.content.Intent
+import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
+import android.util.Patterns
 import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import com.google.firebase.auth.FirebaseAuth
 
@@ -13,46 +15,58 @@ class SettingsActivity : AppCompatActivity() {
     private lateinit var confirmPasswordEditText: EditText
     private lateinit var saveChangesButton: Button
 
-    private lateinit var firebaseAuth: FirebaseAuth
+    private lateinit var user: FirebaseAuth
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.settings)
 
-        // Inicjalizacja elementów interfejsu
-        newPasswordEditText = findViewById(R.id.passwordSettings)
-        confirmPasswordEditText = findViewById(R.id.repeatSettings)
+        // Initialize UI elements
+
         saveChangesButton = findViewById(R.id.buttonSaveChanges)
 
-        // Inicjalizacja instancji FirebaseAuth
-        firebaseAuth = FirebaseAuth.getInstance()
+        // Initialize FirebaseAuth instance
+        user = FirebaseAuth.getInstance()
 
-        // Obsługa kliknięcia przycisku "Zapisz zmiany"
+        // Handle "Save Changes" button click
         saveChangesButton.setOnClickListener {
-            val newPassword = newPasswordEditText.text.toString().trim()
-            val confirmPassword = confirmPasswordEditText.text.toString().trim()
+            val builder = AlertDialog.Builder(this)
+            val view = layoutInflater.inflate(R.layout.activity_forgot_password, null)
+            val userEmail = view.findViewById<EditText>(R.id.editBox)
 
-            if (newPassword.isNotEmpty() && newPassword == confirmPassword) {
-                // Aktualizacja hasła użytkownika
-                val user = firebaseAuth.currentUser
-                if (user != null) {
-                    user.updatePassword(newPassword)
-                        .addOnCompleteListener { task ->
-                            if (task.isSuccessful) {
-                                Toast.makeText(this, "Hasło zostało zmienione", Toast.LENGTH_SHORT).show()
-                                val intent = Intent(this, AfterLoginActivity::class.java)
-                                startActivity(intent)
-                            } else {
-                                val errorMessage = task.exception?.message
-                                Toast.makeText(this, "Nie udało się zmienić hasła: $errorMessage", Toast.LENGTH_SHORT).show()
-                            }
-                        }
-                } else {
-                    Toast.makeText(this, "Nie udało się pobrać informacji o użytkowniku", Toast.LENGTH_SHORT).show()
-                }
-            } else {
-                Toast.makeText(this, "Hasła się nie zgadzają", Toast.LENGTH_SHORT).show()
+            builder.setView(view)
+            val dialog = builder.create()
+
+            view.findViewById<Button>(R.id.btnReset).setOnClickListener {
+                compareEmail(userEmail)
+                dialog.dismiss()
+            }
+
+            view.findViewById<Button>(R.id.btnCancel).setOnClickListener {
+                dialog.dismiss()
+            }
+
+            if (dialog.window != null) {
+                dialog.window!!.setBackgroundDrawable(ColorDrawable(0))
+            }
+            dialog.show()
+
+        }
+    }
+
+    private fun compareEmail(email: EditText) {
+        if (email.text.toString().isEmpty()) {
+            return
+        }
+        if (!Patterns.EMAIL_ADDRESS.matcher(email.text.toString()).matches()) {
+            return
+        }
+        user.sendPasswordResetEmail(email.text.toString()).addOnCompleteListener { task ->
+            if (task.isSuccessful) {
+                Toast.makeText(this, "Check your email", Toast.LENGTH_SHORT).show()
             }
         }
     }
+
 }
+

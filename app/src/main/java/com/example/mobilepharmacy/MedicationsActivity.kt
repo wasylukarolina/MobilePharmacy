@@ -1,8 +1,13 @@
 package com.example.mobilepharmacy
 
+import android.app.AlarmManager
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.app.PendingIntent
+import android.content.Context
 import android.graphics.Color
 import android.graphics.Paint
-import androidx.appcompat.app.AppCompatActivity
+import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -11,6 +16,7 @@ import android.widget.Button
 import android.widget.CheckBox
 import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.graphics.drawable.DrawableCompat
 import androidx.core.widget.CompoundButtonCompat
 import androidx.recyclerview.widget.DividerItemDecoration
@@ -18,11 +24,15 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.messaging.FirebaseMessaging
+import java.util.*
 
 class MedicationsActivity : AppCompatActivity() {
 
     private lateinit var firestore: FirebaseFirestore
     private lateinit var firebaseAuth: FirebaseAuth
+
+    private val CHANNEL_ID = "MedicationReminderChannel"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -30,6 +40,8 @@ class MedicationsActivity : AppCompatActivity() {
 
         firestore = FirebaseFirestore.getInstance()
         firebaseAuth = FirebaseAuth.getInstance()
+
+//        createNotificationChannel()
 
         val medicationsRecyclerView: RecyclerView = findViewById(R.id.medicationsRecyclerView)
         medicationsRecyclerView.layoutManager = LinearLayoutManager(this)
@@ -129,11 +141,12 @@ class MedicationsActivity : AppCompatActivity() {
                         }
                     }
                     medicationDoseLayout.addView(checkBox)
+
+                    // Schedule notification for medication dose time
+//                    scheduleMedicationReminderNotification(checkBox.text.toString())
                 }
             }
         }
-
-
 
         private fun deleteMedicationFromDatabase(medication: String) {
             val userId = firebaseAuth.currentUser?.uid
@@ -158,6 +171,40 @@ class MedicationsActivity : AppCompatActivity() {
             medicationsList.addAll(medications)
             notifyDataSetChanged()
         }
+
+//        private fun scheduleMedicationReminderNotification(doseTime: String) {
+//            val calendar = Calendar.getInstance()
+//            val currentTime = calendar.timeInMillis
+//            val doseTimeParts = doseTime.split(":")
+//            if (doseTimeParts.size == 2) {
+//                val doseHour = doseTimeParts[0].toInt()
+//                val doseMinute = doseTimeParts[1].toInt()
+//
+//                calendar.set(Calendar.HOUR_OF_DAY, doseHour)
+//                calendar.set(Calendar.MINUTE, doseMinute)
+//                calendar.set(Calendar.SECOND, 0)
+//
+//                if (calendar.timeInMillis > currentTime) {
+//                    val reminderIntent = MedicationReminderReceiver.(
+//                        this@MedicationsActivity,
+//                        doseTime
+//                    )
+//                    val pendingIntent = PendingIntent.getBroadcast(
+//                        this@MedicationsActivity,
+//                        0,
+//                        reminderIntent,
+//                        PendingIntent.FLAG_UPDATE_CURRENT
+//                    )
+//
+//                    val alarmManager =
+//                        getSystemService(Context.ALARM_SERVICE) as? AlarmManager
+//                    alarmManager?.setExact(
+//                        AlarmManager.RTC_WAKEUP,
+//                        calendar.timeInMillis,
+//                        pendingIntent
+//                    )
+//                }
+//            }
+//        }
     }
 }
-
