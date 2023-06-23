@@ -10,7 +10,7 @@
 
     <TextView
         android:id="@+id/textViewSelectedSymptom"
-        android:layout_width="match_parent"
+        android:layout_width="342dp"
         android:layout_height="wrap_content"
         android:text="Wybrane dolegliwości:"
         android:textSize="18sp"
@@ -18,13 +18,13 @@
 
     <Spinner
         android:id="@+id/spinnerSymptoms"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
+        android:layout_width="343dp"
+        android:layout_height="wrap_content" />
 
     <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/buttonShowMedications"
         style="@style/button"
-        android:layout_width="wrap_content"
+        android:layout_width="342dp"
         android:layout_height="wrap_content"
         android:text="Pokaż leki" />
 

@@ -9,24 +9,32 @@
 
     <CheckBox
         android:id="@+id/checkboxCukrzyca"
+        android:textColor="@color/black"
+        android:textColorHint="@color/black"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Cukrzyca"/>
 
     <CheckBox
         android:id="@+id/checkboxAstma"
+        android:textColor="@color/black"
+        android:textColorHint="@color/black"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Astma"/>
 
     <CheckBox
         android:id="@+id/checkboxCiaza"
+        android:textColor="@color/black"
+        android:textColorHint="@color/black"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Ciąża"/>
 
     <CheckBox
         android:id="@+id/checkboxChorobySerca"
+        android:textColor="@color/black"
+        android:textColorHint="@color/black"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Choroby serca"/>
