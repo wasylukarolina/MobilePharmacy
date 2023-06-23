@@ -35,7 +35,8 @@
         android:id="@+id/passwordSettings"
         android:layout_width="231dp"
         android:layout_height="67dp"
-        android:text="Wprowadź hasło"
+        android:inputType="textPassword"
+        android:hint="Wprowadź hasło"
         android:textAlignment="center"
         android:textColor="@color/grey"
         android:textColorHint="@color/grey"
@@ -49,7 +50,8 @@
         android:id="@+id/repeatSettings"
         android:layout_width="276dp"
         android:layout_height="74dp"
-        android:text="Wprowadź ponownie hasło"
+        android:inputType="textPassword"
+        android:hint="Wprowadź ponownie hasło"
         android:textAlignment="center"
         android:textColor="@color/grey"
         android:textColorHint="@color/grey"
@@ -58,5 +60,32 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.425" />
+
+
+    <EditText
+        android:id="@+id/firstNameSettings"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:hint="Wprowadź imię"
+        android:textColor="@color/grey"
+        android:textColorHint="@color/grey"
+        app:layout_constraintTop_toBottomOf="@id/repeatSettings"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        />
+
+    <EditText
+        android:id="@+id/lastNameSettings"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:hint="Wprowadź nazwisko"
+        android:textColor="@color/grey"
+        android:textColorHint="@color/grey"
+        app:layout_constraintTop_toBottomOf="@id/firstNameSettings"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
