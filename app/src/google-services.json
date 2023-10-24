@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "562080182785",
+    "project_id": "mobilnaapteka-8dca0",
+    "storage_bucket": "mobilnaapteka-8dca0.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:562080182785:android:4b3a6908b08b0258498600",
+        "android_client_info": {
+          "package_name": "com.example.mobilepharmacy"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "562080182785-m3r4hl2fnm7f8asj02r82luadvc314d7.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.mobilepharmacy",
+            "certificate_hash": "7757af71ad8fe553f7242fa94e854a39884efeb2"
+          }
+        },
+        {
+          "client_id": "562080182785-g8v6j6rc22drisqris9cvhm4dfvsjnbq.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC_b7ISYoOfEw6esKzSMh45Z9o1Z4RO-WI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "562080182785-46m2iq4p5j0u8oghsngnc1dfg59a3ms0.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
