@@ -10,35 +10,73 @@
     tools:context=".MainActivity">
 
 
+    <TextView
+        android:id="@+id/hello_main"
+        android:layout_width="228dp"
+        android:layout_height="49dp"
+        android:layout_marginBottom="20dp"
+        android:gravity="center"
+        android:text="Zaloguj się przy pomocy"
+        android:textSize="20sp"
+        app:layout_constraintBottom_toTopOf="@+id/loginButton"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.497"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/imgStartViewImage"
+        app:layout_constraintVertical_bias="0.0" />
+
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/loginButtonGoogle"
+        style="@style/button"
+        android:layout_width="360dp"
+        android:layout_height="48dp"
+        android:layout_marginTop="200dp"
+        android:text="@string/login_with_google"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.509"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/imgStartViewImage"></androidx.appcompat.widget.AppCompatButton>
+
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/loginButtonFacebook"
+        style="@style/button"
+        android:layout_width="360dp"
+        android:layout_height="48dp"
+        android:layout_marginTop="136dp"
+        android:text="@string/login_with_facebook"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.49"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/imgStartViewImage"></androidx.appcompat.widget.AppCompatButton>
+
     <View
         android:id="@+id/statusBarBackground"
         android:layout_width="match_parent"
         android:layout_height="50dp"
         android:background="@android:color/transparent"
-        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
+        app:layout_constraintTop_toTopOf="parent" />
 
     <ImageView
         android:id="@+id/imgStartViewImage"
-        android:layout_width="367dp"
-        android:layout_height="468dp"
+        android:layout_width="344dp"
+        android:layout_height="318dp"
         android:contentDescription="@string/openImage"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.636"
         app:layout_constraintStart_toStartOf="parent"
         app:srcCompat="@drawable/logo"
-        tools:layout_editor_absoluteY="52dp" />
+        tools:layout_editor_absoluteY="37dp" />
 
     <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/registerButton"
         style="@style/button"
         android:layout_width="360dp"
         android:layout_height="48dp"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="200dp"
         android:text="@string/registerButton"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.509"
+        app:layout_constraintHorizontal_bias="0.49"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/loginButton"></androidx.appcompat.widget.AppCompatButton>
 
@@ -47,10 +85,23 @@
         style="@style/button"
         android:layout_width="360dp"
         android:layout_height="48dp"
-        android:layout_marginTop="88dp"
-        android:text="@string/loginButton"
+        android:layout_marginTop="64dp"
+        android:text="@string/login_with_email"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.509"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/imgStartViewImage"></androidx.appcompat.widget.AppCompatButton>
+
+    <TextView
+        android:id="@+id/hello_signup_main"
+        android:layout_width="228dp"
+        android:layout_height="49dp"
+        android:gravity="center"
+        android:text="@string/or"
+        android:textSize="20sp"
+        app:layout_constraintBottom_toTopOf="@+id/registerButton"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.497"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/loginButtonGoogle" />
 </androidx.constraintlayout.widget.ConstraintLayout>
