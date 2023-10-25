@@ -3,9 +3,9 @@ package com.example.mobilepharmacy
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
-import androidx.appcompat.app.AppCompatActivity
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AppCompatActivity
 import android.widget.Button
 import android.widget.Toast
 import com.example.mobilepharmacy.databinding.ActivityMainBinding
@@ -22,7 +22,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     private lateinit var firebaseAuth: FirebaseAuth
     private lateinit var googleSignInClient: GoogleSignInClient
-    private lateinit var launcher: ActivityResultLauncher<Intent> // Dodane
+    private lateinit var launcher: ActivityResultLauncher<Intent>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -40,7 +40,7 @@ class MainActivity : AppCompatActivity() {
             finish()
         }
 
-        // logowanie z googlem
+        // logowanie z Google
         val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
             .requestIdToken(getString(R.string.default_web_client_id))
             .requestEmail()
@@ -58,7 +58,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         findViewById<Button>(R.id.loginButtonGoogle).setOnClickListener {
-            signInGoogle()
+            signOutAndSignInGoogle()
         }
 
         // Ustawienie zdjęcia
@@ -75,9 +75,17 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun signInGoogle() {
-        val signInIntent = googleSignInClient.signInIntent
-        launcher.launch(signInIntent) // Uruchomienie intencji
+    private fun signOutAndSignInGoogle() {
+        // Wyloguj użytkownika z Google
+        googleSignInClient.signOut().addOnCompleteListener {
+            if (it.isSuccessful) {
+                // Po wylogowaniu, ponownie uruchom logowanie z Google
+                val signInIntent = googleSignInClient.signInIntent
+                launcher.launch(signInIntent)
+            } else {
+                Toast.makeText(this, "Błąd wylogowywania z Google", Toast.LENGTH_SHORT).show()
+            }
+        }
     }
 
     private fun handleResults(task: Task<GoogleSignInAccount>) {

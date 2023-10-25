@@ -12,6 +12,8 @@ import androidx.appcompat.widget.AppCompatButton
 import androidx.drawerlayout.widget.DrawerLayout
 import com.google.android.material.navigation.NavigationView
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
 
 class AfterLoginActivity : AppCompatActivity() {
 
@@ -113,7 +115,6 @@ class AfterLoginActivity : AppCompatActivity() {
         editor.remove("password")
         editor.remove("userID") // Usunięcie ID użytkownika
         editor.apply()
-
         val intent = Intent(this, MainActivity::class.java)
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK)
         startActivity(intent)
