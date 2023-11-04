@@ -13,52 +13,76 @@
         android:layout_height="match_parent">
 
         <!-- Pasek narzędzi -->
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/searchDrugs"
+            style="@style/button"
+            android:layout_width="170dp"
+            android:layout_height="45dp"
+            android:layout_marginStart="220dp"
+            android:layout_marginTop="208dp"
+            android:text="SZUKAJ LEKU"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/addToFirstAidKit"
+            style="@style/button"
+            android:layout_width="170dp"
+            android:layout_height="45dp"
+            android:layout_marginStart="220dp"
+            android:layout_marginTop="140dp"
+            android:text="DODAJ LEK DO APTECZKI"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/dosage"
+            style="@style/button"
+            android:layout_width="170dp"
+            android:layout_height="45dp"
+            android:layout_marginStart="220dp"
+            android:layout_marginTop="76dp"
+            android:text="DODAJ DAWKOWANIE"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/myFirsAidKit"
+            style="@style/button"
+            android:layout_width="170dp"
+            android:layout_height="45dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="140dp"
+            android:text="MOJA APTECZKA"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
         <include
             android:id="@+id/toolbar"
             layout="@layout/sessiontoolbar" />
 
         <!-- Przyciski i ikony -->
+
         <androidx.appcompat.widget.AppCompatButton
-            android:id="@+id/updateDrugs"
+            android:id="@+id/myDosage"
             style="@style/button"
-            android:layout_width="256dp"
-            android:layout_height="49dp"
-            android:layout_marginStart="52dp"
-            android:layout_marginTop="116dp"
-            android:text="LEKI"
+            android:layout_width="170dp"
+            android:layout_height="45dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="76dp"
+            android:text="MOJE DAWKOWANIE"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <ImageView
-            android:id="@+id/addDrugIcon"
-            android:layout_width="39dp"
-            android:layout_height="40dp"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="8dp"
-            android:layout_toEndOf="@+id/updateDrugs"
-            android:src="@drawable/add"
-            app:layout_constraintStart_toEndOf="@+id/updateDrugs"
-            app:layout_constraintTop_toTopOf="@+id/updateDrugs" />
-
-        <ImageView
-            android:id="@+id/addHealthIcon"
-            android:layout_width="39dp"
-            android:layout_height="40dp"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="100dp"
-            android:layout_toEndOf="@+id/updateDrugs"
-            android:src="@drawable/add"
-            app:layout_constraintStart_toEndOf="@+id/updateDrugs"
-            app:layout_constraintTop_toTopOf="@+id/updateDrugs" />
-
         <androidx.appcompat.widget.AppCompatButton
-            android:id="@+id/updateHealth"
+            android:id="@+id/myHealth"
             style="@style/button"
-            android:layout_width="256dp"
-            android:layout_height="47dp"
-            android:layout_marginStart="52dp"
+            android:layout_width="170dp"
+            android:layout_height="45dp"
+            android:layout_marginStart="16dp"
             android:layout_marginTop="208dp"
-            android:text="STAN ZDROWIA"
+            android:text="MÓJ STAN ZDROWIA"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 

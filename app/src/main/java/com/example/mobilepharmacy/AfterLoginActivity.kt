@@ -12,8 +12,6 @@ import androidx.appcompat.widget.AppCompatButton
 import androidx.drawerlayout.widget.DrawerLayout
 import com.google.android.material.navigation.NavigationView
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.ktx.auth
-import com.google.firebase.ktx.Firebase
 
 class AfterLoginActivity : AppCompatActivity() {
 
@@ -73,25 +71,25 @@ class AfterLoginActivity : AppCompatActivity() {
         }
 
 
-        val addDrugIcon = findViewById<ImageView>(R.id.addDrugIcon)
-        addDrugIcon.setOnClickListener {
-            val intent = Intent(this, AddDrugActivity::class.java)
-            startActivity(intent)
-        }
+//        val addDrugIcon = findViewById<ImageView>(R.id.addDrugIcon)
+//        addDrugIcon.setOnClickListener {
+//            val intent = Intent(this, AddDrugActivity::class.java)
+//            startActivity(intent)
+//        }
+//
+//        val addHealthButton = findViewById<ImageView>(R.id.addHealthIcon)
+//        addHealthButton.setOnClickListener {
+//            val intent = Intent(this, AddHealthActivity::class.java)
+//            startActivity(intent)
+//        }
 
-        val addHealthButton = findViewById<ImageView>(R.id.addHealthIcon)
-        addHealthButton.setOnClickListener {
-            val intent = Intent(this, AddHealthActivity::class.java)
-            startActivity(intent)
-        }
+//        val updateHealthButton = findViewById<AppCompatButton>(R.id.updateHealth)
+//        updateHealthButton.setOnClickListener {
+//            val intent = Intent(this, DiseasesActivity::class.java)
+//            startActivity(intent)
+//        }
 
-        val updateHealthButton = findViewById<AppCompatButton>(R.id.updateHealth)
-        updateHealthButton.setOnClickListener {
-            val intent = Intent(this, DiseasesActivity::class.java)
-            startActivity(intent)
-        }
-
-        val myDrugs = findViewById<AppCompatButton>(R.id.updateDrugs)
+        val myDrugs = findViewById<AppCompatButton>(R.id.myDosage)
         myDrugs.setOnClickListener {
             val intent = Intent(this, MedicationsActivity::class.java)
             startActivity(intent)
