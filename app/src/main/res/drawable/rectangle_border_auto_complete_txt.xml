@@ -1,0 +1,10 @@
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Tło z czarną obwódką -->
+    <item>
+        <shape android:shape="rectangle">
+            <solid android:color="@color/white" /> <!-- Kolor tła -->
+            <stroke android:color="@color/black" android:width="2dp" /> <!-- Kolor obwódki i jej szerokość -->
+            <corners android:radius="8dp" /> <!-- Zakrąglenie narożników -->
+        </shape>
+    </item>
+</layer-list>

@@ -43,7 +43,7 @@
             android:exported="false"
             android:theme="@style/Theme.MobilePharmacy.NoActionBar" />
         <activity
-            android:name=".AddDrugActivity"
+            android:name=".AddDosageActivity"
             android:exported="false"
             android:theme="@style/Theme.MobilePharmacy.NoActionBar" />
         <activity

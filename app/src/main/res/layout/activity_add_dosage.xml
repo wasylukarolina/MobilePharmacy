@@ -1,0 +1,138 @@
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:theme="@style/TimePickerTheme">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+
+        <AutoCompleteTextView
+            android:id="@+id/auto_complete_txt"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="16dp"
+            android:textColor= "@color/black"
+            android:background="@drawable/rectangle_border_auto_complete_txt"
+            android:hint="Wybierz lek"
+            android:completionThreshold="1"
+            android:padding="12dp"
+            />
+
+<!--        &lt;!&ndash;        tutaj powinno być wyszukiwanie leków&ndash;&gt;-->
+<!--        <com.google.android.material.textfield.TextInputLayout-->
+<!--            style="@style/MyTextInputLayoutStyle"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:hint="Wybierz lek"-->
+<!--            android:outlineAmbientShadowColor="@color/grey"-->
+<!--            android:outlineSpotShadowColor="@color/grey"-->
+<!--            android:textColorHint="@color/grey"-->
+<!--            android:background="@color/white"-->
+<!--            app:hintTextColor="@color/grey">-->
+
+<!--            <AutoCompleteTextView-->
+<!--                android:id="@+id/auto_complete_txt"-->
+<!--                android:layout_width="match_parent"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:inputType="text"-->
+<!--                />-->
+
+<!--        </com.google.android.material.textfield.TextInputLayout>-->
+
+<!--        <TextView-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:text="Data ważności" />-->
+
+<!--        <LinearLayout-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:orientation="horizontal">-->
+
+<!--            <NumberPicker-->
+<!--                android:id="@+id/numberPickerDay"-->
+<!--                android:layout_width="0dp"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:layout_weight="1" />-->
+
+<!--            <NumberPicker-->
+<!--                android:id="@+id/numberPickerMonth"-->
+<!--                android:layout_width="0dp"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:layout_weight="1" />-->
+
+<!--            <NumberPicker-->
+<!--                android:id="@+id/numberPickerYear"-->
+<!--                android:layout_width="0dp"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:layout_weight="1" />-->
+<!--        </LinearLayout>-->
+
+<!--        <TextView-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:text="Dawkowanie" />-->
+
+<!--        <Spinner-->
+<!--            android:id="@+id/quantitySpinner"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:entries="@array/quantity_options" />-->
+
+<!--        <CheckBox-->
+<!--            android:id="@+id/customCheckBox"-->
+<!--            android:layout_width="wrap_content"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:text="Niestandardowe" />-->
+
+
+<!--        <EditText-->
+<!--            android:id="@+id/iloscTabletek"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:hint="Podaj ilość tabletek w opakowaniu"-->
+<!--            android:inputType="number"-->
+<!--            android:visibility="visible" />-->
+
+<!--        <EditText-->
+<!--            android:id="@+id/customEditText"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:hint="Podaj częstotliwość przyjmowania leków w godzinach"-->
+<!--            android:inputType="number"-->
+<!--            android:visibility="visible" />-->
+
+
+<!--        <com.google.android.material.textfield.TextInputLayout-->
+<!--            android:id="@+id/timePickerLayout"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:background="@color/white"-->
+<!--            android:orientation="vertical"-->
+<!--            android:textColor="#FFFCFC"-->
+<!--            android:textColorHint="@color/red"-->
+<!--            android:visibility="gone">-->
+
+
+<!--            &lt;!&ndash;            style="@style/CustomFilledBoxStyle"&ndash;&gt;-->
+
+<!--            &lt;!&ndash; Pozostałe elementy wewnątrz TextInputLayout &ndash;&gt;-->
+
+<!--        </com.google.android.material.textfield.TextInputLayout>-->
+
+
+        <!--    po kliknięciu tego przycisku dane powinny się dodawać do firebase użytkownika-->
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/buttonDodaj"
+            style="@style/button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="DODAJ" />
+    </LinearLayout>
+</ScrollView>
