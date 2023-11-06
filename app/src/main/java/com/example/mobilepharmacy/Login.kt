@@ -7,8 +7,6 @@ import android.widget.ImageView
 import android.widget.Toast
 import com.example.mobilepharmacy.databinding.ActivityLogin2Binding
 import com.google.firebase.auth.FirebaseAuth
-import android.content.SharedPreferences
-import android.content.Context.MODE_PRIVATE
 
 class Login : AppCompatActivity() {
 
@@ -38,7 +36,9 @@ class Login : AppCompatActivity() {
                         val auth = FirebaseAuth.getInstance()
                         val currentUser = auth.currentUser
                         val userId = currentUser?.uid
+                        val email = currentUser?.email
                         editor.putString("userID", userId ?: "x") // Jeśli userId jest null, użyj pustego ciągu znaków
+                        editor.putString("email", email)
 
                         editor.apply()
 

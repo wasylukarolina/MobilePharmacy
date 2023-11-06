@@ -43,7 +43,8 @@ class RegisterActivity : AppCompatActivity() {
                                 val userData = hashMapOf(
                                     "userId" to userId,
                                     "firstName" to firstName,
-                                    "lastName" to lastName
+                                    "lastName" to lastName,
+                                    "email" to email
                                 )
                                 firestore.collection("users").document(userId)
                                     .set(userData)

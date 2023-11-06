@@ -18,112 +18,108 @@
             android:layout_margin="16dp"
             android:textColor= "@color/black"
             android:background="@drawable/rectangle_border_auto_complete_txt"
-            android:hint="Wybierz lek"
+            android:hint="Wpisz nazwę leku"
             android:completionThreshold="1"
             android:padding="12dp"
             />
 
-<!--        &lt;!&ndash;        tutaj powinno być wyszukiwanie leków&ndash;&gt;-->
-<!--        <com.google.android.material.textfield.TextInputLayout-->
-<!--            style="@style/MyTextInputLayoutStyle"-->
-<!--            android:layout_width="match_parent"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            android:hint="Wybierz lek"-->
-<!--            android:outlineAmbientShadowColor="@color/grey"-->
-<!--            android:outlineSpotShadowColor="@color/grey"-->
-<!--            android:textColorHint="@color/grey"-->
-<!--            android:background="@color/white"-->
-<!--            app:hintTextColor="@color/grey">-->
+        <TextView
+            android:id="@+id/date"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Data ważności"
+            android:visibility="invisible"/>
 
-<!--            <AutoCompleteTextView-->
-<!--                android:id="@+id/auto_complete_txt"-->
-<!--                android:layout_width="match_parent"-->
-<!--                android:layout_height="wrap_content"-->
-<!--                android:inputType="text"-->
-<!--                />-->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
 
-<!--        </com.google.android.material.textfield.TextInputLayout>-->
+            <NumberPicker
+                android:id="@+id/numberPickerDay"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:visibility="invisible"/>
 
-<!--        <TextView-->
-<!--            android:layout_width="match_parent"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            android:text="Data ważności" />-->
+            <NumberPicker
+                android:id="@+id/numberPickerMonth"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:visibility="invisible"/>
 
-<!--        <LinearLayout-->
-<!--            android:layout_width="match_parent"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            android:orientation="horizontal">-->
+            <NumberPicker
+                android:id="@+id/numberPickerYear"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:visibility="invisible"/>
+        </LinearLayout>
 
-<!--            <NumberPicker-->
-<!--                android:id="@+id/numberPickerDay"-->
-<!--                android:layout_width="0dp"-->
-<!--                android:layout_height="wrap_content"-->
-<!--                android:layout_weight="1" />-->
+        <TextView
+            android:id="@+id/capacityTextView"
+            android:layout_width="match_parent"
+            android:text="Pojemność opakowania"
+            android:layout_height="match_parent"
+            android:visibility="invisible">
+        </TextView>
 
-<!--            <NumberPicker-->
-<!--                android:id="@+id/numberPickerMonth"-->
-<!--                android:layout_width="0dp"-->
-<!--                android:layout_height="wrap_content"-->
-<!--                android:layout_weight="1" />-->
+        <EditText
+            android:id="@+id/iloscTabletek"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Podaj ilość tabletek w opakowaniu"
+            android:inputType="number"
+            android:visibility="invisible"
+            />
 
-<!--            <NumberPicker-->
-<!--                android:id="@+id/numberPickerYear"-->
-<!--                android:layout_width="0dp"-->
-<!--                android:layout_height="wrap_content"-->
-<!--                android:layout_weight="1" />-->
-<!--        </LinearLayout>-->
+        <TextView
+            android:id="@+id/dosageTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Dawkowanie"
+            android:visibility="invisible"/>
 
-<!--        <TextView-->
-<!--            android:layout_width="match_parent"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            android:text="Dawkowanie" />-->
+        <Spinner
+            android:id="@+id/quantitySpinner"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:entries="@array/quantity_options"
+            android:visibility="invisible"/>
 
-<!--        <Spinner-->
-<!--            android:id="@+id/quantitySpinner"-->
-<!--            android:layout_width="match_parent"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            android:entries="@array/quantity_options" />-->
+        <CheckBox
+            android:id="@+id/customCheckBox"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Niestandardowe"
+            android:visibility="invisible"/>
 
-<!--        <CheckBox-->
-<!--            android:id="@+id/customCheckBox"-->
-<!--            android:layout_width="wrap_content"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            android:text="Niestandardowe" />-->
-
-
-<!--        <EditText-->
-<!--            android:id="@+id/iloscTabletek"-->
-<!--            android:layout_width="match_parent"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            android:hint="Podaj ilość tabletek w opakowaniu"-->
-<!--            android:inputType="number"-->
-<!--            android:visibility="visible" />-->
-
-<!--        <EditText-->
-<!--            android:id="@+id/customEditText"-->
-<!--            android:layout_width="match_parent"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            android:hint="Podaj częstotliwość przyjmowania leków w godzinach"-->
-<!--            android:inputType="number"-->
-<!--            android:visibility="visible" />-->
+        <EditText
+            android:id="@+id/customEditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Podaj częstotliwość przyjmowania leków w godzinach"
+            android:inputType="number"
+            android:visibility="invisible" />
 
 
-<!--        <com.google.android.material.textfield.TextInputLayout-->
-<!--            android:id="@+id/timePickerLayout"-->
-<!--            android:layout_width="match_parent"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            android:background="@color/white"-->
-<!--            android:orientation="vertical"-->
-<!--            android:textColor="#FFFCFC"-->
-<!--            android:textColorHint="@color/red"-->
-<!--            android:visibility="gone">-->
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/timePickerLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/white"
+            android:orientation="vertical"
+            android:textColor="#FFFCFC"
+            android:textColorHint="@color/red"
+            android:visibility="gone">
 
 
-<!--            &lt;!&ndash;            style="@style/CustomFilledBoxStyle"&ndash;&gt;-->
+            <!--            style="@style/CustomFilledBoxStyle"-->
 
-<!--            &lt;!&ndash; Pozostałe elementy wewnątrz TextInputLayout &ndash;&gt;-->
+            <!-- Pozostałe elementy wewnątrz TextInputLayout -->
 
-<!--        </com.google.android.material.textfield.TextInputLayout>-->
+        </com.google.android.material.textfield.TextInputLayout>
 
 
         <!--    po kliknięciu tego przycisku dane powinny się dodawać do firebase użytkownika-->

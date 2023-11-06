@@ -1,34 +1,145 @@
 package com.example.mobilepharmacy
 
-import android.content.ContentValues.TAG
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
-import android.util.Log
+import android.view.ContextThemeWrapper
+import android.view.View
 import android.widget.*
+import androidx.appcompat.app.AlertDialog
 import org.xmlpull.v1.XmlPullParser
 import org.xmlpull.v1.XmlPullParserException
 import org.xmlpull.v1.XmlPullParserFactory
 import java.io.IOException
-import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.firestore.FirebaseFirestore
+import org.w3c.dom.Text
 import kotlin.collections.ArrayList
 
 
 class AddDosageActivity : AppCompatActivity() {
 //    private var quantity: Int = 0
 //    private lateinit var timePickerLayout: TextInputLayout
-    private val drugsList: ArrayList<String> = ArrayList()
-    private val filteredDrugsList: ArrayList<String> = ArrayList()
-//    private lateinit var autoComplete: AutoCompleteTextView
-//    private lateinit var adapter: ArrayAdapter<String>
-//    private lateinit var customEditText: EditText
+//    private val drugsList: ArrayList<String> = ArrayList()
+//    private val filteredDrugsList: ArrayList<String> = ArrayList()
+    private lateinit var adapter: ArrayAdapter<String>
+    private val medicinesList: ArrayList<Drugs> = ArrayList()
+    //    private lateinit var customEditText: EditText
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_add_dosage)
-        var databaseRef = FirebaseDatabase.getInstance().reference
+
+        // pobranie danych o użytkowniku
+        val firestoreDB = FirebaseFirestore.getInstance()
+        // Pobieranie ID aktualnie zalogowanego użytkownika z SharedPreferences
+        val sharedPreferences = getSharedPreferences("login", MODE_PRIVATE)
+        val userId = sharedPreferences.getString("userID", "") ?: ""
+
+        // odczytanie bazy danych leków
+        val assetManager = assets
+        val xmlInputStream = assetManager.open("Rejestr_Produktow_Leczniczych_calosciowy_stan_na_dzien_20230511.xml")
+
+        val factory = XmlPullParserFactory.newInstance()
+        val parser = factory.newPullParser()
+        parser.setInput(xmlInputStream, null)
+
+        parseXml(parser)?.let { medicinesList.addAll(it) }
+
+        val autoCompleteTextView = findViewById<AutoCompleteTextView>(R.id.auto_complete_txt)
+        // Tworzenie adaptera i przypisanie go do AutoCompleteTextView
+        adapter = ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line, medicinesList.map { it.nazwaProduktu })
+        autoCompleteTextView.setAdapter(adapter)
+
+        // Ustawienie minimalnej ilości znaków, po których mają się pojawiać sugestie
+        autoCompleteTextView.threshold = 1
+
+        // Nasłuchiwanie zmian w AutoCompleteTextView
+        autoCompleteTextView.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+                // Przed zmianą tekstu
+            }
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                // Podczas zmiany tekstu
+            }
+
+            override fun afterTextChanged(s: Editable?) {
+                // Po zmianie tekstu
+                filterMedicines(s.toString())
+            }
+        })
+
+
+        // Nasłuchiwacz wyboru leku z listy
+        autoCompleteTextView.setOnItemClickListener { _, _, position, _ ->
+            val selectedMedicineName = adapter.getItem(position)
+            if (selectedMedicineName != null) {
+                checkMedicineInDatabase(selectedMedicineName)
+            }
+        }
+    }
+
+    // Filtruj leki na podstawie wprowadzonego tekstu
+    private fun filterMedicines(query: String) {
+        val filteredMedicines = medicinesList.map { it.nazwaProduktu }.filter { it.contains(query, ignoreCase = true) }
+        adapter.clear()
+        adapter.addAll(filteredMedicines)
+        adapter.notifyDataSetChanged()
+    }
+
+        // Sprawdzenie, czy dany lek znajduje się już w apteczce użytkownika
+        private fun checkMedicineInDatabase(selectedMedicineName: String) {
+            val firestoreDB = FirebaseFirestore.getInstance()
+            val sharedPreferences = getSharedPreferences("login", MODE_PRIVATE)
+            val email = sharedPreferences.getString("email", "") ?: ""
+
+            val lekiRef = firestoreDB.collection("leki")
+            lekiRef
+                .whereEqualTo("email", email)
+                .whereEqualTo("nazwaProduktu", selectedMedicineName)
+                .get()
+                .addOnSuccessListener { querySnapshot ->
+                    Toast.makeText(this, "$email, $selectedMedicineName", Toast.LENGTH_SHORT).show()
+                    if (!querySnapshot.isEmpty) {
+                        // Pobranie pojemności opakowania z bazy
+                         val pojemnosc = querySnapshot.documents[0].get("pojemnosc")
+//                        Toast.makeText(this, "Pojemnosc $pojemnosc", Toast.LENGTH_SHORT).show()
+                        // Lek został znaleziony w bazie dla danego użytkownika
+//                        Toast.makeText(this, "Leki, działa", Toast.LENGTH_SHORT).show()
+                        val alertDialogBuilder = AlertDialog.Builder(ContextThemeWrapper(this, R.style.AlertDialogCustom))
+                        alertDialogBuilder.setTitle("Lek jest już w bazie danych")
+                        alertDialogBuilder.setMessage("Czy zakupiłeś nowe opakowanie czy chcesz skorzystać ze starego opakowania?")
+
+                        // Dodaj opcję "Nowe opakowanie"
+                        alertDialogBuilder.setPositiveButton("Nowe opakowanie") { dialog, which ->
+                            // Obsługa wyboru "Nowe opakowanie"
+                            // Tutaj możesz dodać kod do obsługi nowego opakowania
+                        }
+
+                        // Dodaj opcję "Stare opakowanie"
+                        alertDialogBuilder.setNegativeButton("Stare opakowanie") { dialog, which ->
+                            // Obsługa wyboru "Stare opakowanie"
+                            // Tutaj możesz dodać kod do obsługi starego opakowania
+                            allVisibleFromDB(pojemnosc)
+                        }
+                        val alertDialog = alertDialogBuilder.create()
+
+                        alertDialog.show()
+
+                    } else {
+                        // Lek nie został znaleziony w bazie dla danego użytkownika
+                        Toast.makeText(this, "Leki - brak w bazie działa", Toast.LENGTH_SHORT).show()
+                        val iloscTabletekEditText = findViewById<EditText>(R.id.iloscTabletek)
+                        iloscTabletekEditText.visibility = View.VISIBLE
+                    }
+                }
+                .addOnFailureListener { e ->
+                    Toast.makeText(this, "Leki, nie działa", Toast.LENGTH_SHORT).show()
+                }
+
+
+//        var databaseRef = FirebaseDatabase.getInstance().reference
 //        customEditText = findViewById(R.id.customEditText)
 
 //        fun saveDataToFirebase() {
@@ -216,75 +327,75 @@ class AddDosageActivity : AppCompatActivity() {
 //            numberPickerDay.maxValue = daysInMonth
 //        }
 
-        //        Lista leków
-        val drugsList: ArrayList<String> = ArrayList()
-
-        var pullParserFactory: XmlPullParserFactory
-        try {
-            pullParserFactory = XmlPullParserFactory.newInstance()
-            val parser = pullParserFactory.newPullParser()
-            val inputStream =
-                applicationContext.assets.open("Rejestr_Produktow_Leczniczych_calosciowy_stan_na_dzien_20230511.xml")
-            parser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, false)
-            parser.setInput(inputStream, null)
-
-            val drugs = parseXml(parser)
-
-            drugs?.let {
-                for (drug in it) {
-                    val text = drug.nazwaProduktu
-                    drugsList.add(text)
-                }
-            }
-
-
-            val autoComplete: AutoCompleteTextView = findViewById(R.id.auto_complete_txt)
-            val adapter2 = ArrayAdapter(this, R.layout.list_drugs, drugsList)
-            autoComplete.setAdapter(adapter2)
-
-            // rozwinięcie listy
-            autoComplete.setOnClickListener{
-                autoComplete.showDropDown()
-            }
-
-            autoComplete.addTextChangedListener(object : TextWatcher {
-                override fun beforeTextChanged(
-                    s: CharSequence,
-                    start: Int,
-                    count: Int,
-                    after: Int
-                ) {
-                    // Niepotrzebne
-                }
-
-                override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {
-                    adapter2.filter.filter(s)
-                }
-
-                override fun afterTextChanged(s: Editable) {
-                    // Niepotrzebne
-                }
-            })
-
-            autoComplete.onItemClickListener =
-                AdapterView.OnItemClickListener { adapterView, view, i, l ->
-                    val itemSelected = adapterView.getItemAtPosition(i)
-                    Toast.makeText(this, "$itemSelected", Toast.LENGTH_SHORT).show()
-                    val firestoreDB = FirebaseFirestore.getInstance()
-
-                     // Pobieranie ID aktualnie zalogowanego użytkownika z SharedPreferences
-                    val sharedPreferences = getSharedPreferences("login", MODE_PRIVATE)
-                    val userId = sharedPreferences.getString("userID", "") ?: ""
-
-                     // Sprawdź, czy nazwa leku już istnieje w bazie dla danego użytkownika
-                    firestoreDB.collection("leki")
-                        .whereEqualTo("userId", userId)
-                        .whereEqualTo("nazwaProduktu", itemSelected.toString())
-                        .get()
-                        .addOnSuccessListener { querySnapshot ->
-                            if (querySnapshot.isEmpty) {
-                                Toast.makeText(this, "Brak w bazie, idUżytkownika: $userId", Toast.LENGTH_SHORT).show()
-                            }
+//        //        Lista leków
+//        val drugsList: ArrayList<String> = ArrayList()
+//
+//        var pullParserFactory: XmlPullParserFactory
+//        try {
+//            pullParserFactory = XmlPullParserFactory.newInstance()
+//            val parser = pullParserFactory.newPullParser()
+//            val inputStream =
+//                applicationContext.assets.open("Rejestr_Produktow_Leczniczych_calosciowy_stan_na_dzien_20230511.xml")
+//            parser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, false)
+//            parser.setInput(inputStream, null)
+//
+//            val drugs = parseXml(parser)
+//
+//            drugs?.let {
+//                for (drug in it) {
+//                    val text = drug.nazwaProduktu
+//                    drugsList.add(text)
+//                }
+//            }
+//
+//
+//            val autoComplete: AutoCompleteTextView = findViewById(R.id.auto_complete_txt)
+//            val adapter2 = ArrayAdapter(this, R.layout.list_drugs, drugsList)
+//            autoComplete.setAdapter(adapter2)
+//
+//            // rozwinięcie listy
+//            autoComplete.setOnClickListener{
+//                autoComplete.showDropDown()
+//            }
+//
+//            autoComplete.addTextChangedListener(object : TextWatcher {
+//                override fun beforeTextChanged(
+//                    s: CharSequence,
+//                    start: Int,
+//                    count: Int,
+//                    after: Int
+//                ) {
+//                    // Niepotrzebne
+//                }
+//
+//                override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {
+//                    adapter2.filter.filter(s)
+//                }
+//
+//                override fun afterTextChanged(s: Editable) {
+//                    // Niepotrzebne
+//                }
+//            })
+//
+//            autoComplete.onItemClickListener =
+//                AdapterView.OnItemClickListener { adapterView, view, i, l ->
+//                    val itemSelected = adapterView.getItemAtPosition(i)
+//                    Toast.makeText(this, "$itemSelected", Toast.LENGTH_SHORT).show()
+//                    val firestoreDB = FirebaseFirestore.getInstance()
+//
+//                     // Pobieranie ID aktualnie zalogowanego użytkownika z SharedPreferences
+//                    val sharedPreferences = getSharedPreferences("login", MODE_PRIVATE)
+//                    val userId = sharedPreferences.getString("userID", "") ?: ""
+//
+//                     // Sprawdź, czy nazwa leku już istnieje w bazie dla danego użytkownika
+//                    firestoreDB.collection("leki")
+//                        .whereEqualTo("userId", userId)
+//                        .whereEqualTo("nazwaProduktu", itemSelected.toString())
+//                        .get()
+//                        .addOnSuccessListener { querySnapshot ->
+//                            if (querySnapshot.isEmpty) {
+//                                Toast.makeText(this, "Brak w bazie, idUżytkownika: $userId", Toast.LENGTH_SHORT).show()
+//                            }
 //                        // Tworzenie mapy z danymi
 //                        val dataMap = hashMapOf<String, Any>()
 //                        dataMap["userId"] = userId
@@ -307,24 +418,24 @@ class AddDosageActivity : AppCompatActivity() {
 //                                Log.e(TAG, "Błąd podczas dodawania danych do Firestore", e)
 //                                Toast.makeText(this, "Wystąpił błąd", Toast.LENGTH_SHORT).show()
 //                            }
-                     else {
-                        Toast.makeText(
-                            this,
-                            "Lek o nazwie $itemSelected już istnieje w bazie.",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                    }
-                }
-                .addOnFailureListener { e ->
-                    Log.e(TAG, "Błąd podczas sprawdzania danych w Firestore", e)
-                    Toast.makeText(this, "Wystąpił błąd", Toast.LENGTH_SHORT).show()
-                }
-                }
-        } catch (e: XmlPullParserException) {
-            e.printStackTrace()
-        } catch (e: IOException) {
-            e.printStackTrace()
-        }
+//                     else {
+//                        Toast.makeText(
+//                            this,
+//                            "Lek o nazwie $itemSelected już istnieje w bazie.",
+//                            Toast.LENGTH_SHORT
+//                        ).show()
+//                    }
+//                }
+//                .addOnFailureListener { e ->
+//                    Log.e(TAG, "Błąd podczas sprawdzania danych w Firestore", e)
+//                    Toast.makeText(this, "Wystąpił błąd", Toast.LENGTH_SHORT).show()
+//                }
+//                }
+//        } catch (e: XmlPullParserException) {
+//            e.printStackTrace()
+//        } catch (e: IOException) {
+//            e.printStackTrace()
+//        }
 
 //        //obsługa wyboru dawkowania
 //
@@ -403,6 +514,66 @@ class AddDosageActivity : AppCompatActivity() {
 
     }
 
+    // ustawienie pól na widzialne i uzupełnienie danych
+    private fun allVisibleFromDB(pojemnosc: Any?) {
+        val iloscTabletekTextView = findViewById<TextView>(R.id.capacityTextView)
+        iloscTabletekTextView.visibility = View.VISIBLE
+
+        val dateTextView = findViewById<TextView>(R.id.date)
+        dateTextView.visibility = View.VISIBLE
+
+        val numberPickerDay = findViewById<NumberPicker>(R.id.numberPickerDay)
+        numberPickerDay.visibility = View.VISIBLE
+
+        val numberPickerMonth = findViewById<NumberPicker>(R.id.numberPickerMonth)
+        numberPickerMonth.visibility = View.VISIBLE
+
+        val numberPickerYear = findViewById<NumberPicker>(R.id.numberPickerYear)
+        numberPickerYear.visibility = View.VISIBLE
+
+        val dosageTextView = findViewById<TextView>(R.id.dosageTextView)
+        dosageTextView.visibility = View.VISIBLE
+
+        val dosageSpinner = findViewById<Spinner>(R.id.quantitySpinner)
+        dosageSpinner.visibility = View.VISIBLE
+
+        val customCheckBox = findViewById<CheckBox>(R.id.customCheckBox)
+        customCheckBox.visibility = View.VISIBLE
+
+        val capacityTextView = findViewById<TextView>(R.id.capacityTextView)
+        capacityTextView.visibility = View.VISIBLE
+
+        val customEditText = findViewById<EditText>(R.id.customEditText)
+        customEditText.visibility = View.VISIBLE
+
+        // Pobierz referencję do pola EditText
+        val iloscTabletekEditText = findViewById<EditText>(R.id.iloscTabletek)
+        iloscTabletekEditText.visibility = View.VISIBLE
+        iloscTabletekEditText.setText(pojemnosc.toString())
+
+        // Tworzenie TextWatcher do monitorowania wprowadzanych wartości
+        val textWatcher = object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+                // Przed zmianą tekstu
+            }
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                // Podczas zmiany tekstu
+            }
+
+            override fun afterTextChanged(s: Editable?) {
+                // Po zmianie tekstu
+                val pojemnosc = s.toString().toIntOrNull()
+                if (pojemnosc != null && pojemnosc < 0) {
+                    // Jeśli wprowadzona liczba jest mniejsza od zera, ustaw na zero
+                    iloscTabletekEditText.setText("0")
+                }
+            }
+        }
+        // Dodaj TextWatcher do pola EditText
+        iloscTabletekEditText.addTextChangedListener(textWatcher)
+    }
+
 //    private fun filterDrugs(query: String) {
 //        filteredDrugsList.clear()
 //        for (drug in drugsList) {
@@ -464,7 +635,6 @@ class AddDosageActivity : AppCompatActivity() {
                             drug.pojemnosc = "0"
                         }
                     }
-
                 }
                 XmlPullParser.END_TAG -> {
                     name = parser.name

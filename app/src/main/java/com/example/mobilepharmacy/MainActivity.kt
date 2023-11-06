@@ -124,8 +124,9 @@ class MainActivity : AppCompatActivity() {
                 if (!querySnapshot.isEmpty) {
                     // Użytkownik o danym emailu istnieje w bazie
                     val userDocument = querySnapshot.documents[0] // Zakładam, że jest tylko jeden użytkownik z danym emailem
+                    Toast.makeText(this, "$userDocument", Toast.LENGTH_SHORT).show()
                     startActivity(Intent(this, AfterLoginActivity::class.java))
-                    // Zaloguj użytkownika lub wykonaj inne działania
+
                 } else {
                     // Użytkownik o danym emailu nie istnieje w bazie, tworzymy nowy rekord
                     createNewUser(user)

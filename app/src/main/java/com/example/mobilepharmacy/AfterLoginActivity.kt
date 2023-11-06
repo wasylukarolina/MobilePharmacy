@@ -1,6 +1,7 @@
 package com.example.mobilepharmacy
 
 import android.content.Intent
+import android.media.Image
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.MenuItem
@@ -71,29 +72,41 @@ class AfterLoginActivity : AppCompatActivity() {
         }
 
 
-//        val addDrugIcon = findViewById<ImageView>(R.id.addDrugIcon)
-//        addDrugIcon.setOnClickListener {
-//            val intent = Intent(this, AddDrugActivity::class.java)
-//            startActivity(intent)
-//        }
-//
-//        val addHealthButton = findViewById<ImageView>(R.id.addHealthIcon)
-//        addHealthButton.setOnClickListener {
-//            val intent = Intent(this, AddHealthActivity::class.java)
-//            startActivity(intent)
-//        }
-
-//        val updateHealthButton = findViewById<AppCompatButton>(R.id.updateHealth)
-//        updateHealthButton.setOnClickListener {
-//            val intent = Intent(this, DiseasesActivity::class.java)
-//            startActivity(intent)
-//        }
-
-        val myDrugs = findViewById<AppCompatButton>(R.id.myDosage)
-        myDrugs.setOnClickListener {
+        val myDosage = findViewById<AppCompatButton>(R.id.myDosage)
+        myDosage.setOnClickListener {
             val intent = Intent(this, MedicationsActivity::class.java)
             startActivity(intent)
         }
+
+        val addDosage = findViewById<AppCompatButton>(R.id.dosage)
+        addDosage.setOnClickListener {
+            val intent = Intent(this, AddDosageActivity::class.java)
+            startActivity(intent)
+        }
+
+//        val myFirstAidKit = findViewById<ImageView>(R.id.myFirsAidKit)
+//        myFirstAidKit.setOnClickListener{
+//            val intent = Intent(this, MyFirstAidKitActivity::class.java)
+//            startActivity(intent)
+//        }
+
+//        val addDrug = findViewById<ImageView>(R.id.addToFirstAidKit)
+//        addDrug.setOnClickListener{
+//            val intent = Intent(this, AddToFirstAidKitActivity::class.java)
+//            startActivity(intent)
+//        }
+
+//        val myHealth = findViewById<ImageView>(R.id.myHealth)
+//        myHealth.setOnClickListener{
+//            val intent = Intent(this, AddHealthActivity::class.java)
+//            startActivity(intent)
+//        }
+//
+//        val serachDrug = findViewById<ImageView>(R.id.searchDrugs)
+//        serachDrug.setOnClickListener {
+//            val intent = Intent(this, DiseasesActivity::class.java)
+//            startActivity(intent)
+//        }
 
         val backButtonR = findViewById<ImageView>(R.id.backButtonR)
         backButtonR.setOnClickListener {
