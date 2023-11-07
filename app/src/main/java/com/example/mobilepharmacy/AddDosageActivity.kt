@@ -1,6 +1,7 @@
 package com.example.mobilepharmacy
 
 import android.content.ContentValues.TAG
+import android.content.Intent
 import android.graphics.Color
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -17,6 +18,7 @@ import org.xmlpull.v1.XmlPullParserException
 import org.xmlpull.v1.XmlPullParserFactory
 import java.io.IOException
 import com.google.firebase.firestore.FirebaseFirestore
+import java.time.LocalDate
 import java.util.Calendar
 import kotlin.collections.ArrayList
 
@@ -27,6 +29,7 @@ class AddDosageActivity : AppCompatActivity() {
     private lateinit var adapter: ArrayAdapter<String>
     private val medicinesList: ArrayList<Drugs> = ArrayList()
     private lateinit var customEditText: EditText
+    private var newOld: Boolean = true // new_old - oznacza, czy jest nowe czy stare opawkowanie true - nowe false - stare
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -113,8 +116,7 @@ class AddDosageActivity : AppCompatActivity() {
 
 
         numberPickerMonth.setOnValueChangedListener { _, _, newVal ->
-            val selectedMonth = newVal
-            val daysInMonth = when (selectedMonth) {
+            val daysInMonth = when (newVal) {
                 2 -> if (isLeapYear(numberPickerYear.value)) 29 else 28
                 4, 6, 9, 11 -> 30
                 else -> 31
@@ -125,15 +127,31 @@ class AddDosageActivity : AppCompatActivity() {
         val buttonZapisz = findViewById<Button>(R.id.buttonDodaj)
         buttonZapisz.setOnClickListener {
             val nazwaProduktu = autoCompleteTextView.text.toString()
-            val customQuantity = customEditText.text.toString().toIntOrNull()
+
             if (nazwaProduktu.isEmpty()) {
                 Toast.makeText(this, "Nazwa leku nie może być pusta.", Toast.LENGTH_SHORT).show()
-                return@setOnClickListener
             } else {
-                if (customQuantity in 1..23) {
+                val capacity = findViewById<EditText>(R.id.iloscTabletek)
+                val dosageAmount = findViewById<EditText>(R.id.dosageAmountEditText)
+
+                val day = numberPickerDay.value
+                val month = numberPickerMonth.value
+                val year = numberPickerYear.value
+                // wprowadzona data
+                val inputDate = Calendar.getInstance()
+                inputDate.set(Calendar.YEAR, year)
+                inputDate.set(Calendar.MONTH, month - 1)  // Miesiące są indeksowane od 0
+                inputDate.set(Calendar.DAY_OF_MONTH, day)
+
+                if (capacity != null && dosageAmount != null && !inputDate.before(currentDate)) {
                     saveDataToFirebase(firestoreDB, email)
-                } else {
-                    Toast.makeText(this, "Niepoprawne dawkowanie", Toast.LENGTH_SHORT).show()
+                }else if (inputDate.before(currentDate)) {
+                    Toast.makeText(this, "Lek jest przeterminowany", Toast.LENGTH_SHORT)
+                        .show()
+                }
+                else {
+                    Toast.makeText(this, "Wszystkie pola muszą być uzupełnione", Toast.LENGTH_SHORT)
+                        .show()
                 }
             }
         }
@@ -156,7 +174,7 @@ class AddDosageActivity : AppCompatActivity() {
                 .whereEqualTo("nazwaProduktu", selectedMedicineName)
                 .get()
                 .addOnSuccessListener { querySnapshot ->
-                    Toast.makeText(this, "$email, $selectedMedicineName", Toast.LENGTH_SHORT).show()
+
                     if (!querySnapshot.isEmpty) {
                         // Lek został znaleziony w bazie dla danego użytkownika
                         val alertDialogBuilder = AlertDialog.Builder(ContextThemeWrapper(this, R.style.AlertDialogCustom))
@@ -164,24 +182,27 @@ class AddDosageActivity : AppCompatActivity() {
                         alertDialogBuilder.setMessage("Czy zakupiłeś nowe opakowanie czy chcesz skorzystać ze starego opakowania?")
 
                         // Dodaj opcję "Nowe opakowanie"
-                        alertDialogBuilder.setPositiveButton("Nowe opakowanie") { dialog, which ->
+                        alertDialogBuilder.setPositiveButton("Nowe opakowanie") { _, _ ->
                             // Obsługa wyboru "Nowe opakowanie"
+                            newOld = true
                             allVisibleNewDrug()
                         }
 
                         // Dodaj opcję "Stare opakowanie"
-                        alertDialogBuilder.setNegativeButton("Stare opakowanie") { dialog, which ->
+                        alertDialogBuilder.setNegativeButton("Stare opakowanie") { _, _ ->
                             // Obsługa wyboru "Stare opakowanie"
                             // Pobranie pojemności opakowania z bazy
+                            newOld = false
                             val capacity = querySnapshot.documents[0].get("pojemnosc")
                             val expirationDate = querySnapshot.documents[0].get("dataWaznosci")
                             // pobiera całą listę z godzinami
                             val dosage = querySnapshot.documents[0].get("dawkowanie") as List<String>?
+                            val dosageAmount = querySnapshot.documents[0].get("iloscTabletekJednorazowo")
 
-                            if (dosage != null && capacity != null && expirationDate != null) {
-                                allVisibleFromDB(capacity, expirationDate, dosage)
+                            if (dosage != null && capacity != null && expirationDate != null && dosageAmount != null) {
+                                allVisibleFromDB(capacity, expirationDate, dosage, dosageAmount)
                             } else {
-                                visibleFromDC(capacity, expirationDate)
+                                visibleFromDC(capacity, expirationDate, dosageAmount)
                             }
                         }
                         val alertDialog = alertDialogBuilder.create()
@@ -192,14 +213,12 @@ class AddDosageActivity : AppCompatActivity() {
                         allVisibleNewDrug()
                     }
                 }
-                .addOnFailureListener { e ->
+                .addOnFailureListener { _ ->
                     Toast.makeText(this, "Błąd połączenia z bazą", Toast.LENGTH_SHORT).show()
                 }
     }
 
-    private fun visibleFromDC(capacity: Any?, expirationDate: Any?) {
-        val iloscTabletekTextView = findViewById<TextView>(R.id.capacityTextView)
-        iloscTabletekTextView.visibility = View.VISIBLE
+    private fun visibleFromDC(capacity: Any?, expirationDate: Any?, dosageAmount: Any?) {
 
         val dateTextView = findViewById<TextView>(R.id.date)
         dateTextView.visibility = View.VISIBLE
@@ -241,6 +260,17 @@ class AddDosageActivity : AppCompatActivity() {
         dosageSpinner.adapter = quantityAdapter
 
         dosageSpinner.setSelection(0)
+
+        val dosageAmountTextView = findViewById<TextView>(R.id.dosageAmountTextView)
+        dosageAmountTextView.visibility = View.VISIBLE
+
+        val dosageAmountEditText = findViewById<EditText>(R.id.dosageAmountEditText)
+        dosageAmountEditText.visibility = View.VISIBLE
+        if (dosageAmount != null) {
+            dosageAmountEditText.setText(dosageAmount.toString())
+        }else {
+            dosageAmountEditText.setText("")
+        }
 
         val customCheckBox = findViewById<CheckBox>(R.id.customCheckBox)
         customCheckBox.visibility = View.VISIBLE
@@ -375,9 +405,6 @@ class AddDosageActivity : AppCompatActivity() {
         val currentDate = Calendar.getInstance()
         val currentDay = currentDate.get(Calendar.DAY_OF_MONTH)
 
-        val iloscTabletekTextView = findViewById<TextView>(R.id.capacityTextView)
-        iloscTabletekTextView.visibility = View.VISIBLE
-
         val dateTextView = findViewById<TextView>(R.id.date)
         dateTextView.visibility = View.VISIBLE
 
@@ -402,6 +429,13 @@ class AddDosageActivity : AppCompatActivity() {
         val dosageSpinner = findViewById<Spinner>(R.id.quantitySpinner)
         dosageSpinner.visibility = View.VISIBLE
         dosageSpinner.setSelection(0)
+
+        val dosageAmountTextView = findViewById<TextView>(R.id.dosageAmountTextView)
+        dosageAmountTextView.visibility = View.VISIBLE
+
+        val dosageAmountEditView = findViewById<EditText>(R.id.dosageAmountEditText)
+        dosageAmountEditView.visibility = View.VISIBLE
+        dosageAmountEditView.setText("")
 
         val quantityOptions = resources.getStringArray(R.array.quantity_options)
         val quantityAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, quantityOptions)
@@ -485,10 +519,7 @@ class AddDosageActivity : AppCompatActivity() {
     }
 
     // ustawienie pól na widzialne i uzupełnienie danych
-    private fun allVisibleFromDB(capacity: Any?, expirationDate: Any?, dosage: List<String>) {
-        val iloscTabletekTextView = findViewById<TextView>(R.id.capacityTextView)
-        iloscTabletekTextView.visibility = View.VISIBLE
-
+    private fun allVisibleFromDB(capacity: Any?, expirationDate: Any?, dosage: List<String>, dosageAmount: Any?) {
         val dateTextView = findViewById<TextView>(R.id.date)
         dateTextView.visibility = View.VISIBLE
 
@@ -534,6 +565,13 @@ class AddDosageActivity : AppCompatActivity() {
                 dosageSpinner.setSelection(position)
             }
         }
+
+        val dosageAmountTextView = findViewById<TextView>(R.id.dosageAmountTextView)
+        dosageAmountTextView.visibility = View.VISIBLE
+
+        val dosageAmountEditText = findViewById<EditText>(R.id.dosageAmountEditText)
+        dosageAmountEditText.visibility = View.VISIBLE
+        dosageAmountEditText.setText(dosageAmount.toString())
 
         val customCheckBox = findViewById<CheckBox>(R.id.customCheckBox)
         customCheckBox.visibility = View.VISIBLE
@@ -821,7 +859,7 @@ class AddDosageActivity : AppCompatActivity() {
         }
         return drugs
     }
-    fun saveDataToFirebase(firestoreDB: FirebaseFirestore, email: String) {
+    private fun saveDataToFirebase(firestoreDB: FirebaseFirestore, email: String) {
             val autoComplete: AutoCompleteTextView = findViewById(R.id.auto_complete_txt)
             val nazwaProduktu = autoComplete.text.toString()
 
@@ -829,11 +867,13 @@ class AddDosageActivity : AppCompatActivity() {
             val numberPickerMonth = findViewById<NumberPicker>(R.id.numberPickerMonth)
             val numberPickerYear = findViewById<NumberPicker>(R.id.numberPickerYear)
             val iloscTabletek = findViewById<EditText>(R.id.iloscTabletek)
+            val dosageAmountEditText = findViewById<EditText>(R.id.dosageAmountEditText)
 
             val day = numberPickerDay.value
             val month = numberPickerMonth.value
             val year = numberPickerYear.value
             val dataWaznosci = String.format("%02d-%02d-%d", day, month, year)
+            val dosageAmount = dosageAmountEditText.text.toString()
 
             val timePickerLayout = findViewById<TextInputLayout>(R.id.timePickerLayout)
             val dawkowanie = ArrayList<String>()
@@ -890,6 +930,7 @@ class AddDosageActivity : AppCompatActivity() {
                         dataMap["dataWaznosci"] = dataWaznosci
                         dataMap["dawkowanie"] = dawkowanie
                         dataMap["pojemnosc"] = iloscTabletek.text.toString()
+                        dataMap["iloscTabletekJednorazowo"] = dosageAmount
 
                         // Dodawanie danych do Firestore
                         firestoreDB.collection("leki")
@@ -900,19 +941,82 @@ class AddDosageActivity : AppCompatActivity() {
                                     "Lek został dodany.",
                                     Toast.LENGTH_SHORT
                                 ).show()
+                                startActivity(Intent(this, AfterLoginActivity::class.java))
                             }
                             .addOnFailureListener { e ->
                                 Log.e(TAG, "Błąd podczas dodawania danych do Firestore", e)
                                 Toast.makeText(this, "Wystąpił błąd", Toast.LENGTH_SHORT).show()
                             }
                     } else {
-                        // sprawdzenie czy podane wartości zgadzają się z tymi, które są w bazie,
-                        // jeśli nie, to uaktualniamy zmiany i pytamy się o akceprację tych zmian
-                        Toast.makeText(
-                            this,
-                            "Lek o nazwie $nazwaProduktu już istnieje w bazie.",
-                            Toast.LENGTH_SHORT
-                        ).show()
+                        if (newOld) {
+                            val dataMap = hashMapOf<String, Any>()
+                            dataMap["email"] = email
+                            dataMap["nazwaProduktu"] = nazwaProduktu
+                            dataMap["dataWaznosci"] = dataWaznosci
+                            dataMap["dawkowanie"] = dawkowanie
+                            dataMap["pojemnosc"] = iloscTabletek.text.toString()
+                            dataMap["iloscTabletekJednorazowo"] = dosageAmount
+
+                            // Dodawanie danych do Firestore
+                            firestoreDB.collection("leki")
+                                .add(dataMap)
+                                .addOnSuccessListener {
+                                    Toast.makeText(
+                                        this,
+                                        "Lek został dodany.",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                    startActivity(Intent(this, AfterLoginActivity::class.java))
+                                }
+                                .addOnFailureListener { e ->
+                                    Log.e(TAG, "Błąd podczas dodawania danych do Firestore", e)
+                                    Toast.makeText(this, "Wystąpił błąd", Toast.LENGTH_SHORT).show()
+                                }
+                        } else {
+                            val capacity = querySnapshot.documents[0].get("pojemnosc")
+                            val dosage = querySnapshot.documents[0].get("dawkowanie") as List<String>?
+                            val dosageAmountActual = querySnapshot.documents[0].get("iloscTabletekJednorazowo")
+
+                            // sprawdzenie czy dawkowanie jest takie samo
+                            var identical = true
+
+                            if (dosage != null) {
+                                if (dosage.size != dawkowanie.size) {
+                                    identical = false
+                                } else {
+                                    for (i in dosage.indices) {
+                                        val dosageTime = dosage[i]
+                                        val dawkowanieTime = dawkowanie[i]
+
+                                        if (dosageTime != dawkowanieTime) {
+                                            identical = false
+                                            break
+                                        }
+                                    }
+                                }
+                                if (capacity != iloscTabletek.text.toString() || !identical || dosageAmount != dosageAmountActual.toString()) {
+                                    val alertDialogBuilder = AlertDialog.Builder(ContextThemeWrapper(this, R.style.AlertDialogCustom))
+                                    alertDialogBuilder.setTitle("Lek jest już w bazie danych")
+                                    alertDialogBuilder.setMessage("Czy zaaktualizować dane?")
+
+                                    // Aktualizacja danych w bazie
+                                    alertDialogBuilder.setPositiveButton("TAK") { _, _ ->
+                                        // Obsługa wyboru "Nowe opakowanie"
+                                        updateDB(email, nazwaProduktu, dawkowanie, iloscTabletek.text.toString(), dosageAmountActual.toString(), firestoreDB)
+                                    }
+
+                                    // Brak akcji
+                                    alertDialogBuilder.setNegativeButton("NIE") { _, _ ->
+
+                                    }
+                                    val alertDialog = alertDialogBuilder.create()
+                                    alertDialog.show()
+
+                                } else {
+                                    // Lek w bazie jest identyczny - nie dokonano zmian
+                                }
+                            }
+                        }
                     }
                 }
                 .addOnFailureListener { e ->
@@ -920,4 +1024,43 @@ class AddDosageActivity : AppCompatActivity() {
                     Toast.makeText(this, "Wystąpił błąd", Toast.LENGTH_SHORT).show()
                 }
         }
+
+    // aktualizacja danych w bazie
+    private fun updateDB(email: String, nazwaProduktu: String, dawkowanie: ArrayList<String>, pojemnosc: String, dosageAmount: String, firestoreDB: FirebaseFirestore) {
+        // Odnajdź lek w bazie danych
+        firestoreDB.collection("leki")
+            .whereEqualTo("email", email)
+            .whereEqualTo("nazwaProduktu", nazwaProduktu)
+            .get()
+            .addOnSuccessListener { querySnapshot ->
+                if (!querySnapshot.isEmpty) {
+                    // Znaleziono lek, zakładamy że jest tylko jeden pasujący
+                    val lekDocument = querySnapshot.documents[0]
+
+                    // Przygotuj dane do aktualizacji
+                    val dataToUpdate = hashMapOf<String, Any>()
+                    dataToUpdate["dawkowanie"] = dawkowanie
+                    dataToUpdate["pojemnosc"] = pojemnosc
+                    dataToUpdate["iloscTabletekJednorazowo"] = dosageAmount
+
+                    // Zaktualizuj dokument w bazie danych
+                    lekDocument.reference.update(dataToUpdate)
+                        .addOnSuccessListener {
+                            Toast.makeText(this, "Lek został zaktualizowany.", Toast.LENGTH_SHORT).show()
+                            startActivity(Intent(this, AfterLoginActivity::class.java))
+                        }
+                        .addOnFailureListener { e ->
+                            Log.e(TAG, "Błąd podczas aktualizacji danych w Firestore", e)
+                            Toast.makeText(this, "Wystąpił błąd podczas aktualizacji leku.", Toast.LENGTH_SHORT).show()
+                        }
+                } else {
+                    Toast.makeText(this, "Lek o nazwie $nazwaProduktu nie został znaleziony.", Toast.LENGTH_SHORT).show()
+                }
+            }
+            .addOnFailureListener { e ->
+                Log.e(TAG, "Błąd podczas sprawdzania danych w Firestore", e)
+                Toast.makeText(this, "Wystąpił błąd", Toast.LENGTH_SHORT).show()
+            }
+    }
+
 }
