@@ -122,10 +122,26 @@ class MainActivity : AppCompatActivity() {
             .get()
             .addOnSuccessListener { querySnapshot ->
                 if (!querySnapshot.isEmpty) {
+                    val sharedPreferences = getSharedPreferences("login", MODE_PRIVATE)
+                    val editor = sharedPreferences.edit()
+                    editor.putString("email", user.email)
+
+                    // Pobieranie ID aktualnie zalogowanego użytkownika
+                    val auth = FirebaseAuth.getInstance()
+                    val currentUser = auth.currentUser
+                    val userId = currentUser?.uid
+                    val email = currentUser?.email
+                    editor.putString("userID", userId ?: "x") // Jeśli userId jest null, użyj pustego ciągu znaków
+                    editor.putString("email", email)
+
+                    editor.apply()
+
                     // Użytkownik o danym emailu istnieje w bazie
                     val userDocument = querySnapshot.documents[0] // Zakładam, że jest tylko jeden użytkownik z danym emailem
                     Toast.makeText(this, "$userDocument", Toast.LENGTH_SHORT).show()
                     startActivity(Intent(this, AfterLoginActivity::class.java))
+                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK)
+                    finish()
 
                 } else {
                     // Użytkownik o danym emailu nie istnieje w bazie, tworzymy nowy rekord
@@ -164,7 +180,23 @@ class MainActivity : AppCompatActivity() {
             .addOnSuccessListener {
                 // Rekord użytkownika został utworzony pomyślnie
                 // Przechodzimy dalej
+                val sharedPreferences = getSharedPreferences("login", MODE_PRIVATE)
+                val editor = sharedPreferences.edit()
+                editor.putString("email", user.email)
+
+                // Pobieranie ID aktualnie zalogowanego użytkownika
+                val auth = FirebaseAuth.getInstance()
+                val currentUser = auth.currentUser
+                val userId = currentUser?.uid
+                val email = currentUser?.email
+                editor.putString("userID", userId ?: "x") // Jeśli userId jest null, użyj pustego ciągu znaków
+                editor.putString("email", email)
+
+                editor.apply()
+
                 startActivity(Intent(this, AfterLoginActivity::class.java))
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK)
+                finish()
             }
             .addOnFailureListener { e ->
                 // Błąd podczas tworzenia rekordu użytkownika

@@ -112,7 +112,7 @@
             android:orientation="vertical"
             android:textColor="#FFFCFC"
             android:textColorHint="@color/red"
-            android:visibility="gone">
+            android:visibility="invisible">
 
 
             <!--            style="@style/CustomFilledBoxStyle"-->
