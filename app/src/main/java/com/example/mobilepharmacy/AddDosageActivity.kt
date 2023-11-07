@@ -175,9 +175,14 @@ class AddDosageActivity : AppCompatActivity() {
                             // Pobranie pojemności opakowania z bazy
                             val capacity = querySnapshot.documents[0].get("pojemnosc")
                             val expirationDate = querySnapshot.documents[0].get("dataWaznosci")
-                            val dosage = querySnapshot.documents[0].get("dawkowanie")
-                            val frequency = querySnapshot.documents[0].get("czestotliwosc")
-                            allVisibleFromDB(capacity, expirationDate, dosage, frequency)
+                            // pobiera całą listę z godzinami
+                            val dosage = querySnapshot.documents[0].get("dawkowanie") as List<String>?
+
+                            if (dosage != null && capacity != null && expirationDate != null) {
+                                allVisibleFromDB(capacity, expirationDate, dosage)
+                            } else {
+                                visibleFromDC(capacity, expirationDate)
+                            }
                         }
                         val alertDialog = alertDialogBuilder.create()
                         alertDialog.show()
@@ -192,118 +197,25 @@ class AddDosageActivity : AppCompatActivity() {
                 }
     }
 
-    // wyświetla wszystko
-    private fun allVisibleNewDrug() {
+    private fun visibleFromDC(capacity: Any?, expirationDate: Any?) {
         val iloscTabletekTextView = findViewById<TextView>(R.id.capacityTextView)
         iloscTabletekTextView.visibility = View.VISIBLE
 
         val dateTextView = findViewById<TextView>(R.id.date)
         dateTextView.visibility = View.VISIBLE
 
+        // data ważności - jeśli pobrana z bazy, to nie zmieniamy jej wartości
         val numberPickerDay = findViewById<NumberPicker>(R.id.numberPickerDay)
         numberPickerDay.visibility = View.VISIBLE
+        numberPickerDay.isEnabled = false
 
         val numberPickerMonth = findViewById<NumberPicker>(R.id.numberPickerMonth)
         numberPickerMonth.visibility = View.VISIBLE
+        numberPickerMonth.isEnabled = false
 
         val numberPickerYear = findViewById<NumberPicker>(R.id.numberPickerYear)
         numberPickerYear.visibility = View.VISIBLE
-
-        val dosageTextView = findViewById<TextView>(R.id.dosageTextView)
-        dosageTextView.visibility = View.VISIBLE
-
-        val dosageSpinner = findViewById<Spinner>(R.id.quantitySpinner)
-        dosageSpinner.visibility = View.VISIBLE
-
-        val quantityOptions = resources.getStringArray(R.array.quantity_options)
-        val quantityAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, quantityOptions)
-        quantityAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        dosageSpinner.adapter = quantityAdapter
-
-        val customCheckBox = findViewById<CheckBox>(R.id.customCheckBox)
-        customCheckBox.visibility = View.VISIBLE
-
-        val capacityTextView = findViewById<TextView>(R.id.capacityTextView)
-        capacityTextView.visibility = View.VISIBLE
-
-        val customEditText = findViewById<EditText>(R.id.customEditText)
-        customEditText.visibility = View.VISIBLE
-
-        val iloscTabletekEditText = findViewById<EditText>(R.id.iloscTabletek)
-        iloscTabletekEditText.visibility = View.VISIBLE
-
-        timePickerLayout = findViewById(R.id.timePickerLayout)
-
-        dosageSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                quantity = position + 1
-                updateTimeWindows()
-
-                if (customCheckBox.isChecked) {
-                    customEditText.visibility = View.GONE
-                    timePickerLayout.removeAllViews()
-                    for (i in 1..quantity) {
-                        val timePicker = TimePicker(ContextThemeWrapper(this@AddDosageActivity, R.style.TimePickerTheme)
-                        )
-                        timePicker.setIs24HourView(true)
-                        timePickerLayout.addView(timePicker)
-                    }
-                } else {
-                    val customQuantity = customEditText.text.toString().toIntOrNull()
-                    if (customQuantity != null && customQuantity > 1) {
-                        customEditText.visibility = View.GONE
-                        timePickerLayout.removeAllViews()
-                        val timePicker = TimePicker(ContextThemeWrapper(this@AddDosageActivity, R.style.TimePickerTheme)
-                        )
-                        timePicker.setIs24HourView(true)
-                        timePickerLayout.addView(timePicker)
-                    } else {
-                        customEditText.visibility = View.VISIBLE
-                        timePickerLayout.removeAllViews()
-                        val timePicker = TimePicker(ContextThemeWrapper(this@AddDosageActivity, R.style.TimePickerTheme)
-                        )
-                        timePicker.setIs24HourView(true)
-                        timePickerLayout.addView(timePicker)
-                    }
-                }
-            }
-
-            override fun onNothingSelected(parent: AdapterView<*>?) {
-                // Nie wykonujemy żadnej akcji
-            }
-        }
-        customCheckBox.setOnCheckedChangeListener { _, isChecked ->
-            if (isChecked) {
-                customEditText.visibility = View.GONE
-                updateTimeWindows()
-            } else {
-                customEditText.visibility = View.VISIBLE
-                timePickerLayout.removeAllViews()
-                val timePicker = TimePicker(ContextThemeWrapper(this@AddDosageActivity, R.style.TimePickerTheme)
-                )
-                timePicker.setIs24HourView(true)
-                timePickerLayout.addView(timePicker)
-            }
-        }
-    }
-
-    // ustawienie pól na widzialne i uzupełnienie danych
-    private fun allVisibleFromDB(capacity: Any?, expirationDate: Any?, dosage: Any?, frequency:Any?) {
-        val iloscTabletekTextView = findViewById<TextView>(R.id.capacityTextView)
-        iloscTabletekTextView.visibility = View.VISIBLE
-
-        val dateTextView = findViewById<TextView>(R.id.date)
-        dateTextView.visibility = View.VISIBLE
-
-        // data ważności
-        val numberPickerDay = findViewById<NumberPicker>(R.id.numberPickerDay)
-        numberPickerDay.visibility = View.VISIBLE
-
-        val numberPickerMonth = findViewById<NumberPicker>(R.id.numberPickerMonth)
-        numberPickerMonth.visibility = View.VISIBLE
-
-        val numberPickerYear = findViewById<NumberPicker>(R.id.numberPickerYear)
-        numberPickerYear.visibility = View.VISIBLE
+        numberPickerYear.isEnabled = false
 
         // rozbicie daty na wartości
         val dateParts = expirationDate.toString().split("-")
@@ -328,12 +240,7 @@ class AddDosageActivity : AppCompatActivity() {
         quantityAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         dosageSpinner.adapter = quantityAdapter
 
-        if (dosage != null) {
-            val position = quantityAdapter.getPosition( dosage.toString())
-            if (position >= 0) {
-                dosageSpinner.setSelection(position)
-            }
-        }
+        dosageSpinner.setSelection(0)
 
         val customCheckBox = findViewById<CheckBox>(R.id.customCheckBox)
         customCheckBox.visibility = View.VISIBLE
@@ -341,13 +248,12 @@ class AddDosageActivity : AppCompatActivity() {
         val capacityTextView = findViewById<TextView>(R.id.capacityTextView)
         capacityTextView.visibility = View.VISIBLE
 
+        customCheckBox.isChecked = false
+
         // częstotliwość brania
         val customEditText = findViewById<EditText>(R.id.customEditText)
         customEditText.visibility = View.VISIBLE
-
-        if (frequency!=null){
-            customEditText.setText(frequency.toString())
-        }
+        customEditText.setText("")
 
         // Pobierz referencję do pola EditText
         val capacityEditText = findViewById<EditText>(R.id.iloscTabletek)
@@ -393,6 +299,14 @@ class AddDosageActivity : AppCompatActivity() {
                         val timePicker = TimePicker(ContextThemeWrapper(ContextThemeWrapper(this@AddDosageActivity, R.style.TimePickerTheme)
                             , R.style.TimePickerTheme))
                         timePicker.setIs24HourView(true)
+
+                            // Ustaw obecny czas, gdy lista "dosage" jest pusta
+                            val calendar = Calendar.getInstance()
+                            val currentHour = calendar.get(Calendar.HOUR_OF_DAY)
+                            val currentMinute = calendar.get(Calendar.MINUTE)
+                            timePicker.hour = currentHour
+                            timePicker.minute = currentMinute
+
                         timePickerLayout.addView(timePicker)
                     }
                 } else {
@@ -403,6 +317,14 @@ class AddDosageActivity : AppCompatActivity() {
                         val timePicker = TimePicker(ContextThemeWrapper(this@AddDosageActivity, R.style.TimePickerTheme)
                         )
                         timePicker.setIs24HourView(true)
+
+                            // Ustaw obecny czas, gdy lista "dosage" jest pusta
+                            val calendar = Calendar.getInstance()
+                            val currentHour = calendar.get(Calendar.HOUR_OF_DAY)
+                            val currentMinute = calendar.get(Calendar.MINUTE)
+                            timePicker.hour = currentHour
+                            timePicker.minute = currentMinute
+
                         timePickerLayout.addView(timePicker)
                     } else {
                         customEditText.visibility = View.VISIBLE
@@ -410,6 +332,407 @@ class AddDosageActivity : AppCompatActivity() {
                         val timePicker = TimePicker(ContextThemeWrapper(this@AddDosageActivity, R.style.TimePickerTheme)
                         )
                         timePicker.setIs24HourView(true)
+
+                            // Ustaw obecny czas, gdy lista "dosage" jest pusta
+                            val calendar = Calendar.getInstance()
+                            val currentHour = calendar.get(Calendar.HOUR_OF_DAY)
+                            val currentMinute = calendar.get(Calendar.MINUTE)
+                            timePicker.hour = currentHour
+                            timePicker.minute = currentMinute
+
+                        timePickerLayout.addView(timePicker)
+                    }
+                }
+            }
+
+            override fun onNothingSelected(parent: AdapterView<*>?) {
+                // Nie wykonujemy żadnej akcji
+            }
+        }
+        customCheckBox.setOnCheckedChangeListener { _, isChecked ->
+            if (isChecked) {
+                customEditText.visibility = View.GONE
+                updateTimeWindows()
+            } else {
+                customEditText.visibility = View.VISIBLE
+                timePickerLayout.removeAllViews()
+                val timePicker = TimePicker(ContextThemeWrapper(this@AddDosageActivity, R.style.TimePickerTheme)
+                )
+                timePicker.setIs24HourView(true)
+                timePickerLayout.addView(timePicker)
+            }
+        }
+    }
+
+    // wyświetla wszystko
+    private fun allVisibleNewDrug() {
+        // Ustaw zegar na aktualną godzinę
+        val currentTime = Calendar.getInstance()
+        val hour = currentTime.get(Calendar.HOUR_OF_DAY)
+        val minute = currentTime.get(Calendar.MINUTE)
+
+        // obecna data
+        val currentDate = Calendar.getInstance()
+        val currentDay = currentDate.get(Calendar.DAY_OF_MONTH)
+
+        val iloscTabletekTextView = findViewById<TextView>(R.id.capacityTextView)
+        iloscTabletekTextView.visibility = View.VISIBLE
+
+        val dateTextView = findViewById<TextView>(R.id.date)
+        dateTextView.visibility = View.VISIBLE
+
+        val numberPickerDay = findViewById<NumberPicker>(R.id.numberPickerDay)
+        numberPickerDay.visibility = View.VISIBLE
+        numberPickerDay.isEnabled = true
+        numberPickerDay.value = currentDay
+
+        val numberPickerMonth = findViewById<NumberPicker>(R.id.numberPickerMonth)
+        numberPickerMonth.visibility = View.VISIBLE
+        numberPickerMonth.isEnabled = true
+        numberPickerMonth.value = currentDate.get(Calendar.MONTH) + 1
+
+        val numberPickerYear = findViewById<NumberPicker>(R.id.numberPickerYear)
+        numberPickerYear.visibility = View.VISIBLE
+        numberPickerYear.isEnabled = true
+        numberPickerYear.value = currentDate.get(Calendar.YEAR)
+
+        val dosageTextView = findViewById<TextView>(R.id.dosageTextView)
+        dosageTextView.visibility = View.VISIBLE
+
+        val dosageSpinner = findViewById<Spinner>(R.id.quantitySpinner)
+        dosageSpinner.visibility = View.VISIBLE
+        dosageSpinner.setSelection(0)
+
+        val quantityOptions = resources.getStringArray(R.array.quantity_options)
+        val quantityAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, quantityOptions)
+        quantityAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        dosageSpinner.adapter = quantityAdapter
+
+        val customCheckBox = findViewById<CheckBox>(R.id.customCheckBox)
+        customCheckBox.visibility = View.VISIBLE
+        customCheckBox.isChecked = false
+
+        val capacityTextView = findViewById<TextView>(R.id.capacityTextView)
+        capacityTextView.visibility = View.VISIBLE
+
+        val customEditText = findViewById<EditText>(R.id.customEditText)
+        customEditText.visibility = View.VISIBLE
+        customEditText.setText("")
+
+        val iloscTabletekEditText = findViewById<EditText>(R.id.iloscTabletek)
+        iloscTabletekEditText.visibility = View.VISIBLE
+        iloscTabletekEditText.setText("")
+
+        timePickerLayout = findViewById(R.id.timePickerLayout)
+
+        dosageSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                quantity = position + 1
+                updateTimeWindows()
+
+                if (customCheckBox.isChecked) {
+                    customEditText.visibility = View.GONE
+                    timePickerLayout.removeAllViews()
+                    for (i in 1..quantity) {
+                        val timePicker = TimePicker(ContextThemeWrapper(this@AddDosageActivity, R.style.TimePickerTheme)
+                        )
+                        timePicker.setIs24HourView(true)
+                        timePicker.hour = hour
+                        timePicker.minute = minute
+                        timePickerLayout.addView(timePicker)
+                    }
+                } else {
+                    val customQuantity = customEditText.text.toString().toIntOrNull()
+                    if (customQuantity != null && customQuantity > 1) {
+                        customEditText.visibility = View.GONE
+                        timePickerLayout.removeAllViews()
+                        val timePicker = TimePicker(ContextThemeWrapper(this@AddDosageActivity, R.style.TimePickerTheme)
+                        )
+                        timePicker.setIs24HourView(true)
+                        timePicker.hour = hour
+                        timePicker.minute = minute
+                        timePickerLayout.addView(timePicker)
+                    } else {
+                        customEditText.visibility = View.VISIBLE
+                        timePickerLayout.removeAllViews()
+                        val timePicker = TimePicker(ContextThemeWrapper(this@AddDosageActivity, R.style.TimePickerTheme)
+                        )
+                        timePicker.setIs24HourView(true)
+                        timePicker.hour = hour
+                        timePicker.minute = minute
+                        timePickerLayout.addView(timePicker)
+                    }
+                }
+            }
+
+            override fun onNothingSelected(parent: AdapterView<*>?) {
+                // Nie wykonujemy żadnej akcji
+            }
+        }
+        customCheckBox.setOnCheckedChangeListener { _, isChecked ->
+            if (isChecked) {
+                customEditText.visibility = View.GONE
+                updateTimeWindows()
+            } else {
+                customEditText.visibility = View.VISIBLE
+                timePickerLayout.removeAllViews()
+                val timePicker = TimePicker(ContextThemeWrapper(this@AddDosageActivity, R.style.TimePickerTheme)
+                )
+                timePicker.setIs24HourView(true)
+                timePickerLayout.addView(timePicker)
+            }
+        }
+    }
+
+    // ustawienie pól na widzialne i uzupełnienie danych
+    private fun allVisibleFromDB(capacity: Any?, expirationDate: Any?, dosage: List<String>) {
+        val iloscTabletekTextView = findViewById<TextView>(R.id.capacityTextView)
+        iloscTabletekTextView.visibility = View.VISIBLE
+
+        val dateTextView = findViewById<TextView>(R.id.date)
+        dateTextView.visibility = View.VISIBLE
+
+        // data ważności - jeśli pobrana z bazy, to nie zmieniamy jej wartości
+        val numberPickerDay = findViewById<NumberPicker>(R.id.numberPickerDay)
+        numberPickerDay.visibility = View.VISIBLE
+        numberPickerDay.isEnabled = false
+
+        val numberPickerMonth = findViewById<NumberPicker>(R.id.numberPickerMonth)
+        numberPickerMonth.visibility = View.VISIBLE
+        numberPickerMonth.isEnabled = false
+
+        val numberPickerYear = findViewById<NumberPicker>(R.id.numberPickerYear)
+        numberPickerYear.visibility = View.VISIBLE
+        numberPickerYear.isEnabled = false
+
+        // rozbicie daty na wartości
+        val dateParts = expirationDate.toString().split("-")
+        if (dateParts.size == 3) {
+            val day = dateParts[0].toInt()
+            val month = dateParts[1].toInt()
+            val year = dateParts[2].toInt()
+            numberPickerDay.value = day
+            numberPickerMonth.value = month
+            numberPickerYear.value = year
+        } else {
+            println("Nieprawidłowy format daty")
+        }
+
+        val dosageTextView = findViewById<TextView>(R.id.dosageTextView)
+        dosageTextView.visibility = View.VISIBLE
+
+        val dosageSpinner = findViewById<Spinner>(R.id.quantitySpinner)
+        dosageSpinner.visibility = View.VISIBLE
+        val quantityOptions = resources.getStringArray(R.array.quantity_options)
+        val quantityAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, quantityOptions)
+        quantityAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        dosageSpinner.adapter = quantityAdapter
+
+        if (dosage.isNotEmpty()) {
+            val position = quantityAdapter.getPosition( dosage.size.toString())
+            if (position >= 0) {
+                dosageSpinner.setSelection(position)
+            }
+        }
+
+        val customCheckBox = findViewById<CheckBox>(R.id.customCheckBox)
+        customCheckBox.visibility = View.VISIBLE
+
+        val capacityTextView = findViewById<TextView>(R.id.capacityTextView)
+        capacityTextView.visibility = View.VISIBLE
+
+
+        var frequency: Double? = null
+        // Określenie częstotliwości brania leków
+        if (dosage.isNotEmpty()) {
+            if (dosage.size > 2) {
+                for (i in 1 until dosage.size) {
+                    val currentTime = dosage[i]
+                    val previousTime = dosage[i - 1]
+
+                    val currentTimeParts = currentTime.split(":")
+                    val previousTimeParts = previousTime.split(":")
+
+                    if (currentTimeParts.size == 2 && previousTimeParts.size == 2) {
+                        val currentHour = currentTimeParts[0].toInt()
+                        val currentMinute = currentTimeParts[1].toInt()
+                        val previousHour = previousTimeParts[0].toInt()
+                        val previousMinute = previousTimeParts[1].toInt()
+
+                        val hourDiff = currentHour - previousHour
+                        val minuteDiff = currentMinute - previousMinute
+
+                        // Przelicz różnicę minut na godziny i dodaj do godzin
+                        val diffInHours = hourDiff + minuteDiff / 60.0
+
+                        if (frequency != null && diffInHours != frequency) {
+                            customCheckBox.isChecked = false
+                            break
+                        }
+                        frequency = diffInHours
+                    }
+                }
+
+                customCheckBox.isChecked = true
+            } else if (dosage.size == 2) {
+                // Jeśli mamy tylko dwie wartości, ustaw częstotliwość jako różnicę między nimi
+                val firstTime = dosage[0]
+                val secondTime = dosage[1]
+
+                val firstTimeParts = firstTime.split(":")
+                val secondTimeParts = secondTime.split(":")
+
+                frequency = if (firstTimeParts.size == 2 && secondTimeParts.size == 2) {
+                    val firstHour = firstTimeParts[0].toInt()
+                    val firstMinute = firstTimeParts[1].toInt()
+                    val secondHour = secondTimeParts[0].toInt()
+                    val secondMinute = secondTimeParts[1].toInt()
+
+                    val hourDiff = secondHour - firstHour
+                    val minuteDiff = secondMinute - firstMinute
+
+                    // Przelicz różnicę minut na godziny i dodaj do godzin
+                    hourDiff + minuteDiff / 60.0
+                } else {
+                    null
+                }
+            }
+            else {
+                customCheckBox.isChecked = true
+            }
+        } else {
+            customCheckBox.isChecked = false
+        }
+
+        // częstotliwość brania
+        val customEditText = findViewById<EditText>(R.id.customEditText)
+        customEditText.visibility = View.VISIBLE
+        customEditText.setText(frequency.toString())
+
+        // Pobierz referencję do pola EditText
+        val capacityEditText = findViewById<EditText>(R.id.iloscTabletek)
+        capacityEditText.visibility = View.VISIBLE
+        if (capacity != null)
+        {
+            capacityEditText.setText(capacity.toString())
+        }
+
+        // Tworzenie TextWatcher do monitorowania wprowadzanych wartości
+        val textWatcher = object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+                // Przed zmianą tekstu
+            }
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                // Podczas zmiany tekstu
+            }
+
+            override fun afterTextChanged(s: Editable?) {
+                // Po zmianie tekstu
+                val capacity = s.toString().toIntOrNull()
+                if (capacity != null && capacity < 0) {
+                    // Jeśli wprowadzona liczba jest mniejsza od zera, ustaw na zero
+                    capacityEditText.setText("0")
+                }
+            }
+        }
+        // Dodaj TextWatcher do pola EditText
+        capacityEditText.addTextChangedListener(textWatcher)
+
+        timePickerLayout = findViewById(R.id.timePickerLayout)
+
+        dosageSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                quantity = position + 1
+                updateTimeWindows()
+
+                if (customCheckBox.isChecked) {
+                    customEditText.visibility = View.GONE
+                    timePickerLayout.removeAllViews()
+                    for (i in 1..quantity) {
+                        val timePicker = TimePicker(ContextThemeWrapper(ContextThemeWrapper(this@AddDosageActivity, R.style.TimePickerTheme)
+                            , R.style.TimePickerTheme))
+                        timePicker.setIs24HourView(true)
+
+                        if (dosage.isNotEmpty())
+                        {
+                            // ustawienie wartości na zegarze
+                            val dosageTime = dosage[i - 1]  // Pobierz czas z listy "dosage"
+                            val timeParts = dosageTime.split(":")
+                            if (timeParts.size == 2) {
+                                val hour = timeParts[0].toInt()
+                                val minute = timeParts[1].toInt()
+                                timePicker.hour = hour
+                                timePicker.minute = minute
+                            }
+                        }else{
+                            // Ustaw obecny czas, gdy lista "dosage" jest pusta
+                            val calendar = Calendar.getInstance()
+                            val currentHour = calendar.get(Calendar.HOUR_OF_DAY)
+                            val currentMinute = calendar.get(Calendar.MINUTE)
+                            timePicker.hour = currentHour
+                            timePicker.minute = currentMinute
+                        }
+
+                        timePickerLayout.addView(timePicker)
+                    }
+                } else {
+                    val customQuantity = customEditText.text.toString().toIntOrNull()
+                    if (customQuantity != null && customQuantity > 1) {
+                        customEditText.visibility = View.GONE
+                        timePickerLayout.removeAllViews()
+                        val timePicker = TimePicker(ContextThemeWrapper(this@AddDosageActivity, R.style.TimePickerTheme)
+                        )
+                        timePicker.setIs24HourView(true)
+
+                        if (dosage.isNotEmpty())
+                        {
+                            // ustawienie wartości na zegarze
+                            val dosageTime = dosage[0]  // Pobierz czas z listy "dosage"
+                            val timeParts = dosageTime.split(":")
+                            if (timeParts.size == 2) {
+                                val hour = timeParts[0].toInt()
+                                val minute = timeParts[1].toInt()
+                                timePicker.hour = hour
+                                timePicker.minute = minute
+                            }
+                        }else{
+                            // Ustaw obecny czas, gdy lista "dosage" jest pusta
+                            val calendar = Calendar.getInstance()
+                            val currentHour = calendar.get(Calendar.HOUR_OF_DAY)
+                            val currentMinute = calendar.get(Calendar.MINUTE)
+                            timePicker.hour = currentHour
+                            timePicker.minute = currentMinute
+                        }
+
+                        timePickerLayout.addView(timePicker)
+                    } else {
+                        customEditText.visibility = View.VISIBLE
+                        timePickerLayout.removeAllViews()
+                        val timePicker = TimePicker(ContextThemeWrapper(this@AddDosageActivity, R.style.TimePickerTheme)
+                        )
+                        timePicker.setIs24HourView(true)
+
+                        if (dosage.isNotEmpty())
+                        {
+                            // ustawienie wartości na zegarze
+                            val dosageTime = dosage[0]  // Pobierz czas z listy "dosage"
+                            val timeParts = dosageTime.split(":")
+                            if (timeParts.size == 2) {
+                                val hour = timeParts[0].toInt()
+                                val minute = timeParts[1].toInt()
+                                timePicker.hour = hour
+                                timePicker.minute = minute
+                            }
+                        }else{
+                            // Ustaw obecny czas, gdy lista "dosage" jest pusta
+                            val calendar = Calendar.getInstance()
+                            val currentHour = calendar.get(Calendar.HOUR_OF_DAY)
+                            val currentMinute = calendar.get(Calendar.MINUTE)
+                            timePicker.hour = currentHour
+                            timePicker.minute = currentMinute
+                        }
+
                         timePickerLayout.addView(timePicker)
                     }
                 }

@@ -78,7 +78,7 @@
             android:id="@+id/dosageTextView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Dawkowanie"
+            android:text="Dawkowanie w ciągu dnia"
             android:visibility="invisible"/>
 
         <Spinner
