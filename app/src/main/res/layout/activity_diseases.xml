@@ -19,7 +19,10 @@
     <Spinner
         android:id="@+id/spinnerSymptoms"
         android:layout_width="343dp"
-        android:layout_height="wrap_content" />
+        android:layout_height="54dp"
+        style="@style/SpinnerStyle"
+        android:background="@android:color/transparent"
+        android:popupBackground="@color/white"/> <!--  Dzięki temu kolor tła zmienił się na biały  -->
 
     <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/buttonShowMedications"
@@ -35,11 +38,15 @@
         android:text="Lista leków:"
         android:textSize="18sp"
         android:textStyle="bold"
-        android:visibility="gone"/>
+        android:visibility="gone"
+        android:padding="5dp"
+        android:gravity="center"
+        android:layout_marginTop="5sp"/>
 
     <ListView
         android:id="@+id/listViewMedications"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:visibility="gone"/>
+        android:visibility="gone"
+        android:padding="5dp"/>
 </LinearLayout>

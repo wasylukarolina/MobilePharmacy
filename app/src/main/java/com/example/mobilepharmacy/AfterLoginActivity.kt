@@ -98,11 +98,6 @@ class AfterLoginActivity : AppCompatActivity() {
 //            startActivity(intent)
 //        }
 
-//        val addDrug = findViewById<ImageView>(R.id.addToFirstAidKit)
-//        addDrug.setOnClickListener {
-//            val intent = Intent(this, AddToFirstAidKitActivity::class.java)
-//            startActivity(intent)
-//        }
 
 //        val myHealth = findViewById<ImageView>(R.id.myHealth)
 //        myHealth.setOnClickListener{
@@ -110,11 +105,11 @@ class AfterLoginActivity : AppCompatActivity() {
 //            startActivity(intent)
 //        }
 //
-//        val serachDrug = findViewById<ImageView>(R.id.searchDrugs)
-//        serachDrug.setOnClickListener {
-//            val intent = Intent(this, DiseasesActivity::class.java)
-//            startActivity(intent)
-//        }
+        val serachDrug = findViewById<AppCompatButton>(R.id.searchDrugs)
+        serachDrug.setOnClickListener {
+            val intent = Intent(this, DiseasesActivity::class.java)
+            startActivity(intent)
+        }
 
         val backButtonR = findViewById<ImageView>(R.id.backButtonR)
         backButtonR.setOnClickListener {

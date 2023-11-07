@@ -10,6 +10,7 @@ import android.widget.Spinner
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import android.content.res.XmlResourceParser
+import android.graphics.Color
 import org.xmlpull.v1.XmlPullParser
 import org.xmlpull.v1.XmlPullParserException
 import org.xmlpull.v1.XmlPullParserFactory
@@ -31,6 +32,7 @@ class DiseasesActivity : AppCompatActivity() {
         buttonShowMedications = findViewById(R.id.buttonShowMedications)
         textViewMedications = findViewById(R.id.textViewMedications)
         listViewMedications = findViewById(R.id.listViewMedications)
+        spinnerSymptoms.setBackgroundColor(Color.WHITE) // Ustaw tło na biały
 
         // Tworzenie listy dolegliwości
         val symptomsList = listOf("Katar", "Ból głowy", "Ból brzucha", "Kaszel")
@@ -118,6 +120,7 @@ class DiseasesActivity : AppCompatActivity() {
 
                 drugsList
             }
+
             "Ból głowy" -> {
                 val drugsList: ArrayList<String> = ArrayList()
 
@@ -143,6 +146,7 @@ class DiseasesActivity : AppCompatActivity() {
 
                 drugsList
             }
+
             "Ból brzucha" -> {
                 val drugsList: ArrayList<String> = ArrayList()
 
@@ -168,6 +172,7 @@ class DiseasesActivity : AppCompatActivity() {
 
                 drugsList
             }
+
             "Kaszel" -> {
                 val drugsList: ArrayList<String> = ArrayList()
 
@@ -193,6 +198,7 @@ class DiseasesActivity : AppCompatActivity() {
 
                 drugsList
             }
+
             else -> emptyList()
         }
     }
@@ -223,6 +229,7 @@ class DiseasesActivity : AppCompatActivity() {
                         isSub = targetSubstances.contains(substancja)
                     }
                 }
+
                 XmlPullParser.END_TAG -> {
                     name = parser.name
                     if (name.equals(
