@@ -137,8 +137,6 @@ class MainActivity : AppCompatActivity() {
                     editor.apply()
 
                     // Użytkownik o danym emailu istnieje w bazie
-                    val userDocument = querySnapshot.documents[0] // Zakładam, że jest tylko jeden użytkownik z danym emailem
-                    Toast.makeText(this, "$userDocument", Toast.LENGTH_SHORT).show()
                     startActivity(Intent(this, AfterLoginActivity::class.java))
                     intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK)
                     finish()

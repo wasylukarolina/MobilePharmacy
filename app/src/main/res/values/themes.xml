@@ -32,8 +32,6 @@
         <item name="android:actionMenuTextColor">@color/black</item>
     </style>
 
-
-
     <!--    kolory -->
     <style name="CustomFilledBoxStyle" parent="Widget.MaterialComponents.TextInputLayout.FilledBox">
         <item name="boxBackgroundColor" tools:override="true">@color/red
@@ -90,8 +88,10 @@
 
     <style name="Theme.MobilePharmacy.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
 
+    <!-- TIME PICKER   -->
     <style name="TimePickerTheme" parent="Theme.AppCompat.Light.Dialog">
         <item name="colorAccent">@color/red</item>
+        <item name="background">@color/white</item>
     </style>
 
     <style name="MyTextInputLayoutStyle" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu">
