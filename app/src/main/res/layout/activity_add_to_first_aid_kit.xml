@@ -73,68 +73,6 @@
             android:inputType="number"
             android:visibility="invisible" />
 
-        <TextView
-            android:id="@+id/dosageTextView"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Częstotliwość przyjmowania leku w ciągu dnia"
-            android:visibility="invisible"/>
-
-        <Spinner
-            android:id="@+id/quantitySpinner"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:entries="@array/quantity_options"
-            android:visibility="invisible"/>
-
-        <TextView
-            android:id="@+id/dosageAmountTextView"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Ilość przyjmowanego leku jednorazowo"
-            android:visibility="invisible"/>
-
-        <EditText
-            android:id="@+id/dosageAmountEditText"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Ilość tabletek, jeśli pół to wpisz 0.5"
-            android:inputType="numberDecimal"
-            android:visibility="invisible"
-            />
-        <CheckBox
-            android:id="@+id/customCheckBox"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Niestandardowe"
-            android:visibility="invisible"/>
-
-        <EditText
-            android:id="@+id/customEditText"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Podaj częstotliwość przyjmowania leków w godzinach"
-            android:inputType="number"
-            android:visibility="invisible" />
-
-
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/timePickerLayout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@color/white"
-            android:orientation="vertical"
-            android:textColor="#FFFCFC"
-            android:textColorHint="@color/red"
-            android:visibility="invisible">
-
-
-            <!--            style="@style/CustomFilledBoxStyle"-->
-
-            <!-- Pozostałe elementy wewnątrz TextInputLayout -->
-
-        </com.google.android.material.textfield.TextInputLayout>
-
 
         <!--    po kliknięciu tego przycisku dane powinny się dodawać do firebase użytkownika-->
         <androidx.appcompat.widget.AppCompatButton

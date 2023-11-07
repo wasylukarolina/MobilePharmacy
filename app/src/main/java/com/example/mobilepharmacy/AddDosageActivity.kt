@@ -18,7 +18,6 @@ import org.xmlpull.v1.XmlPullParserException
 import org.xmlpull.v1.XmlPullParserFactory
 import java.io.IOException
 import com.google.firebase.firestore.FirebaseFirestore
-import java.time.LocalDate
 import java.util.Calendar
 import kotlin.collections.ArrayList
 
@@ -29,11 +28,13 @@ class AddDosageActivity : AppCompatActivity() {
     private lateinit var adapter: ArrayAdapter<String>
     private val medicinesList: ArrayList<Drugs> = ArrayList()
     private lateinit var customEditText: EditText
-    private var newOld: Boolean = true // new_old - oznacza, czy jest nowe czy stare opawkowanie true - nowe false - stare
+    private var newOld: Boolean =
+        true // new_old - oznacza, czy jest nowe czy stare opawkowanie true - nowe false - stare
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_add_dosage)
+
         customEditText = findViewById(R.id.customEditText)
 
         // informacje o użytkowniku
@@ -43,7 +44,8 @@ class AddDosageActivity : AppCompatActivity() {
 
         // odczytanie bazy danych leków
         val assetManager = assets
-        val xmlInputStream = assetManager.open("Rejestr_Produktow_Leczniczych_calosciowy_stan_na_dzien_20230511.xml")
+        val xmlInputStream =
+            assetManager.open("Rejestr_Produktow_Leczniczych_calosciowy_stan_na_dzien_20230511.xml")
 
         val factory = XmlPullParserFactory.newInstance()
         val parser = factory.newPullParser()
@@ -53,10 +55,13 @@ class AddDosageActivity : AppCompatActivity() {
 
         val autoCompleteTextView = findViewById<AutoCompleteTextView>(R.id.auto_complete_txt)
         // Tworzenie adaptera i przypisanie go do AutoCompleteTextView
-        adapter = ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line, medicinesList.map { it.nazwaProduktu })
+        adapter = ArrayAdapter(
+            this,
+            android.R.layout.simple_dropdown_item_1line,
+            medicinesList.map { it.nazwaProduktu })
         autoCompleteTextView.setAdapter(adapter)
 
-        autoCompleteTextView.setOnClickListener{
+        autoCompleteTextView.setOnClickListener {
             autoCompleteTextView.showDropDown()
         }
 
@@ -131,7 +136,7 @@ class AddDosageActivity : AppCompatActivity() {
             if (nazwaProduktu.isEmpty()) {
                 Toast.makeText(this, "Nazwa leku nie może być pusta.", Toast.LENGTH_SHORT).show()
             } else {
-                val capacity = findViewById<EditText>(R.id.iloscTabletek)
+                val capacity = findViewById<EditText>(R.id.capacityEditText)
                 val dosageAmount = findViewById<EditText>(R.id.dosageAmountEditText)
 
                 val day = numberPickerDay.value
@@ -145,11 +150,10 @@ class AddDosageActivity : AppCompatActivity() {
 
                 if (capacity != null && dosageAmount != null && !inputDate.before(currentDate)) {
                     saveDataToFirebase(firestoreDB, email)
-                }else if (inputDate.before(currentDate)) {
+                } else if (inputDate.before(currentDate)) {
                     Toast.makeText(this, "Lek jest przeterminowany", Toast.LENGTH_SHORT)
                         .show()
-                }
-                else {
+                } else {
                     Toast.makeText(this, "Wszystkie pola muszą być uzupełnione", Toast.LENGTH_SHORT)
                         .show()
                 }
@@ -159,63 +163,70 @@ class AddDosageActivity : AppCompatActivity() {
 
     // Filtruj leki na podstawie wprowadzonego tekstu
     private fun filterMedicines(query: String) {
-        val filteredMedicines = medicinesList.map { it.nazwaProduktu }.filter { it.contains(query, ignoreCase = true) }
+        val filteredMedicines =
+            medicinesList.map { it.nazwaProduktu }.filter { it.contains(query, ignoreCase = true) }
         adapter.clear()
         adapter.addAll(filteredMedicines)
         adapter.notifyDataSetChanged()
     }
 
-        // Sprawdzenie, czy dany lek znajduje się już w apteczce użytkownika
-        private fun checkMedicineInDatabase(selectedMedicineName: String, firestoreDB: FirebaseFirestore, email: String) {
+    // Sprawdzenie, czy dany lek znajduje się już w apteczce użytkownika
+    private fun checkMedicineInDatabase(
+        selectedMedicineName: String,
+        firestoreDB: FirebaseFirestore,
+        email: String
+    ) {
 
-            val lekiRef = firestoreDB.collection("leki")
-            lekiRef
-                .whereEqualTo("email", email)
-                .whereEqualTo("nazwaProduktu", selectedMedicineName)
-                .get()
-                .addOnSuccessListener { querySnapshot ->
+        val lekiRef = firestoreDB.collection("leki")
+        lekiRef
+            .whereEqualTo("email", email)
+            .whereEqualTo("nazwaProduktu", selectedMedicineName)
+            .get()
+            .addOnSuccessListener { querySnapshot ->
 
-                    if (!querySnapshot.isEmpty) {
-                        // Lek został znaleziony w bazie dla danego użytkownika
-                        val alertDialogBuilder = AlertDialog.Builder(ContextThemeWrapper(this, R.style.AlertDialogCustom))
-                        alertDialogBuilder.setTitle("Lek jest już w bazie danych")
-                        alertDialogBuilder.setMessage("Czy zakupiłeś nowe opakowanie czy chcesz skorzystać ze starego opakowania?")
+                if (!querySnapshot.isEmpty) {
+                    // Lek został znaleziony w bazie dla danego użytkownika
+                    val alertDialogBuilder =
+                        AlertDialog.Builder(ContextThemeWrapper(this, R.style.AlertDialogCustom))
+                    alertDialogBuilder.setTitle("Lek jest już w bazie danych")
+                    alertDialogBuilder.setMessage("Czy zakupiłeś nowe opakowanie czy chcesz skorzystać ze starego opakowania?")
 
-                        // Dodaj opcję "Nowe opakowanie"
-                        alertDialogBuilder.setPositiveButton("Nowe opakowanie") { _, _ ->
-                            // Obsługa wyboru "Nowe opakowanie"
-                            newOld = true
-                            allVisibleNewDrug()
-                        }
-
-                        // Dodaj opcję "Stare opakowanie"
-                        alertDialogBuilder.setNegativeButton("Stare opakowanie") { _, _ ->
-                            // Obsługa wyboru "Stare opakowanie"
-                            // Pobranie pojemności opakowania z bazy
-                            newOld = false
-                            val capacity = querySnapshot.documents[0].get("pojemnosc")
-                            val expirationDate = querySnapshot.documents[0].get("dataWaznosci")
-                            // pobiera całą listę z godzinami
-                            val dosage = querySnapshot.documents[0].get("dawkowanie") as List<String>?
-                            val dosageAmount = querySnapshot.documents[0].get("iloscTabletekJednorazowo")
-
-                            if (dosage != null && capacity != null && expirationDate != null && dosageAmount != null) {
-                                allVisibleFromDB(capacity, expirationDate, dosage, dosageAmount)
-                            } else {
-                                visibleFromDC(capacity, expirationDate, dosageAmount)
-                            }
-                        }
-                        val alertDialog = alertDialogBuilder.create()
-                        alertDialog.show()
-
-                    } else {
-                        // Lek nie został znaleziony w bazie dla danego użytkownika
+                    // Dodaj opcję "Nowe opakowanie"
+                    alertDialogBuilder.setPositiveButton("Nowe opakowanie") { _, _ ->
+                        // Obsługa wyboru "Nowe opakowanie"
+                        newOld = true
                         allVisibleNewDrug()
                     }
+
+                    // Dodaj opcję "Stare opakowanie"
+                    alertDialogBuilder.setNegativeButton("Stare opakowanie") { _, _ ->
+                        // Obsługa wyboru "Stare opakowanie"
+                        // Pobranie pojemności opakowania z bazy
+                        newOld = false
+                        val capacity = querySnapshot.documents[0].get("pojemnosc")
+                        val expirationDate = querySnapshot.documents[0].get("dataWaznosci")
+                        // pobiera całą listę z godzinami
+                        val dosage = querySnapshot.documents[0].get("dawkowanie") as List<String>?
+                        val dosageAmount =
+                            querySnapshot.documents[0].get("iloscTabletekJednorazowo")
+
+                        if (dosage != null && capacity != null && expirationDate != null && dosageAmount != null) {
+                            allVisibleFromDB(capacity, expirationDate, dosage, dosageAmount)
+                        } else {
+                            visibleFromDC(capacity, expirationDate, dosageAmount)
+                        }
+                    }
+                    val alertDialog = alertDialogBuilder.create()
+                    alertDialog.show()
+
+                } else {
+                    // Lek nie został znaleziony w bazie dla danego użytkownika
+                    allVisibleNewDrug()
                 }
-                .addOnFailureListener { _ ->
-                    Toast.makeText(this, "Błąd połączenia z bazą", Toast.LENGTH_SHORT).show()
-                }
+            }
+            .addOnFailureListener { _ ->
+                Toast.makeText(this, "Błąd połączenia z bazą", Toast.LENGTH_SHORT).show()
+            }
     }
 
     private fun visibleFromDC(capacity: Any?, expirationDate: Any?, dosageAmount: Any?) {
@@ -255,7 +266,8 @@ class AddDosageActivity : AppCompatActivity() {
         val dosageSpinner = findViewById<Spinner>(R.id.quantitySpinner)
         dosageSpinner.visibility = View.VISIBLE
         val quantityOptions = resources.getStringArray(R.array.quantity_options)
-        val quantityAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, quantityOptions)
+        val quantityAdapter =
+            ArrayAdapter(this, android.R.layout.simple_spinner_item, quantityOptions)
         quantityAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         dosageSpinner.adapter = quantityAdapter
 
@@ -268,7 +280,7 @@ class AddDosageActivity : AppCompatActivity() {
         dosageAmountEditText.visibility = View.VISIBLE
         if (dosageAmount != null) {
             dosageAmountEditText.setText(dosageAmount.toString())
-        }else {
+        } else {
             dosageAmountEditText.setText("")
         }
 
@@ -286,10 +298,9 @@ class AddDosageActivity : AppCompatActivity() {
         customEditText.setText("")
 
         // Pobierz referencję do pola EditText
-        val capacityEditText = findViewById<EditText>(R.id.iloscTabletek)
+        val capacityEditText = findViewById<EditText>(R.id.capacityEditText)
         capacityEditText.visibility = View.VISIBLE
-        if (capacity != null)
-        {
+        if (capacity != null) {
             capacityEditText.setText(capacity.toString())
         }
 
@@ -318,7 +329,12 @@ class AddDosageActivity : AppCompatActivity() {
         timePickerLayout = findViewById(R.id.timePickerLayout)
 
         dosageSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+            override fun onItemSelected(
+                parent: AdapterView<*>?,
+                view: View?,
+                position: Int,
+                id: Long
+            ) {
                 quantity = position + 1
                 updateTimeWindows()
 
@@ -326,16 +342,22 @@ class AddDosageActivity : AppCompatActivity() {
                     customEditText.visibility = View.GONE
                     timePickerLayout.removeAllViews()
                     for (i in 1..quantity) {
-                        val timePicker = TimePicker(ContextThemeWrapper(ContextThemeWrapper(this@AddDosageActivity, R.style.TimePickerTheme)
-                            , R.style.TimePickerTheme))
+                        val timePicker = TimePicker(
+                            ContextThemeWrapper(
+                                ContextThemeWrapper(
+                                    this@AddDosageActivity,
+                                    R.style.TimePickerTheme
+                                ), R.style.TimePickerTheme
+                            )
+                        )
                         timePicker.setIs24HourView(true)
 
-                            // Ustaw obecny czas, gdy lista "dosage" jest pusta
-                            val calendar = Calendar.getInstance()
-                            val currentHour = calendar.get(Calendar.HOUR_OF_DAY)
-                            val currentMinute = calendar.get(Calendar.MINUTE)
-                            timePicker.hour = currentHour
-                            timePicker.minute = currentMinute
+                        // Ustaw obecny czas, gdy lista "dosage" jest pusta
+                        val calendar = Calendar.getInstance()
+                        val currentHour = calendar.get(Calendar.HOUR_OF_DAY)
+                        val currentMinute = calendar.get(Calendar.MINUTE)
+                        timePicker.hour = currentHour
+                        timePicker.minute = currentMinute
 
                         timePickerLayout.addView(timePicker)
                     }
@@ -344,31 +366,33 @@ class AddDosageActivity : AppCompatActivity() {
                     if (customQuantity != null && customQuantity > 1) {
                         customEditText.visibility = View.GONE
                         timePickerLayout.removeAllViews()
-                        val timePicker = TimePicker(ContextThemeWrapper(this@AddDosageActivity, R.style.TimePickerTheme)
+                        val timePicker = TimePicker(
+                            ContextThemeWrapper(this@AddDosageActivity, R.style.TimePickerTheme)
                         )
                         timePicker.setIs24HourView(true)
 
-                            // Ustaw obecny czas, gdy lista "dosage" jest pusta
-                            val calendar = Calendar.getInstance()
-                            val currentHour = calendar.get(Calendar.HOUR_OF_DAY)
-                            val currentMinute = calendar.get(Calendar.MINUTE)
-                            timePicker.hour = currentHour
-                            timePicker.minute = currentMinute
+                        // Ustaw obecny czas, gdy lista "dosage" jest pusta
+                        val calendar = Calendar.getInstance()
+                        val currentHour = calendar.get(Calendar.HOUR_OF_DAY)
+                        val currentMinute = calendar.get(Calendar.MINUTE)
+                        timePicker.hour = currentHour
+                        timePicker.minute = currentMinute
 
                         timePickerLayout.addView(timePicker)
                     } else {
                         customEditText.visibility = View.VISIBLE
                         timePickerLayout.removeAllViews()
-                        val timePicker = TimePicker(ContextThemeWrapper(this@AddDosageActivity, R.style.TimePickerTheme)
+                        val timePicker = TimePicker(
+                            ContextThemeWrapper(this@AddDosageActivity, R.style.TimePickerTheme)
                         )
                         timePicker.setIs24HourView(true)
 
-                            // Ustaw obecny czas, gdy lista "dosage" jest pusta
-                            val calendar = Calendar.getInstance()
-                            val currentHour = calendar.get(Calendar.HOUR_OF_DAY)
-                            val currentMinute = calendar.get(Calendar.MINUTE)
-                            timePicker.hour = currentHour
-                            timePicker.minute = currentMinute
+                        // Ustaw obecny czas, gdy lista "dosage" jest pusta
+                        val calendar = Calendar.getInstance()
+                        val currentHour = calendar.get(Calendar.HOUR_OF_DAY)
+                        val currentMinute = calendar.get(Calendar.MINUTE)
+                        timePicker.hour = currentHour
+                        timePicker.minute = currentMinute
 
                         timePickerLayout.addView(timePicker)
                     }
@@ -386,7 +410,8 @@ class AddDosageActivity : AppCompatActivity() {
             } else {
                 customEditText.visibility = View.VISIBLE
                 timePickerLayout.removeAllViews()
-                val timePicker = TimePicker(ContextThemeWrapper(this@AddDosageActivity, R.style.TimePickerTheme)
+                val timePicker = TimePicker(
+                    ContextThemeWrapper(this@AddDosageActivity, R.style.TimePickerTheme)
                 )
                 timePicker.setIs24HourView(true)
                 timePickerLayout.addView(timePicker)
@@ -438,7 +463,8 @@ class AddDosageActivity : AppCompatActivity() {
         dosageAmountEditView.setText("")
 
         val quantityOptions = resources.getStringArray(R.array.quantity_options)
-        val quantityAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, quantityOptions)
+        val quantityAdapter =
+            ArrayAdapter(this, android.R.layout.simple_spinner_item, quantityOptions)
         quantityAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         dosageSpinner.adapter = quantityAdapter
 
@@ -453,14 +479,19 @@ class AddDosageActivity : AppCompatActivity() {
         customEditText.visibility = View.VISIBLE
         customEditText.setText("")
 
-        val iloscTabletekEditText = findViewById<EditText>(R.id.iloscTabletek)
+        val iloscTabletekEditText = findViewById<EditText>(R.id.capacityEditText)
         iloscTabletekEditText.visibility = View.VISIBLE
         iloscTabletekEditText.setText("")
 
         timePickerLayout = findViewById(R.id.timePickerLayout)
 
         dosageSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+            override fun onItemSelected(
+                parent: AdapterView<*>?,
+                view: View?,
+                position: Int,
+                id: Long
+            ) {
                 quantity = position + 1
                 updateTimeWindows()
 
@@ -468,7 +499,8 @@ class AddDosageActivity : AppCompatActivity() {
                     customEditText.visibility = View.GONE
                     timePickerLayout.removeAllViews()
                     for (i in 1..quantity) {
-                        val timePicker = TimePicker(ContextThemeWrapper(this@AddDosageActivity, R.style.TimePickerTheme)
+                        val timePicker = TimePicker(
+                            ContextThemeWrapper(this@AddDosageActivity, R.style.TimePickerTheme)
                         )
                         timePicker.setIs24HourView(true)
                         timePicker.hour = hour
@@ -480,7 +512,8 @@ class AddDosageActivity : AppCompatActivity() {
                     if (customQuantity != null && customQuantity > 1) {
                         customEditText.visibility = View.GONE
                         timePickerLayout.removeAllViews()
-                        val timePicker = TimePicker(ContextThemeWrapper(this@AddDosageActivity, R.style.TimePickerTheme)
+                        val timePicker = TimePicker(
+                            ContextThemeWrapper(this@AddDosageActivity, R.style.TimePickerTheme)
                         )
                         timePicker.setIs24HourView(true)
                         timePicker.hour = hour
@@ -489,7 +522,8 @@ class AddDosageActivity : AppCompatActivity() {
                     } else {
                         customEditText.visibility = View.VISIBLE
                         timePickerLayout.removeAllViews()
-                        val timePicker = TimePicker(ContextThemeWrapper(this@AddDosageActivity, R.style.TimePickerTheme)
+                        val timePicker = TimePicker(
+                            ContextThemeWrapper(this@AddDosageActivity, R.style.TimePickerTheme)
                         )
                         timePicker.setIs24HourView(true)
                         timePicker.hour = hour
@@ -510,7 +544,8 @@ class AddDosageActivity : AppCompatActivity() {
             } else {
                 customEditText.visibility = View.VISIBLE
                 timePickerLayout.removeAllViews()
-                val timePicker = TimePicker(ContextThemeWrapper(this@AddDosageActivity, R.style.TimePickerTheme)
+                val timePicker = TimePicker(
+                    ContextThemeWrapper(this@AddDosageActivity, R.style.TimePickerTheme)
                 )
                 timePicker.setIs24HourView(true)
                 timePickerLayout.addView(timePicker)
@@ -519,7 +554,12 @@ class AddDosageActivity : AppCompatActivity() {
     }
 
     // ustawienie pól na widzialne i uzupełnienie danych
-    private fun allVisibleFromDB(capacity: Any?, expirationDate: Any?, dosage: List<String>, dosageAmount: Any?) {
+    private fun allVisibleFromDB(
+        capacity: Any?,
+        expirationDate: Any?,
+        dosage: List<String>,
+        dosageAmount: Any?
+    ) {
         val dateTextView = findViewById<TextView>(R.id.date)
         dateTextView.visibility = View.VISIBLE
 
@@ -555,12 +595,13 @@ class AddDosageActivity : AppCompatActivity() {
         val dosageSpinner = findViewById<Spinner>(R.id.quantitySpinner)
         dosageSpinner.visibility = View.VISIBLE
         val quantityOptions = resources.getStringArray(R.array.quantity_options)
-        val quantityAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, quantityOptions)
+        val quantityAdapter =
+            ArrayAdapter(this, android.R.layout.simple_spinner_item, quantityOptions)
         quantityAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         dosageSpinner.adapter = quantityAdapter
 
         if (dosage.isNotEmpty()) {
-            val position = quantityAdapter.getPosition( dosage.size.toString())
+            val position = quantityAdapter.getPosition(dosage.size.toString())
             if (position >= 0) {
                 dosageSpinner.setSelection(position)
             }
@@ -634,8 +675,7 @@ class AddDosageActivity : AppCompatActivity() {
                 } else {
                     null
                 }
-            }
-            else {
+            } else {
                 customCheckBox.isChecked = true
             }
         } else {
@@ -648,10 +688,9 @@ class AddDosageActivity : AppCompatActivity() {
         customEditText.setText(frequency.toString())
 
         // Pobierz referencję do pola EditText
-        val capacityEditText = findViewById<EditText>(R.id.iloscTabletek)
+        val capacityEditText = findViewById<EditText>(R.id.capacityEditText)
         capacityEditText.visibility = View.VISIBLE
-        if (capacity != null)
-        {
+        if (capacity != null) {
             capacityEditText.setText(capacity.toString())
         }
 
@@ -680,7 +719,12 @@ class AddDosageActivity : AppCompatActivity() {
         timePickerLayout = findViewById(R.id.timePickerLayout)
 
         dosageSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+            override fun onItemSelected(
+                parent: AdapterView<*>?,
+                view: View?,
+                position: Int,
+                id: Long
+            ) {
                 quantity = position + 1
                 updateTimeWindows()
 
@@ -688,12 +732,17 @@ class AddDosageActivity : AppCompatActivity() {
                     customEditText.visibility = View.GONE
                     timePickerLayout.removeAllViews()
                     for (i in 1..quantity) {
-                        val timePicker = TimePicker(ContextThemeWrapper(ContextThemeWrapper(this@AddDosageActivity, R.style.TimePickerTheme)
-                            , R.style.TimePickerTheme))
+                        val timePicker = TimePicker(
+                            ContextThemeWrapper(
+                                ContextThemeWrapper(
+                                    this@AddDosageActivity,
+                                    R.style.TimePickerTheme
+                                ), R.style.TimePickerTheme
+                            )
+                        )
                         timePicker.setIs24HourView(true)
 
-                        if (dosage.isNotEmpty())
-                        {
+                        if (dosage.isNotEmpty()) {
                             // ustawienie wartości na zegarze
                             val dosageTime = dosage[i - 1]  // Pobierz czas z listy "dosage"
                             val timeParts = dosageTime.split(":")
@@ -703,7 +752,7 @@ class AddDosageActivity : AppCompatActivity() {
                                 timePicker.hour = hour
                                 timePicker.minute = minute
                             }
-                        }else{
+                        } else {
                             // Ustaw obecny czas, gdy lista "dosage" jest pusta
                             val calendar = Calendar.getInstance()
                             val currentHour = calendar.get(Calendar.HOUR_OF_DAY)
@@ -719,12 +768,12 @@ class AddDosageActivity : AppCompatActivity() {
                     if (customQuantity != null && customQuantity > 1) {
                         customEditText.visibility = View.GONE
                         timePickerLayout.removeAllViews()
-                        val timePicker = TimePicker(ContextThemeWrapper(this@AddDosageActivity, R.style.TimePickerTheme)
+                        val timePicker = TimePicker(
+                            ContextThemeWrapper(this@AddDosageActivity, R.style.TimePickerTheme)
                         )
                         timePicker.setIs24HourView(true)
 
-                        if (dosage.isNotEmpty())
-                        {
+                        if (dosage.isNotEmpty()) {
                             // ustawienie wartości na zegarze
                             val dosageTime = dosage[0]  // Pobierz czas z listy "dosage"
                             val timeParts = dosageTime.split(":")
@@ -734,7 +783,7 @@ class AddDosageActivity : AppCompatActivity() {
                                 timePicker.hour = hour
                                 timePicker.minute = minute
                             }
-                        }else{
+                        } else {
                             // Ustaw obecny czas, gdy lista "dosage" jest pusta
                             val calendar = Calendar.getInstance()
                             val currentHour = calendar.get(Calendar.HOUR_OF_DAY)
@@ -747,12 +796,12 @@ class AddDosageActivity : AppCompatActivity() {
                     } else {
                         customEditText.visibility = View.VISIBLE
                         timePickerLayout.removeAllViews()
-                        val timePicker = TimePicker(ContextThemeWrapper(this@AddDosageActivity, R.style.TimePickerTheme)
+                        val timePicker = TimePicker(
+                            ContextThemeWrapper(this@AddDosageActivity, R.style.TimePickerTheme)
                         )
                         timePicker.setIs24HourView(true)
 
-                        if (dosage.isNotEmpty())
-                        {
+                        if (dosage.isNotEmpty()) {
                             // ustawienie wartości na zegarze
                             val dosageTime = dosage[0]  // Pobierz czas z listy "dosage"
                             val timeParts = dosageTime.split(":")
@@ -762,7 +811,7 @@ class AddDosageActivity : AppCompatActivity() {
                                 timePicker.hour = hour
                                 timePicker.minute = minute
                             }
-                        }else{
+                        } else {
                             // Ustaw obecny czas, gdy lista "dosage" jest pusta
                             val calendar = Calendar.getInstance()
                             val currentHour = calendar.get(Calendar.HOUR_OF_DAY)
@@ -787,7 +836,8 @@ class AddDosageActivity : AppCompatActivity() {
             } else {
                 customEditText.visibility = View.VISIBLE
                 timePickerLayout.removeAllViews()
-                val timePicker = TimePicker(ContextThemeWrapper(this@AddDosageActivity, R.style.TimePickerTheme)
+                val timePicker = TimePicker(
+                    ContextThemeWrapper(this@AddDosageActivity, R.style.TimePickerTheme)
                 )
                 timePicker.setIs24HourView(true)
                 timePickerLayout.addView(timePicker)
@@ -848,6 +898,7 @@ class AddDosageActivity : AppCompatActivity() {
                         }
                     }
                 }
+
                 XmlPullParser.END_TAG -> {
                     name = parser.name
                     if (name.equals("produktLeczniczy", ignoreCase = true) && drug != null) {
@@ -859,71 +910,97 @@ class AddDosageActivity : AppCompatActivity() {
         }
         return drugs
     }
+
     private fun saveDataToFirebase(firestoreDB: FirebaseFirestore, email: String) {
-            val autoComplete: AutoCompleteTextView = findViewById(R.id.auto_complete_txt)
-            val nazwaProduktu = autoComplete.text.toString()
+        val autoComplete: AutoCompleteTextView = findViewById(R.id.auto_complete_txt)
+        val nazwaProduktu = autoComplete.text.toString()
 
-            val numberPickerDay = findViewById<NumberPicker>(R.id.numberPickerDay)
-            val numberPickerMonth = findViewById<NumberPicker>(R.id.numberPickerMonth)
-            val numberPickerYear = findViewById<NumberPicker>(R.id.numberPickerYear)
-            val iloscTabletek = findViewById<EditText>(R.id.iloscTabletek)
-            val dosageAmountEditText = findViewById<EditText>(R.id.dosageAmountEditText)
+        val numberPickerDay = findViewById<NumberPicker>(R.id.numberPickerDay)
+        val numberPickerMonth = findViewById<NumberPicker>(R.id.numberPickerMonth)
+        val numberPickerYear = findViewById<NumberPicker>(R.id.numberPickerYear)
+        val iloscTabletek = findViewById<EditText>(R.id.capacityEditText)
+        val dosageAmountEditText = findViewById<EditText>(R.id.dosageAmountEditText)
 
-            val day = numberPickerDay.value
-            val month = numberPickerMonth.value
-            val year = numberPickerYear.value
-            val dataWaznosci = String.format("%02d-%02d-%d", day, month, year)
-            val dosageAmount = dosageAmountEditText.text.toString()
+        val day = numberPickerDay.value
+        val month = numberPickerMonth.value
+        val year = numberPickerYear.value
+        val dataWaznosci = String.format("%02d-%02d-%d", day, month, year)
+        val dosageAmount = dosageAmountEditText.text.toString()
 
-            val timePickerLayout = findViewById<TextInputLayout>(R.id.timePickerLayout)
-            val dawkowanie = ArrayList<String>()
+        val timePickerLayout = findViewById<TextInputLayout>(R.id.timePickerLayout)
+        val dawkowanie = ArrayList<String>()
 
-            val customCheckbox = findViewById<CheckBox>(R.id.customCheckBox)
+        val customCheckbox = findViewById<CheckBox>(R.id.customCheckBox)
 
-            if (customCheckbox.isChecked) {
-                for (i in 0 until timePickerLayout.childCount) {
-                    val timePicker = timePickerLayout.getChildAt(i) as TimePicker
-                    val hour = timePicker.hour
-                    val minute = timePicker.minute
-                    val timeString = String.format("%02d:%02d", hour, minute)
-                    dawkowanie.add(timeString)
+        if (customCheckbox.isChecked) {
+            for (i in 0 until timePickerLayout.childCount) {
+                val timePicker = timePickerLayout.getChildAt(i) as TimePicker
+                val hour = timePicker.hour
+                val minute = timePicker.minute
+                val timeString = String.format("%02d:%02d", hour, minute)
+                dawkowanie.add(timeString)
+            }
+        } else {
+            val customQuantity = customEditText.text.toString().toIntOrNull()
+            if (customQuantity != null && customQuantity in 1..24) {
+                val firstTimePicker = timePickerLayout.getChildAt(0) as TimePicker
+                val hour = firstTimePicker.hour
+                val minute = firstTimePicker.minute
+                val initialTimeString = String.format("%02d:%02d", hour, minute)
+                dawkowanie.add(initialTimeString)
+
+                var multiplier = 1
+                for (i in 1 until quantity) {
+                    var nextHour = hour + (customQuantity * multiplier)
+                    while (nextHour >= 24) {
+                        nextHour -= 24
+                    }
+                    val nextTimeString = String.format("%02d:%02d", nextHour, minute)
+                    dawkowanie.add(nextTimeString)
+                    multiplier *= 2
                 }
             } else {
-                val customQuantity = customEditText.text.toString().toIntOrNull()
-                if (customQuantity != null && customQuantity in 1..24) {
-                    val firstTimePicker = timePickerLayout.getChildAt(0) as TimePicker
-                    val hour = firstTimePicker.hour
-                    val minute = firstTimePicker.minute
-                    val initialTimeString = String.format("%02d:%02d", hour, minute)
-                    dawkowanie.add(initialTimeString)
-
-                    var multiplier = 1
-                    for (i in 1 until quantity) {
-                        var nextHour = hour + (customQuantity * multiplier)
-                        while (nextHour >= 24) {
-                            nextHour -= 24
-                        }
-                        val nextTimeString = String.format("%02d:%02d", nextHour, minute)
-                        dawkowanie.add(nextTimeString)
-                        multiplier *= 2
-                    }
-                } else {
-                    val timePicker = timePickerLayout.getChildAt(0) as TimePicker
-                    val hour = timePicker.hour
-                    val minute = timePicker.minute
-                    val timeString = String.format("%02d:%02d", hour, minute)
-                    dawkowanie.add(timeString)
-                }
+                val timePicker = timePickerLayout.getChildAt(0) as TimePicker
+                val hour = timePicker.hour
+                val minute = timePicker.minute
+                val timeString = String.format("%02d:%02d", hour, minute)
+                dawkowanie.add(timeString)
             }
+        }
 
-            // Sprawdź, czy nazwa leku już istnieje w bazie dla danego użytkownika
-            firestoreDB.collection("leki")
-                .whereEqualTo("email", email)
-                .whereEqualTo("nazwaProduktu", nazwaProduktu)
-                .get()
-                .addOnSuccessListener { querySnapshot ->
-                    if (querySnapshot.isEmpty) {
-                        // Tworzenie mapy z danymi
+        // Sprawdź, czy nazwa leku już istnieje w bazie dla danego użytkownika
+        firestoreDB.collection("leki")
+            .whereEqualTo("email", email)
+            .whereEqualTo("nazwaProduktu", nazwaProduktu)
+            .get()
+            .addOnSuccessListener { querySnapshot ->
+                if (querySnapshot.isEmpty) {
+                    // Tworzenie mapy z danymi
+                    val dataMap = hashMapOf<String, Any>()
+                    dataMap["email"] = email
+                    dataMap["nazwaProduktu"] = nazwaProduktu
+                    dataMap["dataWaznosci"] = dataWaznosci
+                    dataMap["dawkowanie"] = dawkowanie
+                    dataMap["pojemnosc"] = iloscTabletek.text.toString()
+                    dataMap["iloscTabletekJednorazowo"] = dosageAmount
+
+                    // Dodawanie danych do Firestore
+                    firestoreDB.collection("leki")
+                        .add(dataMap)
+                        .addOnSuccessListener {
+                            Toast.makeText(
+                                this,
+                                "Lek został dodany.",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                            startActivity(Intent(this, AfterLoginActivity::class.java))
+                        }
+                        .addOnFailureListener { e ->
+                            Log.e(TAG, "Błąd podczas dodawania danych do Firestore", e)
+                            Toast.makeText(this, "Wystąpił błąd", Toast.LENGTH_SHORT).show()
+                        }
+                } else {
+                    if (newOld) {
                         val dataMap = hashMapOf<String, Any>()
                         dataMap["email"] = email
                         dataMap["nazwaProduktu"] = nazwaProduktu
@@ -948,85 +1025,80 @@ class AddDosageActivity : AppCompatActivity() {
                                 Toast.makeText(this, "Wystąpił błąd", Toast.LENGTH_SHORT).show()
                             }
                     } else {
-                        if (newOld) {
-                            val dataMap = hashMapOf<String, Any>()
-                            dataMap["email"] = email
-                            dataMap["nazwaProduktu"] = nazwaProduktu
-                            dataMap["dataWaznosci"] = dataWaznosci
-                            dataMap["dawkowanie"] = dawkowanie
-                            dataMap["pojemnosc"] = iloscTabletek.text.toString()
-                            dataMap["iloscTabletekJednorazowo"] = dosageAmount
+                        val capacity = querySnapshot.documents[0].get("pojemnosc")
+                        val dosage = querySnapshot.documents[0].get("dawkowanie") as List<String>?
+                        val dosageAmountActual =
+                            querySnapshot.documents[0].get("iloscTabletekJednorazowo")
 
-                            // Dodawanie danych do Firestore
-                            firestoreDB.collection("leki")
-                                .add(dataMap)
-                                .addOnSuccessListener {
-                                    Toast.makeText(
+                        // sprawdzenie czy dawkowanie jest takie samo
+                        var identical = true
+
+                        if (dosage != null) {
+                            if (dosage.size != dawkowanie.size) {
+                                identical = false
+                            } else {
+                                for (i in dosage.indices) {
+                                    val dosageTime = dosage[i]
+                                    val dawkowanieTime = dawkowanie[i]
+
+                                    if (dosageTime != dawkowanieTime) {
+                                        identical = false
+                                        break
+                                    }
+                                }
+                            }
+                            if (capacity != iloscTabletek.text.toString() || !identical || dosageAmount != dosageAmountActual.toString()) {
+                                val alertDialogBuilder = AlertDialog.Builder(
+                                    ContextThemeWrapper(
                                         this,
-                                        "Lek został dodany.",
-                                        Toast.LENGTH_SHORT
-                                    ).show()
-                                    startActivity(Intent(this, AfterLoginActivity::class.java))
+                                        R.style.AlertDialogCustom
+                                    )
+                                )
+                                alertDialogBuilder.setTitle("Lek jest już w bazie danych")
+                                alertDialogBuilder.setMessage("Czy zaaktualizować dane?")
+
+                                // Aktualizacja danych w bazie
+                                alertDialogBuilder.setPositiveButton("TAK") { _, _ ->
+                                    // Obsługa wyboru "Nowe opakowanie"
+                                    updateDB(
+                                        email,
+                                        nazwaProduktu,
+                                        dawkowanie,
+                                        iloscTabletek.text.toString(),
+                                        dosageAmountActual.toString(),
+                                        firestoreDB
+                                    )
                                 }
-                                .addOnFailureListener { e ->
-                                    Log.e(TAG, "Błąd podczas dodawania danych do Firestore", e)
-                                    Toast.makeText(this, "Wystąpił błąd", Toast.LENGTH_SHORT).show()
+
+                                // Brak akcji
+                                alertDialogBuilder.setNegativeButton("NIE") { _, _ ->
+
                                 }
-                        } else {
-                            val capacity = querySnapshot.documents[0].get("pojemnosc")
-                            val dosage = querySnapshot.documents[0].get("dawkowanie") as List<String>?
-                            val dosageAmountActual = querySnapshot.documents[0].get("iloscTabletekJednorazowo")
+                                val alertDialog = alertDialogBuilder.create()
+                                alertDialog.show()
 
-                            // sprawdzenie czy dawkowanie jest takie samo
-                            var identical = true
-
-                            if (dosage != null) {
-                                if (dosage.size != dawkowanie.size) {
-                                    identical = false
-                                } else {
-                                    for (i in dosage.indices) {
-                                        val dosageTime = dosage[i]
-                                        val dawkowanieTime = dawkowanie[i]
-
-                                        if (dosageTime != dawkowanieTime) {
-                                            identical = false
-                                            break
-                                        }
-                                    }
-                                }
-                                if (capacity != iloscTabletek.text.toString() || !identical || dosageAmount != dosageAmountActual.toString()) {
-                                    val alertDialogBuilder = AlertDialog.Builder(ContextThemeWrapper(this, R.style.AlertDialogCustom))
-                                    alertDialogBuilder.setTitle("Lek jest już w bazie danych")
-                                    alertDialogBuilder.setMessage("Czy zaaktualizować dane?")
-
-                                    // Aktualizacja danych w bazie
-                                    alertDialogBuilder.setPositiveButton("TAK") { _, _ ->
-                                        // Obsługa wyboru "Nowe opakowanie"
-                                        updateDB(email, nazwaProduktu, dawkowanie, iloscTabletek.text.toString(), dosageAmountActual.toString(), firestoreDB)
-                                    }
-
-                                    // Brak akcji
-                                    alertDialogBuilder.setNegativeButton("NIE") { _, _ ->
-
-                                    }
-                                    val alertDialog = alertDialogBuilder.create()
-                                    alertDialog.show()
-
-                                } else {
-                                    // Lek w bazie jest identyczny - nie dokonano zmian
-                                }
+                            } else {
+                                // Lek w bazie jest identyczny - nie dokonano zmian
                             }
                         }
                     }
                 }
-                .addOnFailureListener { e ->
-                    Log.e(TAG, "Błąd podczas sprawdzania danych w Firestore", e)
-                    Toast.makeText(this, "Wystąpił błąd", Toast.LENGTH_SHORT).show()
-                }
-        }
+            }
+            .addOnFailureListener { e ->
+                Log.e(TAG, "Błąd podczas sprawdzania danych w Firestore", e)
+                Toast.makeText(this, "Wystąpił błąd", Toast.LENGTH_SHORT).show()
+            }
+    }
 
     // aktualizacja danych w bazie
-    private fun updateDB(email: String, nazwaProduktu: String, dawkowanie: ArrayList<String>, pojemnosc: String, dosageAmount: String, firestoreDB: FirebaseFirestore) {
+    private fun updateDB(
+        email: String,
+        nazwaProduktu: String,
+        dawkowanie: ArrayList<String>,
+        pojemnosc: String,
+        dosageAmount: String,
+        firestoreDB: FirebaseFirestore
+    ) {
         // Odnajdź lek w bazie danych
         firestoreDB.collection("leki")
             .whereEqualTo("email", email)
@@ -1046,15 +1118,24 @@ class AddDosageActivity : AppCompatActivity() {
                     // Zaktualizuj dokument w bazie danych
                     lekDocument.reference.update(dataToUpdate)
                         .addOnSuccessListener {
-                            Toast.makeText(this, "Lek został zaktualizowany.", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(this, "Lek został zaktualizowany.", Toast.LENGTH_SHORT)
+                                .show()
                             startActivity(Intent(this, AfterLoginActivity::class.java))
                         }
                         .addOnFailureListener { e ->
                             Log.e(TAG, "Błąd podczas aktualizacji danych w Firestore", e)
-                            Toast.makeText(this, "Wystąpił błąd podczas aktualizacji leku.", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(
+                                this,
+                                "Wystąpił błąd podczas aktualizacji leku.",
+                                Toast.LENGTH_SHORT
+                            ).show()
                         }
                 } else {
-                    Toast.makeText(this, "Lek o nazwie $nazwaProduktu nie został znaleziony.", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(
+                        this,
+                        "Lek o nazwie $nazwaProduktu nie został znaleziony.",
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
             }
             .addOnFailureListener { e ->

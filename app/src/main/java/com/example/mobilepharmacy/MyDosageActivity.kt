@@ -1,13 +1,7 @@
 package com.example.mobilepharmacy
 
-import android.app.AlarmManager
-import android.app.NotificationChannel
-import android.app.NotificationManager
-import android.app.PendingIntent
-import android.content.Context
 import android.graphics.Color
 import android.graphics.Paint
-import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -24,25 +18,21 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.messaging.FirebaseMessaging
 import java.text.SimpleDateFormat
 import java.util.*
 
-class MedicationsActivity : AppCompatActivity() {
+class MyDosageActivity : AppCompatActivity() {
 
     private lateinit var firestore: FirebaseFirestore
     private lateinit var firebaseAuth: FirebaseAuth
 
-    private val CHANNEL_ID = "MedicationReminderChannel"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_medications)
+        setContentView(R.layout.activity_my_dosage)
 
         firestore = FirebaseFirestore.getInstance()
         firebaseAuth = FirebaseAuth.getInstance()
-
-//        createNotificationChannel()
 
         val medicationsRecyclerView: RecyclerView = findViewById(R.id.medicationsRecyclerView)
         medicationsRecyclerView.layoutManager = LinearLayoutManager(this)
@@ -54,10 +44,10 @@ class MedicationsActivity : AppCompatActivity() {
         )
         medicationsRecyclerView.adapter = MedicationsAdapter()
 
-        val userId = firebaseAuth.currentUser?.uid
+        val email = firebaseAuth.currentUser?.email
 
-        if (userId != null) {
-            val userMedicationsRef = firestore.collection("leki").whereEqualTo("userId", userId)
+        if (email != null) {
+            val userMedicationsRef = firestore.collection("leki").whereEqualTo("email", email)
 
             userMedicationsRef.get()
                 .addOnSuccessListener { querySnapshot ->
@@ -164,12 +154,12 @@ class MedicationsActivity : AppCompatActivity() {
             }
 
             private fun addCheckboxCheckedDateToDatabase(medicationName: String, dateTime: String) {
-                val userId = firebaseAuth.currentUser?.uid
-                if (userId != null) {
+                val email = firebaseAuth.currentUser?.email
+                if (email != null) {
                     val medicationCheckedDateData = hashMapOf(
                         "medicationName" to medicationName,
                         "dateTime" to dateTime,
-                        "userId" to userId
+                        "email" to email
                     )
 
                     firestore.collection("checkedMedications")
@@ -184,10 +174,10 @@ class MedicationsActivity : AppCompatActivity() {
             }
 
             private fun decreaseMedicationCount(medicationName: String) {
-                val userId = firebaseAuth.currentUser?.uid
-                if (userId != null) {
+                val email = firebaseAuth.currentUser?.email
+                if (email != null) {
                     firestore.collection("leki")
-                        .whereEqualTo("userId", userId)
+                        .whereEqualTo("email", email)
                         .whereEqualTo("nazwaProduktu", medicationName)
                         .get()
                         .addOnSuccessListener { querySnapshot ->
@@ -219,10 +209,10 @@ class MedicationsActivity : AppCompatActivity() {
         }
 
         private fun deleteMedicationFromDatabase(medication: String) {
-            val userId = firebaseAuth.currentUser?.uid
-            if (userId != null) {
+            val email = firebaseAuth.currentUser?.email
+            if (email != null) {
                 firestore.collection("leki")
-                    .whereEqualTo("userId", userId)
+                    .whereEqualTo("email", email)
                     .whereEqualTo("nazwaProduktu", medication.split("\n")[0])
                     .get()
                     .addOnSuccessListener { querySnapshot ->

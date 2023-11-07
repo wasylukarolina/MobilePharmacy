@@ -1,7 +1,6 @@
 package com.example.mobilepharmacy
 
 import android.content.Intent
-import android.media.Image
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.MenuItem
@@ -50,23 +49,27 @@ class AfterLoginActivity : AppCompatActivity() {
                     startActivity(intent)
                     true
                 }
+
                 R.id.nav_account -> {
                     // Obsługa kliknięcia przycisku "Account"
                     val intent = Intent(this, AccountActivity::class.java)
                     startActivity(intent)
                     true
                 }
+
                 R.id.nav_settings -> {
                     // Obsługa kliknięcia przycisku "Settings"
                     val intent = Intent(this, SettingsActivity::class.java)
                     startActivity(intent)
                     true
                 }
+
                 R.id.nav_logout -> {
                     // Obsługa kliknięcia przycisku "Logout"
                     logout()
                     true
                 }
+
                 else -> false
             }
         }
@@ -74,7 +77,7 @@ class AfterLoginActivity : AppCompatActivity() {
 
         val myDosage = findViewById<AppCompatButton>(R.id.myDosage)
         myDosage.setOnClickListener {
-            val intent = Intent(this, MedicationsActivity::class.java)
+            val intent = Intent(this, MyDosageActivity::class.java)
             startActivity(intent)
         }
 
@@ -84,6 +87,11 @@ class AfterLoginActivity : AppCompatActivity() {
             startActivity(intent)
         }
 
+        val addToFirstKit = findViewById<AppCompatButton>(R.id.addToFirstAidKit)
+        addToFirstKit.setOnClickListener {
+            val intent = Intent(this, AddToFirstAidKitActivity::class.java)
+            startActivity(intent)
+        }
 //        val myFirstAidKit = findViewById<ImageView>(R.id.myFirsAidKit)
 //        myFirstAidKit.setOnClickListener{
 //            val intent = Intent(this, MyFirstAidKitActivity::class.java)
@@ -91,7 +99,7 @@ class AfterLoginActivity : AppCompatActivity() {
 //        }
 
 //        val addDrug = findViewById<ImageView>(R.id.addToFirstAidKit)
-//        addDrug.setOnClickListener{
+//        addDrug.setOnClickListener {
 //            val intent = Intent(this, AddToFirstAidKitActivity::class.java)
 //            startActivity(intent)
 //        }
@@ -151,6 +159,7 @@ class AfterLoginActivity : AppCompatActivity() {
                 finish()
                 return true
             }
+
             else -> return super.onOptionsItemSelected(item)
         }
     }
