@@ -243,7 +243,8 @@ class AddDosageActivity : AppCompatActivity() {
                     customEditText.visibility = View.GONE
                     timePickerLayout.removeAllViews()
                     for (i in 1..quantity) {
-                        val timePicker = TimePicker(this@AddDosageActivity)
+                        val timePicker = TimePicker(ContextThemeWrapper(this@AddDosageActivity, R.style.TimePickerTheme)
+                        )
                         timePicker.setIs24HourView(true)
                         timePickerLayout.addView(timePicker)
                     }
@@ -252,13 +253,15 @@ class AddDosageActivity : AppCompatActivity() {
                     if (customQuantity != null && customQuantity > 1) {
                         customEditText.visibility = View.GONE
                         timePickerLayout.removeAllViews()
-                        val timePicker = TimePicker(this@AddDosageActivity)
+                        val timePicker = TimePicker(ContextThemeWrapper(this@AddDosageActivity, R.style.TimePickerTheme)
+                        )
                         timePicker.setIs24HourView(true)
                         timePickerLayout.addView(timePicker)
                     } else {
                         customEditText.visibility = View.VISIBLE
                         timePickerLayout.removeAllViews()
-                        val timePicker = TimePicker(this@AddDosageActivity)
+                        val timePicker = TimePicker(ContextThemeWrapper(this@AddDosageActivity, R.style.TimePickerTheme)
+                        )
                         timePicker.setIs24HourView(true)
                         timePickerLayout.addView(timePicker)
                     }
@@ -276,7 +279,8 @@ class AddDosageActivity : AppCompatActivity() {
             } else {
                 customEditText.visibility = View.VISIBLE
                 timePickerLayout.removeAllViews()
-                val timePicker = TimePicker(this@AddDosageActivity)
+                val timePicker = TimePicker(ContextThemeWrapper(this@AddDosageActivity, R.style.TimePickerTheme)
+                )
                 timePicker.setIs24HourView(true)
                 timePickerLayout.addView(timePicker)
             }
@@ -386,7 +390,8 @@ class AddDosageActivity : AppCompatActivity() {
                     customEditText.visibility = View.GONE
                     timePickerLayout.removeAllViews()
                     for (i in 1..quantity) {
-                        val timePicker = TimePicker(this@AddDosageActivity)
+                        val timePicker = TimePicker(ContextThemeWrapper(ContextThemeWrapper(this@AddDosageActivity, R.style.TimePickerTheme)
+                            , R.style.TimePickerTheme))
                         timePicker.setIs24HourView(true)
                         timePickerLayout.addView(timePicker)
                     }
@@ -395,13 +400,15 @@ class AddDosageActivity : AppCompatActivity() {
                     if (customQuantity != null && customQuantity > 1) {
                         customEditText.visibility = View.GONE
                         timePickerLayout.removeAllViews()
-                        val timePicker = TimePicker(this@AddDosageActivity)
+                        val timePicker = TimePicker(ContextThemeWrapper(this@AddDosageActivity, R.style.TimePickerTheme)
+                        )
                         timePicker.setIs24HourView(true)
                         timePickerLayout.addView(timePicker)
                     } else {
                         customEditText.visibility = View.VISIBLE
                         timePickerLayout.removeAllViews()
-                        val timePicker = TimePicker(this@AddDosageActivity)
+                        val timePicker = TimePicker(ContextThemeWrapper(this@AddDosageActivity, R.style.TimePickerTheme)
+                        )
                         timePicker.setIs24HourView(true)
                         timePickerLayout.addView(timePicker)
                     }
@@ -419,7 +426,8 @@ class AddDosageActivity : AppCompatActivity() {
             } else {
                 customEditText.visibility = View.VISIBLE
                 timePickerLayout.removeAllViews()
-                val timePicker = TimePicker(this@AddDosageActivity)
+                val timePicker = TimePicker(ContextThemeWrapper(this@AddDosageActivity, R.style.TimePickerTheme)
+                )
                 timePicker.setIs24HourView(true)
                 timePickerLayout.addView(timePicker)
             }
@@ -435,7 +443,7 @@ class AddDosageActivity : AppCompatActivity() {
         timePickerLayout.removeAllViews()
 
         for (i in 1..quantity) {
-            val timePicker = TimePicker(this)
+            val timePicker = TimePicker(ContextThemeWrapper(this, R.style.TimePickerTheme))
             timePicker.setIs24HourView(true)
             timePicker.setBackgroundColor(Color.WHITE)
             timePickerLayout.addView(timePicker)

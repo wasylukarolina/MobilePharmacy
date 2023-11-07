@@ -92,6 +92,8 @@
     <style name="TimePickerTheme" parent="Theme.AppCompat.Light.Dialog">
         <item name="colorAccent">@color/red</item>
         <item name="background">@color/white</item>
+        <item name="android:headerBackground">@color/red</item>
+        <item name="android:numbersSelectorColor">@color/red</item>
     </style>
 
     <style name="MyTextInputLayoutStyle" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu">
