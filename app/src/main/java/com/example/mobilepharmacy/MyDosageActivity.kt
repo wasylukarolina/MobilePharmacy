@@ -59,7 +59,7 @@ class MyDosageActivity : AppCompatActivity() {
 
                         if (medicationName != null && medicationDose != null) {
                             val medicationInfo =
-                                "$medicationName\nDawkowanie: ${medicationDose.joinToString(", ")}"
+                                "$medicationName\nDawkowanie: \n ${medicationDose.joinToString(", ")}"
                             medicationsList.add(medicationInfo)
                         }
                     }
