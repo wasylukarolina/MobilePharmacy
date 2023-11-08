@@ -47,12 +47,12 @@ class MyFirstAidKitActivity : AppCompatActivity() {
 
                     for (document in querySnapshot.documents) {
                         val medicationName = document.getString("nazwaProduktu")
-                        val medicationDate = document.get("terminWaznosci")
+                        val medicationDate = document.get("dataWaznosci")
                         val medicationAmount = document.get("pojemnosc")
 
                         if (medicationName != null && medicationDate != null && medicationAmount != null) {
                             val medicationInfo =
-                                "$medicationName\nTermin ważności: $medicationDate\nIlość w opakowaniu: $medicationAmount"
+                                "$medicationName\nData ważności: $medicationDate\nIlość w opakowaniu: $medicationAmount"
                             medicationsList.add(medicationInfo)
                         }
                     }
@@ -113,13 +113,6 @@ class MyFirstAidKitActivity : AppCompatActivity() {
                 medicationNameTextView.text = medicationName
 
                 // Wyświetl datę i pojemność
-                val medicationDetailsTextView = TextView(itemView.context)
-                medicationDetailsTextView.text = medicationDetails
-                medicationDoseLayout.addView(medicationDetailsTextView)
-
-                // Clear existing views from medicationDoseLayout
-                medicationDoseLayout.removeAllViews()
-                // Add TextView with medication details
                 val medicationDetailsTextView = TextView(itemView.context)
                 medicationDetailsTextView.text = medicationDetails
                 medicationDoseLayout.addView(medicationDetailsTextView)
