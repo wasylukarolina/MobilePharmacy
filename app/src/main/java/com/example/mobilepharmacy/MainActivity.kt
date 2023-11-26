@@ -32,9 +32,16 @@ class MainActivity : AppCompatActivity() {
 
         // Inicjalizacja Firebase Authentication
         firebaseAuth = FirebaseAuth.getInstance()
-
         // Inicjalizacja Firestore
         firestoreDB = FirebaseFirestore.getInstance()
+
+        // Sprawdź, czy użytkownik jest już zalogowany
+        val currentUser = firebaseAuth.currentUser
+        if (currentUser != null) {
+            // Użytkownik jest już zalogowany, przejdź do głównej aktywności
+            startActivity(Intent(this, AfterLoginActivity::class.java))
+            finish()
+        }
 
         // Ustawienie zdjęcia
         binding.imgStartViewImage.setImageResource(R.drawable.logo)
@@ -86,10 +93,12 @@ class MainActivity : AppCompatActivity() {
                 firebaseAuthWithGoogle(account)
             } catch (e: ApiException) {
                 // Logowanie nie powiodło się
-                Toast.makeText(this, "Logowanie przez Google nie powiodło się", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "Logowanie przez Google nie powiodło się", Toast.LENGTH_SHORT)
+                    .show()
             }
         }
     }
+
     private fun firebaseAuthWithGoogle(account: GoogleSignInAccount?) {
         val credential = GoogleAuthProvider.getCredential(account?.idToken, null)
         firebaseAuth.signInWithCredential(credential)
@@ -98,7 +107,11 @@ class MainActivity : AppCompatActivity() {
                     // Logowanie zakończone sukcesem
                     val user = firebaseAuth.currentUser
                     val email = user?.email.toString()
-                    Toast.makeText(this, "Zalogowano przez Google jako ${user?.displayName}", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(
+                        this,
+                        "Zalogowano przez Google jako ${user?.displayName}",
+                        Toast.LENGTH_SHORT
+                    ).show()
 
                     // Sprawdź, czy użytkownik jest zalogowany za pomocą Firebase Authentication
                     if (user != null) {
@@ -109,7 +122,11 @@ class MainActivity : AppCompatActivity() {
                     }
                 } else {
                     // Logowanie nie powiodło się
-                    Toast.makeText(this, "Logowanie przez Google nie powiodło się", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(
+                        this,
+                        "Logowanie przez Google nie powiodło się",
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
             }
     }
@@ -131,7 +148,10 @@ class MainActivity : AppCompatActivity() {
                     val currentUser = auth.currentUser
                     val userId = currentUser?.uid
                     val email = currentUser?.email
-                    editor.putString("userID", userId ?: "x") // Jeśli userId jest null, użyj pustego ciągu znaków
+                    editor.putString(
+                        "userID",
+                        userId ?: "x"
+                    ) // Jeśli userId jest null, użyj pustego ciągu znaków
                     editor.putString("email", email)
 
                     editor.apply()
@@ -148,7 +168,8 @@ class MainActivity : AppCompatActivity() {
             }
             .addOnFailureListener { e ->
                 // Błąd podczas sprawdzania, co zrobić zależy od Twoich potrzeb
-                Toast.makeText(this, "Błąd podczas sprawdzania użytkownika: $e", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "Błąd podczas sprawdzania użytkownika: $e", Toast.LENGTH_SHORT)
+                    .show()
             }
     }
 
@@ -157,11 +178,12 @@ class MainActivity : AppCompatActivity() {
         // podzielenie nazwy użytkownika na imię i nazwisko
         val displayName = user.displayName
         if (!displayName.isNullOrBlank()) {
-            val nameParts = displayName.split(" ") // Rozdziel na podstawie spacji (możesz użyć innego znaku)
+            val nameParts =
+                displayName.split(" ") // Rozdziel na podstawie spacji (możesz użyć innego znaku)
             if (nameParts.size >= 2) {
                 firstName = nameParts[0]
                 lastName = nameParts.subList(1, nameParts.size).joinToString(" ")
-            }else if (nameParts.size ==1)            {
+            } else if (nameParts.size == 1) {
                 firstName = nameParts[0]
             }
         }
@@ -173,7 +195,8 @@ class MainActivity : AppCompatActivity() {
             "lastName" to lastName
         )
 
-        val userDocument = firestoreDB.collection("users").document() // Tworzy nowy dokument z unikalnym identyfikatorem
+        val userDocument = firestoreDB.collection("users")
+            .document() // Tworzy nowy dokument z unikalnym identyfikatorem
         userDocument.set(userData)
             .addOnSuccessListener {
                 // Rekord użytkownika został utworzony pomyślnie
@@ -187,7 +210,10 @@ class MainActivity : AppCompatActivity() {
                 val currentUser = auth.currentUser
                 val userId = currentUser?.uid
                 val email = currentUser?.email
-                editor.putString("userID", userId ?: "x") // Jeśli userId jest null, użyj pustego ciągu znaków
+                editor.putString(
+                    "userID",
+                    userId ?: "x"
+                ) // Jeśli userId jest null, użyj pustego ciągu znaków
                 editor.putString("email", email)
 
                 editor.apply()
@@ -198,7 +224,11 @@ class MainActivity : AppCompatActivity() {
             }
             .addOnFailureListener { e ->
                 // Błąd podczas tworzenia rekordu użytkownika
-                Toast.makeText(this, "Błąd podczas tworzenia rekordu użytkownika: $e", Toast.LENGTH_SHORT).show()
+                Toast.makeText(
+                    this,
+                    "Błąd podczas tworzenia rekordu użytkownika: $e",
+                    Toast.LENGTH_SHORT
+                ).show()
             }
     }
 

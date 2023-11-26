@@ -21,7 +21,7 @@
             android:layout_height="45dp"
             android:layout_marginStart="220dp"
             android:layout_marginTop="208dp"
-            android:text="SZUKAJ LEKU"
+            android:text="SZUKAJ LEKU NA DOLEGLIWOŚĆ"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 

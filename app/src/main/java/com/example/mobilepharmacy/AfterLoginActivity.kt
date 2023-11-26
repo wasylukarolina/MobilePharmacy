@@ -105,7 +105,7 @@ class AfterLoginActivity : AppCompatActivity() {
 //            val intent = Intent(this, AddHealthActivity::class.java)
 //            startActivity(intent)
 //        }
-//
+
         val serachDrug = findViewById<AppCompatButton>(R.id.searchDrugs)
         serachDrug.setOnClickListener {
             val intent = Intent(this, DiseasesActivity::class.java)
@@ -123,18 +123,23 @@ class AfterLoginActivity : AppCompatActivity() {
     }
 
     private fun logout() {
-        // Usunięcie informacji o zalogowanym użytkowniku
+        // Usunięcie całego rekordu z SharedPreferences
         val sharedPreferences = getSharedPreferences("login", MODE_PRIVATE)
         val editor = sharedPreferences.edit()
-        editor.remove("email")
-        editor.remove("password")
-        editor.remove("userID") // Usunięcie ID użytkownika
+        editor.clear() // Usuwa wszystkie dane z SharedPreferences
         editor.apply()
+
+        val firebaseAuth = FirebaseAuth.getInstance()
+
+        // Wyloguj się z Firebase Authentication
+        firebaseAuth.signOut()
+
         val intent = Intent(this, MainActivity::class.java)
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK)
         startActivity(intent)
         finish()
     }
+
 
 
     override fun onBackPressed() {
