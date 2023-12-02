@@ -149,27 +149,32 @@ class MyDosageActivity : AppCompatActivity() {
                         if (isChecked) {
                             checkBox.paintFlags = checkBox.paintFlags or Paint.STRIKE_THRU_TEXT_FLAG
                             decreaseMedicationCount(medicationName) // Zmniejsz liczbę leków w bazie
-                            checkBox.isEnabled =
-                                false // Wyłącz checkbox, aby uniemożliwić odznaczenie
+                            checkBox.isEnabled = false // Wyłącz checkbox, aby uniemożliwić odznaczenie
 
-                            val dateFormat =
-                                SimpleDateFormat("dd-MM-yyyy HH:mm", Locale.getDefault())
+                            val dateFormat = SimpleDateFormat("dd-MM-yyyy HH:mm", Locale.getDefault())
                             val currentDateAndTime: String = dateFormat.format(Date())
 
-                            // Dodaj datę zaznaczenia checkboxa do bazy danych
-                            addCheckboxCheckedDateToDatabase(medicationName, currentDateAndTime)
+                            // Podziel datę i czas
+                            val parts = currentDateAndTime.split(" ")
+                            val currentDate = parts[0]
+                            val currentTime = parts[1]
+
+                            // Dodaj datę i czas zaznaczenia checkboxa do bazy danych
+                            addCheckboxCheckedDateToDatabase(medicationName, currentDate, currentTime)
                         }
                     }
                     medicationDoseLayout.addView(checkBox)
+
                 }
             }
 
-            private fun addCheckboxCheckedDateToDatabase(medicationName: String, dateTime: String) {
+            private fun addCheckboxCheckedDateToDatabase(medicationName: String, currentDate: String, currentTime:String) {
                 val email = firebaseAuth.currentUser?.email
                 if (email != null) {
                     val medicationCheckedDateData = hashMapOf(
                         "medicationName" to medicationName,
-                        "dateTime" to dateTime,
+                        "checkedTime" to currentTime,
+                        "checkedDate" to currentDate,
                         "email" to email
                     )
 
