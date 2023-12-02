@@ -1,8 +1,11 @@
 package com.example.mobilepharmacy
 
+import android.content.ContentValues
+import android.content.Intent
 import android.graphics.Color
 import android.graphics.Paint
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -10,6 +13,7 @@ import android.widget.Button
 import android.widget.CheckBox
 import android.widget.LinearLayout
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.graphics.drawable.DrawableCompat
 import androidx.core.widget.CompoundButtonCompat
@@ -17,6 +21,7 @@ import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import java.text.SimpleDateFormat
 import java.util.*
@@ -55,11 +60,12 @@ class MyDosageActivity : AppCompatActivity() {
 
                     for (document in querySnapshot.documents) {
                         val medicationName = document.getString("nazwaProduktu")
-                        val medicationDose = document.get("dawkowanie") as? List<String>
+                        val medicationDose = document.get("dawkowanie") as? List<*>
+                        val expirationDate = document.get("dataWaznosci")
 
                         if (medicationName != null && medicationDose != null) {
                             val medicationInfo =
-                                "$medicationName\nDawkowanie: ${medicationDose.joinToString(", ")}"
+                                "$medicationName \nData ważności: $expirationDate \nDawkowanie: ${medicationDose.joinToString(", ")} "
                             medicationsList.add(medicationInfo)
                         }
                     }
@@ -67,7 +73,7 @@ class MyDosageActivity : AppCompatActivity() {
                     val medicationsAdapter = medicationsRecyclerView.adapter as MedicationsAdapter
                     medicationsAdapter.setMedicationsList(medicationsList)
                 }
-                .addOnFailureListener { exception ->
+                .addOnFailureListener { _ ->
                     // Handle failure
                 }
         }
@@ -96,6 +102,8 @@ class MyDosageActivity : AppCompatActivity() {
         inner class MedicationViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
             private val medicationNameTextView: TextView =
                 itemView.findViewById(R.id.medicationNameTextView)
+            private val expirationDateTextView: TextView =
+                itemView.findViewById(R.id.dateTextView)
             private val medicationDoseLayout: LinearLayout =
                 itemView.findViewById(R.id.medicationDoseLayout)
             private val deleteButton: Button = itemView.findViewById(R.id.deleteButton)
@@ -105,7 +113,7 @@ class MyDosageActivity : AppCompatActivity() {
                     val position = adapterPosition
                     if (position != RecyclerView.NO_POSITION) {
                         val deletedMedication = medicationsList[position]
-                        deleteMedicationFromDatabase(deletedMedication)
+                        updateMedicationFromDatabase(deletedMedication)
                         medicationsList.removeAt(position)
                         notifyItemRemoved(position)
                     }
@@ -115,9 +123,12 @@ class MyDosageActivity : AppCompatActivity() {
             fun bind(medicationInfo: String) {
                 val parts = medicationInfo.split("\n")
                 val medicationName = parts[0]
-                val medicationDoseList = parts[1].split(", ")
+                val medicationDate = parts[1]
+                val medicationDoseList = parts[2].split(", ")
+
 
                 medicationNameTextView.text = medicationName
+                expirationDateTextView.text = medicationDate
 
                 // Clear existing views from medicationDoseLayout
                 medicationDoseLayout.removeAllViews()
@@ -167,7 +178,7 @@ class MyDosageActivity : AppCompatActivity() {
                         .addOnSuccessListener {
                             // Dodanie daty zaznaczenia checkboxa do bazy danych powiodło się
                         }
-                        .addOnFailureListener { exception ->
+                        .addOnFailureListener { _ ->
                             // Handle failure
                         }
                 }
@@ -195,36 +206,48 @@ class MyDosageActivity : AppCompatActivity() {
                                         .addOnSuccessListener {
                                             // Aktualizacja liczby leków w bazie powiodła się
                                         }
-                                        .addOnFailureListener { exception ->
+                                        .addOnFailureListener { _ ->
                                             // Handle failure
                                         }
                                 }
                             }
                         }
-                        .addOnFailureListener { exception ->
+                        .addOnFailureListener { _ ->
                             // Handle failure
                         }
                 }
             }
         }
 
-        private fun deleteMedicationFromDatabase(medication: String) {
+        private fun updateMedicationFromDatabase(medication: String) {
             val email = firebaseAuth.currentUser?.email
+            val name = medication.split("\n")[0].toString().trim()
+            val date = medication.split("\n")[1].toString().replace("Data ważności: ", "").trim()
             if (email != null) {
                 firestore.collection("leki")
                     .whereEqualTo("email", email)
-                    .whereEqualTo("nazwaProduktu", medication.split("\n")[0])
+                    .whereEqualTo("nazwaProduktu", name)
+                    .whereEqualTo("dataWaznosci", date)
                     .get()
                     .addOnSuccessListener { querySnapshot ->
-                        for (document in querySnapshot.documents) {
-                            document.reference.delete()
+                        if (!querySnapshot.isEmpty) {
+                            // Znaleziono lek, zakładamy że jest tylko jeden pasujący
+                            val lekDocument = querySnapshot.documents[0]
+
+                            // Przygotuj dane do aktualizacji
+                            val dataToUpdate = hashMapOf<String, Any>()
+                            dataToUpdate["dawkowanie"] = emptyList<String>()
+                            lekDocument.reference.update(dataToUpdate)
+                            lekDocument.reference.update("dawkowanie", FieldValue.delete())
                         }
                     }
-                    .addOnFailureListener { exception ->
+                    .addOnFailureListener { _ ->
                         // Handle failure
                     }
             }
         }
+
+
 
         fun setMedicationsList(medications: List<String>) {
             medicationsList.clear()
