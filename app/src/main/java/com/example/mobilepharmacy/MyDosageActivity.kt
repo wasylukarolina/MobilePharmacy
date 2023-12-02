@@ -122,8 +122,8 @@ class MyDosageActivity : AppCompatActivity() {
 
             fun bind(medicationInfo: String) {
                 val parts = medicationInfo.split("\n")
-                val medicationName = parts[0]
-                val medicationDate = parts[1]
+                var medicationName = parts[0]
+                var medicationDate = parts[1]
                 val medicationDoseList = parts[2].split(", ")
 
 
@@ -148,7 +148,9 @@ class MyDosageActivity : AppCompatActivity() {
                     checkBox.setOnCheckedChangeListener { _, isChecked ->
                         if (isChecked) {
                             checkBox.paintFlags = checkBox.paintFlags or Paint.STRIKE_THRU_TEXT_FLAG
-                            decreaseMedicationCount(medicationName) // Zmniejsz liczbę leków w bazie
+                            medicationName = medicationName.trim()
+                            medicationDate = medicationDate.toString().replace("Data ważności: ", "").trim()
+                            decreaseMedicationCount(medicationName, medicationDate) // Zmniejsz liczbę leków w bazie
                             checkBox.isEnabled = false // Wyłącz checkbox, aby uniemożliwić odznaczenie
 
                             val dateFormat = SimpleDateFormat("dd-MM-yyyy HH:mm", Locale.getDefault())
@@ -189,31 +191,41 @@ class MyDosageActivity : AppCompatActivity() {
                 }
             }
 
-            private fun decreaseMedicationCount(medicationName: String) {
+            private fun decreaseMedicationCount(medicationName: String, date: String) {
                 val email = firebaseAuth.currentUser?.email
                 if (email != null) {
                     firestore.collection("leki")
                         .whereEqualTo("email", email)
                         .whereEqualTo("nazwaProduktu", medicationName)
+                        .whereEqualTo("dataWaznosci", date)
                         .get()
                         .addOnSuccessListener { querySnapshot ->
                             for (document in querySnapshot.documents) {
-                                val medicationCountString = document.getString("ilosc tabletek")
-                                var medicationCount = medicationCountString?.toLongOrNull() ?: 0
+                                val medicationCountString = document.getString("pojemnosc")
+                                var medicationCount = medicationCountString?.toDouble()
+                                var medicationAmount = document.getString("iloscTabletekJednorazowo")
 
-                                if (medicationCount > 0) {
-                                    medicationCount -= 1
+                                if (medicationCount != null) {
+                                    if (medicationCount > 0) {
+                                        val medicationAmountLong = medicationAmount?.toDouble()
+                                        // Sprawdź, czy ilość tabletek do odjęcia jest mniejsza niż obecna ilość
+                                        if (medicationAmountLong != null) {
+                                            if (medicationAmountLong <= medicationCount) {
+                                                medicationCount -= medicationAmountLong
+                                            }
+                                        }
 
-                                    document.reference.update(
-                                        "ilosc tabletek",
-                                        medicationCount.toString()
-                                    )
-                                        .addOnSuccessListener {
-                                            // Aktualizacja liczby leków w bazie powiodła się
-                                        }
-                                        .addOnFailureListener { _ ->
-                                            // Handle failure
-                                        }
+                                        document.reference.update(
+                                            "pojemnosc",
+                                            medicationCount.toString()
+                                        )
+                                            .addOnSuccessListener {
+                                                // Aktualizacja liczby leków w bazie powiodła się
+                                            }
+                                            .addOnFailureListener { _ ->
+                                                // Handle failure
+                                            }
+                                    }
                                 }
                             }
                         }
