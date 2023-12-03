@@ -92,12 +92,12 @@ class AfterLoginActivity : AppCompatActivity() {
             val intent = Intent(this, AddToFirstAidKitActivity::class.java)
             startActivity(intent)
         }
-//        val myFirstAidKit = findViewById<ImageView>(R.id.myFirsAidKit)
-//        myFirstAidKit.setOnClickListener{
-//            val intent = Intent(this, MyFirstAidKitActivity::class.java)
-//            startActivity(intent)
-//        }
 
+        val myFirstAidKit = findViewById<AppCompatButton>(R.id.myFirsAidKit)
+        myFirstAidKit.setOnClickListener{
+            val intent = Intent(this, MyFirstAidKit::class.java)
+            startActivity(intent)
+        }
 
 //        val myHealth = findViewById<ImageView>(R.id.myHealth)
 //        myHealth.setOnClickListener{

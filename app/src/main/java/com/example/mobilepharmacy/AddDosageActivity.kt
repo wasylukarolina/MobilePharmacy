@@ -1047,7 +1047,7 @@ class AddDosageActivity : AppCompatActivity() {
                                     }
                                 }
                             }
-                            if (capacity != iloscTabletek.text.toString() || !identical || dosageAmount != dosageAmountActual.toString()) {
+                            if ((capacity != iloscTabletek.text.toString()) || !identical || (dosageAmount != dosageAmountActual)) {
                                 val alertDialogBuilder = AlertDialog.Builder(
                                     ContextThemeWrapper(
                                         this,
@@ -1065,7 +1065,7 @@ class AddDosageActivity : AppCompatActivity() {
                                         nazwaProduktu,
                                         dawkowanie,
                                         iloscTabletek.text.toString(),
-                                        dosageAmountActual.toString(),
+                                        dosageAmountActual as Double,
                                         firestoreDB
                                     )
                                 }
@@ -1096,7 +1096,7 @@ class AddDosageActivity : AppCompatActivity() {
         nazwaProduktu: String,
         dawkowanie: ArrayList<String>,
         pojemnosc: String,
-        dosageAmount: String,
+        dosageAmount: Double,
         firestoreDB: FirebaseFirestore
     ) {
         // Odnajdź lek w bazie danych

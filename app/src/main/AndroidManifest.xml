@@ -22,6 +22,12 @@
         android:theme="@style/Theme.MobilePharmacy"
         tools:targetApi="31">
         <activity
+            android:name=".MyFirstAidKit"
+            android:exported="false" />
+        <activity
+            android:name=".MyFirstAidActivity"
+            android:exported="false" />
+        <activity
             android:name=".AddToFirstAidKitActivity"
             android:exported="false" />
         <activity
