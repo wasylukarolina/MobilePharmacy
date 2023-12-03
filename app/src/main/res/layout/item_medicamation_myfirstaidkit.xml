@@ -8,7 +8,7 @@
     android:padding="16dp">
 
     <LinearLayout
-        android:layout_width="282dp"
+        android:layout_width="225dp"
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
@@ -16,22 +16,19 @@
             android:id="@+id/medicationNameTextViewMyFirstAidKit"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textAppearance="?android:textAppearanceLarge"
-            android:text="Medication Name" />
+            android:textAppearance="?android:textAppearanceLarge" />
 
         <TextView
             android:id="@+id/expiryDateTextViewMyFirstAidKit"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textAppearance="?android:textAppearanceSmall"
-            android:text="Expiry Date: DD/MM/YYYY" />
+            android:textAppearance="?android:textAppearanceSmall" />
 
         <TextView
             android:id="@+id/capacityTextViewMyFirstAidKit"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textAppearance="?android:textAppearanceSmall"
-            android:text="Capacity: X mg" />
+            android:textAppearance="?android:textAppearanceSmall" />
     </LinearLayout>
 
     <LinearLayout
