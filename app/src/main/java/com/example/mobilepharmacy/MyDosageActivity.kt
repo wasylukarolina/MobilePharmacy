@@ -1,11 +1,10 @@
 package com.example.mobilepharmacy
 
-import android.content.ContentValues
-import android.content.Intent
+
+import android.annotation.SuppressLint
 import android.graphics.Color
 import android.graphics.Paint
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -13,7 +12,7 @@ import android.widget.Button
 import android.widget.CheckBox
 import android.widget.LinearLayout
 import android.widget.TextView
-import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.graphics.drawable.DrawableCompat
 import androidx.core.widget.CompoundButtonCompat
@@ -25,12 +24,13 @@ import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import java.text.SimpleDateFormat
 import java.util.*
+import android.view.ContextThemeWrapper
 
 class MyDosageActivity : AppCompatActivity() {
 
     private lateinit var firestore: FirebaseFirestore
     private lateinit var firebaseAuth: FirebaseAuth
-
+    private lateinit var alertDialogBuilder:  AlertDialog.Builder
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -38,6 +38,9 @@ class MyDosageActivity : AppCompatActivity() {
 
         firestore = FirebaseFirestore.getInstance()
         firebaseAuth = FirebaseAuth.getInstance()
+
+        alertDialogBuilder =
+            AlertDialog.Builder(ContextThemeWrapper(this, R.style.AlertDialogCustom))
 
         val medicationsRecyclerView: RecyclerView = findViewById(R.id.medicationsRecyclerView)
         medicationsRecyclerView.layoutManager = LinearLayoutManager(this)
@@ -149,7 +152,7 @@ class MyDosageActivity : AppCompatActivity() {
                         if (isChecked) {
                             checkBox.paintFlags = checkBox.paintFlags or Paint.STRIKE_THRU_TEXT_FLAG
                             medicationName = medicationName.trim()
-                            medicationDate = medicationDate.toString().replace("Data ważności: ", "").trim()
+                            medicationDate = medicationDate.replace("Data ważności: ", "").trim()
                             decreaseMedicationCount(medicationName, medicationDate) // Zmniejsz liczbę leków w bazie
                             checkBox.isEnabled = false // Wyłącz checkbox, aby uniemożliwić odznaczenie
 
@@ -203,7 +206,7 @@ class MyDosageActivity : AppCompatActivity() {
                             for (document in querySnapshot.documents) {
                                 val medicationCountString = document.getString("pojemnosc")
                                 var medicationCount = medicationCountString?.toDouble()
-                                var medicationAmount = document.getString("iloscTabletekJednorazowo")
+                                val medicationAmount = document.getString("iloscTabletekJednorazowo")
 
                                 if (medicationCount != null) {
                                     if (medicationCount > 0) {
@@ -220,7 +223,20 @@ class MyDosageActivity : AppCompatActivity() {
                                             medicationCount.toString()
                                         )
                                             .addOnSuccessListener {
-                                                // Aktualizacja liczby leków w bazie powiodła się
+                                                if (medicationCount <= 5) {
+                                                    alertDialogBuilder.setTitle("Mała ilość tabletek w opakowaniu")
+                                                    alertDialogBuilder.setMessage("Kończy się ilość tabletek. Dokup kolejne opakowanie. " +
+                                                            "W opakowaniu zostało 5 tabletek.")
+
+                                                    alertDialogBuilder.setPositiveButton("OK") { dialog, _ ->
+                                                        dialog.dismiss()  // Zamknięcie okna dialogowego
+                                                    }
+
+                                                    // Utwórz i wyświetl okno dialogowe
+                                                    val alertDialog: AlertDialog = alertDialogBuilder.create()
+                                                    alertDialog.show()
+                                                }
+
                                             }
                                             .addOnFailureListener { _ ->
                                                 // Handle failure
@@ -238,8 +254,8 @@ class MyDosageActivity : AppCompatActivity() {
 
         private fun updateMedicationFromDatabase(medication: String) {
             val email = firebaseAuth.currentUser?.email
-            val name = medication.split("\n")[0].toString().trim()
-            val date = medication.split("\n")[1].toString().replace("Data ważności: ", "").trim()
+            val name = medication.split("\n")[0].trim()
+            val date = medication.split("\n")[1].replace("Data ważności: ", "").trim()
             if (email != null) {
                 firestore.collection("leki")
                     .whereEqualTo("email", email)
@@ -266,6 +282,7 @@ class MyDosageActivity : AppCompatActivity() {
 
 
 
+        @SuppressLint("NotifyDataSetChanged")
         fun setMedicationsList(medications: List<String>) {
             medicationsList.clear()
             medicationsList.addAll(medications)
