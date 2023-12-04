@@ -223,7 +223,7 @@ class MyDosageActivity : AppCompatActivity() {
                                             medicationCount.toString()
                                         )
                                             .addOnSuccessListener {
-                                                if (medicationCount <= 5) {
+                                                if (medicationCount <= 10) {
                                                     alertDialogBuilder.setTitle("Mała ilość tabletek w opakowaniu")
                                                     alertDialogBuilder.setMessage("Kończy się ilość tabletek. Dokup kolejne opakowanie. " +
                                                             "W opakowaniu zostało 5 tabletek.")
