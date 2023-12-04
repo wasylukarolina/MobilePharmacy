@@ -58,11 +58,13 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
+        <!-- Przyciski i ikony -->
+
         <include
             android:id="@+id/toolbar"
-            layout="@layout/sessiontoolbar" />
-
-        <!-- Przyciski i ikony -->
+            layout="@layout/sessiontoolbar"
+            tools:layout_editor_absoluteX="42dp"
+            tools:layout_editor_absoluteY="16dp" />
 
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/myDosage"
@@ -86,25 +88,38 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <CalendarView
+        <!--        <CalendarView-->
+        <!--            android:id="@+id/calendarView"-->
+        <!--            android:layout_width="wrap_content"-->
+        <!--            android:layout_height="wrap_content"-->
+        <!--            android:layout_marginStart="28dp"-->
+        <!--            android:layout_marginTop="360dp"-->
+        <!--            android:background="@drawable/calendar_border"-->
+        <!--            android:dateTextAppearance="@style/CalendarTextStyle"-->
+        <!--            android:textColor="@color/black"-->
+        <!--            android:textColorPrimary="@color/black"-->
+        <!--            app:layout_constraintStart_toStartOf="parent"-->
+        <!--            app:layout_constraintTop_toTopOf="parent" />-->
+
+        <com.applandeo.materialcalendarview.CalendarView
             android:id="@+id/calendarView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="28dp"
-            android:layout_marginTop="360dp"
-            android:background="@drawable/calendar_border"
-            android:dateTextAppearance="@style/CalendarTextStyle"
-            android:textColor="@color/black"
-            android:textColorPrimary="@color/black"
+            android:layout_width="364dp"
+            android:layout_height="364dp"
+            app:headerColor="@color/red"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.489"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toBottomOf="@+id/historyTextView"
+            app:layout_constraintVertical_bias="0.313"
+            app:todayLabelColor="@color/black" />
 
         <TextView
             android:id="@+id/historyTextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
-            android:layout_marginTop="316dp"
+            android:layout_marginTop="284dp"
             android:text="Twoja historia:"
             android:textColor="@color/black"
             android:textSize="24sp"
@@ -133,5 +148,7 @@
         android:fitsSystemWindows="true"
         app:headerLayout="@layout/header"
         app:menu="@menu/sessionmenu" />
+
+
 
 </androidx.drawerlayout.widget.DrawerLayout>

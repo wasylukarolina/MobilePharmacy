@@ -1,12 +1,12 @@
 package com.example.mobilepharmacy
 
-import android.annotation.SuppressLint
+
 import android.content.Intent
+import android.icu.text.SimpleDateFormat
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
-import android.widget.CalendarView
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.app.ActionBarDrawerToggle
@@ -16,11 +16,20 @@ import com.google.android.material.navigation.NavigationView
 import com.google.firebase.FirebaseApp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
-import org.w3c.dom.Text
+import com.applandeo.materialcalendarview.CalendarDay
+import com.applandeo.materialcalendarview.CalendarView
+import com.applandeo.materialcalendarview.EventDay
+import com.applandeo.materialcalendarview.utils.isToday
+import com.google.firebase.Timestamp
+import java.text.ParseException
+import java.time.LocalDate
+import java.util.Calendar
+import java.util.Date
+import java.util.Locale
 
 class AfterLoginActivity : AppCompatActivity() {
 
-    lateinit var calendarView: CalendarView
+    lateinit var calendarView: com.applandeo.materialcalendarview.CalendarView
     lateinit var toggle: ActionBarDrawerToggle
     private lateinit var firestore: FirebaseFirestore
     private lateinit var firebaseAuth: FirebaseAuth
@@ -85,6 +94,45 @@ class AfterLoginActivity : AppCompatActivity() {
             }
         }
 
+        // MODYFIKACJE KALENDARZA
+        calendarView = findViewById<com.applandeo.materialcalendarview.CalendarView>(R.id.calendarView)
+
+        // lista dni, w których wzięto lek
+        var medicationsListDate = mutableListOf<Calendar>()
+
+        // połaczenie z bazą danych i dodanie do listy dni, w których wzięto lek
+        val email = firebaseAuth.currentUser?.email
+        if (email != null) {
+            val userMedicationsRef = firestore.collection("checkedMedications")
+                .whereEqualTo("email", email)
+
+            userMedicationsRef.get()
+                .addOnSuccessListener { querySnapshot ->
+
+                    val medicationsList = mutableListOf<String>()
+
+                    for (document in querySnapshot.documents) {
+                        val medicationName = document.getString("medicationName")
+                        var dateTime = document.get("dateTime").toString().trim()
+
+                        if (medicationName != null && dateTime != null) {
+                            val medicationInfo =
+                                "$medicationName \nData wzięcia: $dateTime"
+                            medicationsList.add(medicationInfo)
+
+                            // Dodaj datę do listy dni, w których wzięto lek
+                            val date = convertDateTimeToCalendar(dateTime)
+                            medicationsListDate.add(date)
+                        }
+                    }
+                    // Ustaw listę dni, w których wzięto lek, jako zaznaczone w kalendarzu
+                    val dayDecorators = medicationsListDate.map { EventDay(it, R.drawable.dot) }
+                    calendarView.setEvents(dayDecorators)
+                }
+                .addOnFailureListener { _ ->
+                    // Handle failure
+                }
+        }
 
         // Przyciski przenoszące do kolejnych layoutów
         val myDosage = findViewById<AppCompatButton>(R.id.myDosage)
@@ -137,6 +185,27 @@ class AfterLoginActivity : AppCompatActivity() {
         checkCapacity()
     }
 
+    // Funkcja do konwersji daty i czasu na obiekt Calendar
+    private fun convertDateTimeToCalendar(dateTime: Any): Calendar {
+        val calendar = Calendar.getInstance()
+
+        if (dateTime is Timestamp) {
+            // Jeżeli dateTime jest obiektem Timestamp z Firebase
+            calendar.time = dateTime.toDate()
+        } else if (dateTime is String) {
+            // Jeżeli dateTime jest ciągiem znaków (String)
+            val dateFormat = SimpleDateFormat("dd-MM-yyyy HH:mm", Locale.getDefault())
+            try {
+                val date = dateFormat.parse(dateTime)
+                date?.let { calendar.time = it }
+            } catch (e: ParseException) {
+                e.printStackTrace()
+            }
+        }
+
+        return calendar
+    }
+
     private fun checkCapacity() {
         val email = firebaseAuth.currentUser?.email
         if (email != null) {
@@ -178,7 +247,6 @@ class AfterLoginActivity : AppCompatActivity() {
         val editor = sharedPreferences.edit()
         editor.remove("email")
         editor.remove("password")
-        editor.remove("userID") // Usunięcie ID użytkownika
         editor.apply()
         val intent = Intent(this, MainActivity::class.java)
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK)
