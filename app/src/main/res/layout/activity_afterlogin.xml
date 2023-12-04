@@ -21,7 +21,7 @@
             android:layout_height="45dp"
             android:layout_marginStart="220dp"
             android:layout_marginTop="208dp"
-            android:text="SZUKAJ LEKU"
+            android:text="SZUKAJ LEKU NA DOLEGLIWOŚCI"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
@@ -110,6 +110,18 @@
             android:textSize="24sp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/alertCapacityTextViewAfterLogin"
+            android:layout_width="328dp"
+            android:layout_height="28dp"
+            android:gravity="center"
+            android:textAlignment="center"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.498"
+            app:layout_constraintStart_toStartOf="@+id/toolbar"
+            app:layout_constraintTop_toBottomOf="@+id/calendarView" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

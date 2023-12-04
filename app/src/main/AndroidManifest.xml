@@ -43,6 +43,12 @@
         </service>
 
         <activity
+            android:name=".MyFirstAidKit"
+            android:exported="false" />
+        <activity
+            android:name=".MyFirstAidActivity"
+            android:exported="false" />
+        <activity
             android:name=".AddToFirstAidKitActivity"
             android:exported="false" />
         <activity
