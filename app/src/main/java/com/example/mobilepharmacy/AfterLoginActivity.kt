@@ -1,5 +1,6 @@
 package com.example.mobilepharmacy
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -7,20 +8,28 @@ import android.view.MenuItem
 import android.view.View
 import android.widget.CalendarView
 import android.widget.ImageView
+import android.widget.TextView
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.widget.AppCompatButton
 import androidx.drawerlayout.widget.DrawerLayout
 import com.google.android.material.navigation.NavigationView
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
+import org.w3c.dom.Text
 
 class AfterLoginActivity : AppCompatActivity() {
 
     lateinit var calendarView: CalendarView
     lateinit var toggle: ActionBarDrawerToggle
+    private lateinit var firestore: FirebaseFirestore
+    private lateinit var firebaseAuth: FirebaseAuth
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_afterlogin)
+
+        firestore = FirebaseFirestore.getInstance()
+        firebaseAuth = FirebaseAuth.getInstance()
 
         val drawerLayout: DrawerLayout = findViewById(R.id.calendar)
         val navigationView: NavigationView = findViewById(R.id.nav_view)
@@ -75,6 +84,7 @@ class AfterLoginActivity : AppCompatActivity() {
         }
 
 
+        // Przyciski przenoszące do kolejnych layoutów
         val myDosage = findViewById<AppCompatButton>(R.id.myDosage)
         myDosage.setOnClickListener {
             val intent = Intent(this, MyDosageActivity::class.java)
@@ -118,6 +128,45 @@ class AfterLoginActivity : AppCompatActivity() {
             } else {
                 drawerLayout.openDrawer(navigationView)
             }
+        }
+
+        // sprawdzenie w bazie, czy kończy się jakiś lek, jeśli tak to będzie
+        // umieszczony text pod kalendarzem, że opakowanie danego leku się kończy
+        checkCapacity()
+    }
+
+    private fun checkCapacity() {
+        val email = firebaseAuth.currentUser?.email
+        if (email != null) {
+            val userMedicationsRef = firestore.collection("leki").whereEqualTo("email", email)
+
+            userMedicationsRef.get()
+                .addOnSuccessListener { querySnapshot ->
+                    val medicationsList = mutableListOf<String>()
+
+                    for (document in querySnapshot.documents) {
+                        val medicationName = document.getString("nazwaProduktu")
+                        val expirationDate = document.get("dataWaznosci")
+                        var capacity = document.get("pojemnosc")
+
+                        capacity = capacity.toString().toDoubleOrNull()
+
+                        if (capacity != null) {
+                            if (medicationName != null && (capacity < 10) ) {
+                                val medicationInfo =
+                                    "$medicationName "
+                                medicationsList.add(medicationInfo)
+                            }
+                        }
+                    }
+                    if (medicationsList.isNotEmpty()) {
+                        val capacityTextView = findViewById<TextView>(R.id.alertCapacityTextViewAfterLogin)
+                        capacityTextView.text = "Kończące się leki: ${medicationsList.joinToString(" ")}"
+                    }
+                }
+                .addOnFailureListener { _ ->
+                    // Handle failure
+                }
         }
     }
 
