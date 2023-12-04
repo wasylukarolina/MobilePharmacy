@@ -13,6 +13,7 @@ import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.widget.AppCompatButton
 import androidx.drawerlayout.widget.DrawerLayout
 import com.google.android.material.navigation.NavigationView
+import com.google.firebase.FirebaseApp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import org.w3c.dom.Text
@@ -28,6 +29,7 @@ class AfterLoginActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_afterlogin)
 
+//        FirebaseApp.initializeApp(this)
         firestore = FirebaseFirestore.getInstance()
         firebaseAuth = FirebaseAuth.getInstance()
 
@@ -109,12 +111,12 @@ class AfterLoginActivity : AppCompatActivity() {
             startActivity(intent)
         }
 
-//        val myHealth = findViewById<ImageView>(R.id.myHealth)
-//        myHealth.setOnClickListener{
-//            val intent = Intent(this, AddHealthActivity::class.java)
-//            startActivity(intent)
-//        }
-//
+        val myHealth = findViewById<AppCompatButton>(R.id.myHealth)
+        myHealth.setOnClickListener{
+            val intent = Intent(this, AddHealthActivity::class.java)
+            startActivity(intent)
+        }
+
         val serachDrug = findViewById<AppCompatButton>(R.id.searchDrugs)
         serachDrug.setOnClickListener {
             val intent = Intent(this, DiseasesActivity::class.java)

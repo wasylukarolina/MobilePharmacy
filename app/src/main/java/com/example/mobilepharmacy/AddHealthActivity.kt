@@ -30,9 +30,9 @@ class AddHealthActivity : AppCompatActivity() {
         firebaseAuth = FirebaseAuth.getInstance()
         firestore = FirebaseFirestore.getInstance()
 
-        val userId = firebaseAuth.currentUser?.uid
-        if (userId != null) {
-            val userDiseasesRef = firestore.collection("diseases").document(userId)
+        val email = firebaseAuth.currentUser?.email
+        if (email != null) {
+            val userDiseasesRef = firestore.collection("diseases").document(email)
 
             userDiseasesRef.get()
                 .addOnSuccessListener { documentSnapshot ->
@@ -74,10 +74,10 @@ class AddHealthActivity : AppCompatActivity() {
             selectedHealthConditions.add("Choroby serca")
         }
 
-        val userId = firebaseAuth.currentUser?.uid
+        val email = firebaseAuth.currentUser?.email
 
-        if (userId != null) {
-            val userDiseasesRef = firestore.collection("diseases").document(userId)
+        if (email != null) {
+            val userDiseasesRef = firestore.collection("diseases").document(email)
 
             userDiseasesRef.get().addOnSuccessListener { documentSnapshot ->
                 if (documentSnapshot.exists()) {
@@ -96,7 +96,7 @@ class AddHealthActivity : AppCompatActivity() {
                     }
                 } else {
                     // Dokument nie istnieje, więc tworzymy nowy
-                    val newDiseases = Diseases(userId, selectedHealthConditions)
+                    val newDiseases = Diseases(email, selectedHealthConditions)
 
                     userDiseasesRef.set(newDiseases)
                         .addOnSuccessListener {
@@ -112,13 +112,10 @@ class AddHealthActivity : AppCompatActivity() {
         }
     }
 
-
-
     data class Diseases(
-        val userId: String,
+        val email: String,
         var conditions: List<String>
     ) {
         constructor() : this("", emptyList())
     }
-
 }
