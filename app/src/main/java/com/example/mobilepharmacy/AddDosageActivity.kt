@@ -869,7 +869,7 @@ class AddDosageActivity : AppCompatActivity() {
         var eventType = parser.eventType
         var drug: Drugs? = null
         var halfwayReached = false
-        val MAX_DRUGS = 10000
+        val MAX_DRUGS = 500
 
         while (eventType != XmlPullParser.END_DOCUMENT && !halfwayReached) {
             val name: String
