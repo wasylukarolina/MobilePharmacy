@@ -868,14 +868,15 @@ class AddDosageActivity : AppCompatActivity() {
         var drugs: ArrayList<Drugs>? = null
         var eventType = parser.eventType
         var drug: Drugs? = null
+        var halfwayReached = false
+        val MAX_DRUGS = 10000
 
-        while (eventType != XmlPullParser.END_DOCUMENT) {
+        while (eventType != XmlPullParser.END_DOCUMENT && !halfwayReached) {
             val name: String
             when (eventType) {
                 XmlPullParser.START_DOCUMENT -> drugs = ArrayList()
                 XmlPullParser.START_TAG -> {
                     name = parser.name
-                    drug
 
                     if (name == "produktLeczniczy") {
                         drug = Drugs()
@@ -884,11 +885,11 @@ class AddDosageActivity : AppCompatActivity() {
                         val rodzajOpakowania = parser.getAttributeValue(null, "rodzajOpakowania")
                         val pojemnosc = parser.getAttributeValue(null, "pojemnosc")
 
-                        if (rodzajOpakowania != null) {
-                            drug.rodzajOpakowania = rodzajOpakowania
-                        } else {
-                            // Jeśli rodzajOpakowania jest null, możesz przypisać domyślną wartość
+                        if (rodzajOpakowania.isNullOrBlank() || rodzajOpakowania.equals("null", ignoreCase = true)) {
+                            // Jeśli rodzajOpakowania jest null lub pusty, przypisz domyślną wartość
                             drug.rodzajOpakowania = "tabletki"
+                        } else {
+                                halfwayReached = true
                         }
 
                         if (pojemnosc != null) {
@@ -903,6 +904,10 @@ class AddDosageActivity : AppCompatActivity() {
                     name = parser.name
                     if (name.equals("produktLeczniczy", ignoreCase = true) && drug != null) {
                         drugs!!.add(drug)
+                        // Dodaj warunek sprawdzający, czy osiągnięto środek dokumentu
+                        if (drugs.size >= MAX_DRUGS / 2) {
+                            halfwayReached = true
+                        }
                     }
                 }
             }
