@@ -1,6 +1,7 @@
 package com.example.mobilepharmacy
 
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.icu.text.SimpleDateFormat
 import androidx.appcompat.app.AppCompatActivity
@@ -13,24 +14,19 @@ import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.widget.AppCompatButton
 import androidx.drawerlayout.widget.DrawerLayout
 import com.google.android.material.navigation.NavigationView
-import com.google.firebase.FirebaseApp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
-import com.applandeo.materialcalendarview.CalendarDay
-import com.applandeo.materialcalendarview.CalendarView
 import com.applandeo.materialcalendarview.EventDay
-import com.applandeo.materialcalendarview.utils.isToday
 import com.google.firebase.Timestamp
 import java.text.ParseException
-import java.time.LocalDate
 import java.util.Calendar
-import java.util.Date
 import java.util.Locale
 
+// menu po zalogowaniu
 class AfterLoginActivity : AppCompatActivity() {
 
-    lateinit var calendarView: com.applandeo.materialcalendarview.CalendarView
-    lateinit var toggle: ActionBarDrawerToggle
+    private lateinit var calendarView: com.applandeo.materialcalendarview.CalendarView
+    private lateinit var toggle: ActionBarDrawerToggle
     private lateinit var firestore: FirebaseFirestore
     private lateinit var firebaseAuth: FirebaseAuth
 
@@ -95,10 +91,10 @@ class AfterLoginActivity : AppCompatActivity() {
         }
 
         // MODYFIKACJE KALENDARZA
-        calendarView = findViewById<com.applandeo.materialcalendarview.CalendarView>(R.id.calendarView)
+        calendarView = findViewById(R.id.calendarView)
 
         // lista dni, w których wzięto lek
-        var medicationsListDate = mutableListOf<Calendar>()
+        val medicationsListDate = mutableListOf<Calendar>()
 
         // połaczenie z bazą danych i dodanie do listy dni, w których wzięto lek
         val email = firebaseAuth.currentUser?.email
@@ -113,9 +109,9 @@ class AfterLoginActivity : AppCompatActivity() {
 
                     for (document in querySnapshot.documents) {
                         val medicationName = document.getString("medicationName")
-                        var dateTime = document.get("dateTime").toString().trim()
+                        val dateTime = document.get("dateTime").toString().trim()
 
-                        if (medicationName != null && dateTime != null) {
+                        if (medicationName != null) {
                             val medicationInfo =
                                 "$medicationName \nData wzięcia: $dateTime"
                             medicationsList.add(medicationInfo)
@@ -194,7 +190,7 @@ class AfterLoginActivity : AppCompatActivity() {
             calendar.time = dateTime.toDate()
         } else if (dateTime is String) {
             // Jeżeli dateTime jest ciągiem znaków (String)
-            val dateFormat = SimpleDateFormat("dd-MM-yyyy HH:mm", Locale.getDefault())
+            val dateFormat = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault())
             try {
                 val date = dateFormat.parse(dateTime)
                 date?.let { calendar.time = it }
@@ -206,6 +202,7 @@ class AfterLoginActivity : AppCompatActivity() {
         return calendar
     }
 
+    @SuppressLint("SetTextI18n")
     private fun checkCapacity() {
         val email = firebaseAuth.currentUser?.email
         if (email != null) {
@@ -217,17 +214,13 @@ class AfterLoginActivity : AppCompatActivity() {
 
                     for (document in querySnapshot.documents) {
                         val medicationName = document.getString("nazwaProduktu")
-                        val expirationDate = document.get("dataWaznosci")
-                        var capacity = document.get("pojemnosc")
+                        val capacity = document.get("pojemnosc")
+                        val capacityNumber = capacity.toString().toDoubleOrNull() ?: 0.0
 
-                        capacity = capacity.toString().toDoubleOrNull()
-
-                        if (capacity != null) {
-                            if (medicationName != null && (capacity < 10) ) {
-                                val medicationInfo =
-                                    "$medicationName "
-                                medicationsList.add(medicationInfo)
-                            }
+                        if (medicationName != null && (capacityNumber < 10.0) ) {
+                            val medicationInfo =
+                                "$medicationName "
+                            medicationsList.add(medicationInfo)
                         }
                     }
                     if (medicationsList.isNotEmpty()) {
@@ -256,6 +249,7 @@ class AfterLoginActivity : AppCompatActivity() {
 
 
     override fun onBackPressed() {
+        super.onBackPressed()
         // zakaz cofania
     }
 

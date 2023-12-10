@@ -99,7 +99,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="Ilość tabletek, jeśli pół to wpisz 0.5"
-            android:inputType="numberDecimal"
+            android:inputType="number"
             android:visibility="invisible"
             />
         <CheckBox

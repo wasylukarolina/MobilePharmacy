@@ -21,7 +21,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 import java.util.Calendar
 import kotlin.collections.ArrayList
 
-
+// dodawanie dawkowania
 class AddDosageActivity : AppCompatActivity() {
     private var quantity: Int = 0
     private lateinit var timePickerLayout: TextInputLayout
@@ -203,12 +203,12 @@ class AddDosageActivity : AppCompatActivity() {
                         // Obsługa wyboru "Stare opakowanie"
                         // Pobranie pojemności opakowania z bazy
                         newOld = false
-                        val capacity = querySnapshot.documents[0].get("pojemnosc")
+                        val capacity = querySnapshot.documents[0].getDouble("pojemnosc")
                         val expirationDate = querySnapshot.documents[0].get("dataWaznosci")
                         // pobiera całą listę z godzinami
                         val dosage = querySnapshot.documents[0].get("dawkowanie") as List<String>?
                         val dosageAmount =
-                            querySnapshot.documents[0].get("iloscTabletekJednorazowo")
+                            querySnapshot.documents[0].getDouble("iloscTabletekJednorazowo")
 
                         if (dosage != null && capacity != null && expirationDate != null && dosageAmount != null) {
                             allVisibleFromDB(capacity, expirationDate, dosage, dosageAmount)
@@ -706,7 +706,7 @@ class AddDosageActivity : AppCompatActivity() {
 
             override fun afterTextChanged(s: Editable?) {
                 // Po zmianie tekstu
-                val capacity = s.toString().toIntOrNull()
+                val capacity = s.toString().toDoubleOrNull()
                 if (capacity != null && capacity < 0) {
                     // Jeśli wprowadzona liczba jest mniejsza od zera, ustaw na zero
                     capacityEditText.setText("0")
@@ -982,12 +982,15 @@ class AddDosageActivity : AppCompatActivity() {
                 if (querySnapshot.isEmpty) {
                     // Tworzenie mapy z danymi
                     val dataMap = hashMapOf<String, Any>()
+                    val iloscTabletekString = iloscTabletek.text.toString()
+                    val iloscTabletekNumber = iloscTabletekString.toDoubleOrNull() ?: 0
+                    val dosageAmountNumber = dosageAmount.toString().toDoubleOrNull() ?: 0
                     dataMap["email"] = email
                     dataMap["nazwaProduktu"] = nazwaProduktu
                     dataMap["dataWaznosci"] = dataWaznosci
                     dataMap["dawkowanie"] = dawkowanie
-                    dataMap["pojemnosc"] = iloscTabletek.text.toString()
-                    dataMap["iloscTabletekJednorazowo"] = dosageAmount
+                    dataMap["pojemnosc"] = iloscTabletekNumber
+                    dataMap["iloscTabletekJednorazowo"] = dosageAmountNumber
 
                     // Dodawanie danych do Firestore
                     firestoreDB.collection("leki")
@@ -1007,11 +1010,14 @@ class AddDosageActivity : AppCompatActivity() {
                 } else {
                     if (newOld) {
                         val dataMap = hashMapOf<String, Any>()
+                        val iloscTabletekString = iloscTabletek.text.toString()
+                        val iloscTabletekNumber = iloscTabletekString.toDoubleOrNull() ?: 0
+                        val dosageAmountNumber = dosageAmount.toString().toDoubleOrNull() ?: 0
                         dataMap["email"] = email
                         dataMap["nazwaProduktu"] = nazwaProduktu
                         dataMap["dataWaznosci"] = dataWaznosci
                         dataMap["dawkowanie"] = dawkowanie
-                        dataMap["pojemnosc"] = iloscTabletek.text.toString()
+                        dataMap["pojemnosc"] = iloscTabletekNumber
                         dataMap["iloscTabletekJednorazowo"] = dosageAmount
 
                         // Dodawanie danych do Firestore
@@ -1030,11 +1036,11 @@ class AddDosageActivity : AppCompatActivity() {
                                 Toast.makeText(this, "Wystąpił błąd", Toast.LENGTH_SHORT).show()
                             }
                     } else {
-                        val capacity = querySnapshot.documents[0].get("pojemnosc")
+                        val capacity = querySnapshot.documents[0].getDouble("pojemnosc")
                         val dosage = querySnapshot.documents[0].get("dawkowanie") as List<String>?
                         val dosageAmountActual =
                             querySnapshot.documents[0].get("iloscTabletekJednorazowo")
-
+                        val iloscTabletekNumber = iloscTabletek.toString().toDoubleOrNull() ?: 0
                         // sprawdzenie czy dawkowanie jest takie samo
                         var identical = true
 
@@ -1052,7 +1058,7 @@ class AddDosageActivity : AppCompatActivity() {
                                     }
                                 }
                             }
-                            if ((capacity != iloscTabletek.text.toString()) || !identical || (dosageAmount != dosageAmountActual)) {
+                            if ((capacity?.toDouble() != iloscTabletekNumber) || !identical || (dosageAmount != dosageAmountActual)) {
                                 val alertDialogBuilder = AlertDialog.Builder(
                                     ContextThemeWrapper(
                                         this,
@@ -1069,7 +1075,7 @@ class AddDosageActivity : AppCompatActivity() {
                                         email,
                                         nazwaProduktu,
                                         dawkowanie,
-                                        iloscTabletek.text.toString(),
+                                        iloscTabletekNumber.toDouble(),
                                         dosageAmountActual as Double,
                                         firestoreDB
                                     )
@@ -1100,7 +1106,7 @@ class AddDosageActivity : AppCompatActivity() {
         email: String,
         nazwaProduktu: String,
         dawkowanie: ArrayList<String>,
-        pojemnosc: String,
+        pojemnosc: Double,
         dosageAmount: Double,
         firestoreDB: FirebaseFirestore
     ) {
@@ -1113,7 +1119,6 @@ class AddDosageActivity : AppCompatActivity() {
                 if (!querySnapshot.isEmpty) {
                     // Znaleziono lek, zakładamy że jest tylko jeden pasujący
                     val lekDocument = querySnapshot.documents[0]
-
                     // Przygotuj dane do aktualizacji
                     val dataToUpdate = hashMapOf<String, Any>()
                     dataToUpdate["dawkowanie"] = dawkowanie

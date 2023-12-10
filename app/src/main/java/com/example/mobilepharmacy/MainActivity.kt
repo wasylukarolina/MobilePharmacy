@@ -17,6 +17,7 @@ import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.firestore.FirebaseFirestore
 
+// strona pierwsza - panel do zalogowania
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding

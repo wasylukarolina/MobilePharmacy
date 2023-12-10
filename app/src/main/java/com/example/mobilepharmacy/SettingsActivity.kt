@@ -10,6 +10,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.UserProfileChangeRequest
 
+// ustawienia - zmiana imienia, hasła
 class SettingsActivity : AppCompatActivity() {
     private lateinit var newPasswordEditText: EditText
     private lateinit var confirmPasswordEditText: EditText

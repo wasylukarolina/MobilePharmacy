@@ -210,8 +210,10 @@ class DiseasesActivity : AppCompatActivity() {
         var drug: Drugs? = null
         var isOTC = false
         var isSub = false
+        var halfwayReached = false
+        val MAX_DRUGS = 500
 
-        while (eventType != XmlPullParser.END_DOCUMENT) {
+        while (eventType != XmlPullParser.END_DOCUMENT && !halfwayReached) {
             val name: String
             when (eventType) {
                 XmlPullParser.START_DOCUMENT -> drugs = ArrayList()
@@ -238,6 +240,9 @@ class DiseasesActivity : AppCompatActivity() {
                         ) && drug != null && isOTC && isSub
                     ) {
                         drugs!!.add(drug)
+                        if (drugs.size >= MAX_DRUGS / 2) {
+                            halfwayReached = true
+                        }
                     }
                 }
             }

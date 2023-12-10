@@ -26,6 +26,7 @@ import java.text.SimpleDateFormat
 import java.util.*
 import android.view.ContextThemeWrapper
 
+// lista z dawkowaniem
 class MyDosageActivity : AppCompatActivity() {
 
     private lateinit var firestore: FirebaseFirestore
@@ -156,7 +157,7 @@ class MyDosageActivity : AppCompatActivity() {
                             decreaseMedicationCount(medicationName, medicationDate) // Zmniejsz liczbę leków w bazie
                             checkBox.isEnabled = false // Wyłącz checkbox, aby uniemożliwić odznaczenie
 
-                            val dateFormat = SimpleDateFormat("dd-MM-yyyy HH:mm", Locale.getDefault())
+                            val dateFormat = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault())
                             val currentDateAndTime: String = dateFormat.format(Date())
 
                             // Podziel datę i czas
@@ -204,8 +205,7 @@ class MyDosageActivity : AppCompatActivity() {
                         .get()
                         .addOnSuccessListener { querySnapshot ->
                             for (document in querySnapshot.documents) {
-                                val medicationCountString = document.getString("pojemnosc")
-                                var medicationCount = medicationCountString?.toDouble()
+                                var medicationCount = document.getDouble("pojemnosc")
                                 val medicationAmount = document.getString("iloscTabletekJednorazowo")
 
                                 if (medicationCount != null) {

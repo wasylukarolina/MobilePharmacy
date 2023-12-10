@@ -8,6 +8,8 @@ import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 
+
+// strona, która pokazuje imię i nazwisko oraz ikonkę
 class AccountActivity : AppCompatActivity() {
     private lateinit var binding: ActivityAccountBinding
     private lateinit var userInfo: TextView

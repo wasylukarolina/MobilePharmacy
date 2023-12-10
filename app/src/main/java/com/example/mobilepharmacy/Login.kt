@@ -8,6 +8,8 @@ import android.widget.Toast
 import com.example.mobilepharmacy.databinding.ActivityLogin2Binding
 import com.google.firebase.auth.FirebaseAuth
 
+// logowanie przez email(jakikolwiek)
+
 class Login : AppCompatActivity() {
 
     private lateinit var binding: ActivityLogin2Binding

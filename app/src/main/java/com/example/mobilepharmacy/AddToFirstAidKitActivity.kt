@@ -30,6 +30,8 @@ import org.xmlpull.v1.XmlPullParserFactory
 import java.io.IOException
 import java.util.Calendar
 
+// dodanie nowego leku do apteczki, podajemy tylko informacje o dacie ważności oraz ilości tabletek w opakowaniu
+
 class AddToFirstAidKitActivity : AppCompatActivity() {
     private lateinit var adapter: ArrayAdapter<String>
     private val medicinesList: ArrayList<Drugs> = ArrayList()
@@ -330,10 +332,11 @@ class AddToFirstAidKitActivity : AppCompatActivity() {
                 if (querySnapshot.isEmpty) {
                     // Tworzenie mapy z danymi
                     val dataMap = hashMapOf<String, Any>()
+                    val iloscTabletekNumber = iloscTabletek.text.toString().toDoubleOrNull() ?: 0
                     dataMap["email"] = email
                     dataMap["nazwaProduktu"] = nazwaProduktu
                     dataMap["dataWaznosci"] = dataWaznosci
-                    dataMap["pojemnosc"] = iloscTabletek.text.toString()
+                    dataMap["pojemnosc"] = iloscTabletekNumber
 
                     // Dodawanie danych do Firestore
                     firestoreDB.collection("leki")
@@ -353,10 +356,11 @@ class AddToFirstAidKitActivity : AppCompatActivity() {
                 } else {
                     if (newOld) {
                         val dataMap = hashMapOf<String, Any>()
+                        val iloscTabletekNumber = iloscTabletek.text.toString().toDoubleOrNull() ?: 0
                         dataMap["email"] = email
                         dataMap["nazwaProduktu"] = nazwaProduktu
                         dataMap["dataWaznosci"] = dataWaznosci
-                        dataMap["pojemnosc"] = iloscTabletek.text.toString()
+                        dataMap["pojemnosc"] = iloscTabletekNumber
 
                         // Dodawanie danych do Firestore
                         firestoreDB.collection("leki")

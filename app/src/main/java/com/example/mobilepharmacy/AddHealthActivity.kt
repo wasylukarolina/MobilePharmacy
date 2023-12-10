@@ -8,6 +8,7 @@ import android.widget.Toast
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 
+// dodanie informacji na temat choroby
 class AddHealthActivity : AppCompatActivity() {
 
     private lateinit var checkboxCukrzyca: CheckBox

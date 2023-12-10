@@ -23,6 +23,7 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
+// lista z lekami, które posiadamy
 class MyFirstAidKit : AppCompatActivity() {
     private lateinit var firestore: FirebaseFirestore
     private lateinit var firebaseAuth: FirebaseAuth
@@ -59,7 +60,7 @@ class MyFirstAidKit : AppCompatActivity() {
                     for (document in querySnapshot.documents) {
                         val medicationName = document.getString("nazwaProduktu")
                         val expirationDate = document.get("dataWaznosci")
-                        val amount = document.get("pojemnosc")
+                        val amount = document.getDouble("pojemnosc")
 
                         if (medicationName != null && expirationDate != null && amount != null) {
                             val medicationInfo =
