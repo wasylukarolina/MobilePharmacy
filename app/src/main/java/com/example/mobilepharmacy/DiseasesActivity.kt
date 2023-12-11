@@ -212,6 +212,7 @@ class DiseasesActivity : AppCompatActivity() {
         var isSub = false
         var halfwayReached = false
         val MAX_DRUGS = 500
+        var currentDrugs = 0
 
         while (eventType != XmlPullParser.END_DOCUMENT && !halfwayReached) {
             val name: String
@@ -223,8 +224,7 @@ class DiseasesActivity : AppCompatActivity() {
                         drug = Drugs()
                         drug.nazwaProduktu = parser.getAttributeValue(null, "nazwaProduktu")
                     } else if (name == "opakowanie") {
-                        val kategoriaDostepnosci =
-                            parser.getAttributeValue(null, "kategoriaDostepnosci")
+                        val kategoriaDostepnosci = parser.getAttributeValue(null, "kategoriaDostepnosci")
                         isOTC = kategoriaDostepnosci == "OTC"
                     } else if (name == "substancjaCzynna") {
                         val substancja = parser.getAttributeValue(null, "nazwaSubstancji")
@@ -234,13 +234,11 @@ class DiseasesActivity : AppCompatActivity() {
 
                 XmlPullParser.END_TAG -> {
                     name = parser.name
-                    if (name.equals(
-                            "produktLeczniczy",
-                            ignoreCase = true
-                        ) && drug != null && isOTC && isSub
-                    ) {
+                    if (name.equals("produktLeczniczy", ignoreCase = true) && drug != null && isOTC && isSub) {
                         drugs!!.add(drug)
-                        if (drugs.size >= MAX_DRUGS / 2) {
+                        currentDrugs++
+
+                        if (currentDrugs >= MAX_DRUGS / 2) {
                             halfwayReached = true
                         }
                     }
@@ -250,4 +248,5 @@ class DiseasesActivity : AppCompatActivity() {
         }
         return drugs
     }
+
 }

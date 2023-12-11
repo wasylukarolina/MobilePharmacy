@@ -148,12 +148,21 @@ class AddDosageActivity : AppCompatActivity() {
                 inputDate.set(Calendar.MONTH, month - 1)  // Miesiące są indeksowane od 0
                 inputDate.set(Calendar.DAY_OF_MONTH, day)
 
-                if (capacity != null && dosageAmount != null && !inputDate.before(currentDate)) {
+                if (capacity != null &&
+                        dosageAmount != null &&
+                             !inputDate.before(currentDate)
+                ) {
                     saveDataToFirebase(firestoreDB, email)
-                } else if (inputDate.before(currentDate)) {
+                }
+                else if (inputDate.before(currentDate)) {
                     Toast.makeText(this, "Lek jest przeterminowany", Toast.LENGTH_SHORT)
                         .show()
-                } else {
+                }
+                else if (((capacity.text.toString().toDoubleOrNull() ?: 0.0) > 99.0) || ((dosageAmount.text.toString().toDoubleOrNull()?:0.0)> 5)) {
+                    Toast.makeText(this, "Wprowadzona liczba jest za duża", Toast.LENGTH_SHORT)
+                        .show()
+                }
+                    else {
                     Toast.makeText(this, "Wszystkie pola muszą być uzupełnione", Toast.LENGTH_SHORT)
                         .show()
                 }
@@ -991,6 +1000,7 @@ class AddDosageActivity : AppCompatActivity() {
                     dataMap["dawkowanie"] = dawkowanie
                     dataMap["pojemnosc"] = iloscTabletekNumber
                     dataMap["iloscTabletekJednorazowo"] = dosageAmountNumber
+
 
                     // Dodawanie danych do Firestore
                     firestoreDB.collection("leki")
