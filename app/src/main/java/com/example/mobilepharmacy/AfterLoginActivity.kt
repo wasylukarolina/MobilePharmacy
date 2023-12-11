@@ -11,6 +11,7 @@ import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.app.ActionBarDrawerToggle
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.AppCompatButton
 import androidx.drawerlayout.widget.DrawerLayout
 import com.google.android.material.navigation.NavigationView
@@ -21,6 +22,7 @@ import com.google.firebase.Timestamp
 import java.text.ParseException
 import java.util.Calendar
 import java.util.Locale
+import com.applandeo.materialcalendarview.listeners.OnDayClickListener
 
 // menu po zalogowaniu
 class AfterLoginActivity : AppCompatActivity() {
@@ -90,13 +92,13 @@ class AfterLoginActivity : AppCompatActivity() {
             }
         }
 
-        // MODYFIKACJE KALENDARZA
+// MODYFIKACJE KALENDARZA
         calendarView = findViewById(R.id.calendarView)
 
-        // lista dni, w których wzięto lek
+// lista dni, w których wzięto lek
         val medicationsListDate = mutableListOf<Calendar>()
 
-        // połaczenie z bazą danych i dodanie do listy dni, w których wzięto lek
+// połaczenie z bazą danych i dodanie do listy dni, w których wzięto lek
         val email = firebaseAuth.currentUser?.email
         if (email != null) {
             val userMedicationsRef = firestore.collection("checkedMedications")
@@ -109,18 +111,30 @@ class AfterLoginActivity : AppCompatActivity() {
 
                     for (document in querySnapshot.documents) {
                         val medicationName = document.getString("medicationName")
-                        val dateTime = document.get("dateTime").toString().trim()
+                        val dateTimeString = document.getString("checkedDate")
+                        if (dateTimeString != null) {
+                            val dateFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+                            try {
+                                val date = dateFormat.parse(dateTimeString)
+                                date?.let {
+                                    val calendar = Calendar.getInstance()
+                                    calendar.time = it
 
-                        if (medicationName != null) {
-                            val medicationInfo =
-                                "$medicationName \nData wzięcia: $dateTime"
-                            medicationsList.add(medicationInfo)
+                                    // Tutaj możesz użyć 'calendar' do dalszych działań
+                                    val medicationInfo =
+                                        "$medicationName \nData wzięcia: ${dateFormat.format(it)}"
+                                    medicationsList.add(medicationInfo)
 
-                            // Dodaj datę do listy dni, w których wzięto lek
-                            val date = convertDateTimeToCalendar(dateTime)
-                            medicationsListDate.add(date)
+                                    // Dodaj datę do listy dni, w których wzięto lek
+                                    medicationsListDate.add(calendar)
+                                }
+                            } catch (e: ParseException) {
+                                e.printStackTrace()
+                                // Obsłuż błąd parsowania daty
+                            }
                         }
                     }
+
                     // Ustaw listę dni, w których wzięto lek, jako zaznaczone w kalendarzu
                     val dayDecorators = medicationsListDate.map { EventDay(it, R.drawable.dot) }
                     calendarView.setEvents(dayDecorators)
@@ -129,6 +143,53 @@ class AfterLoginActivity : AppCompatActivity() {
                     // Handle failure
                 }
         }
+
+        // Ustaw obsługę kliknięcia na dzień
+        calendarView.setOnDayClickListener(object : OnDayClickListener {
+            override fun onDayClick(eventDay: EventDay) {
+                val clickedDay = eventDay.calendar
+
+                // Pobierz datę w formacie dd/MM/yyyy
+                val dateFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+                val dateString = dateFormat.format(clickedDay.time)
+
+                // Sprawdź, czy istnieją dane o lekach wziętych danego dnia w bazie
+                val email = firebaseAuth.currentUser?.email
+                if (email != null) {
+                    val userMedicationsRef = firestore.collection("checkedMedications")
+                        .whereEqualTo("email", email)
+                        .whereEqualTo("checkedDate", dateString)
+
+                    userMedicationsRef.get()
+                        .addOnSuccessListener { querySnapshot ->
+                            val medicationsList = mutableListOf<String>()
+
+                            for (document in querySnapshot.documents) {
+                                val medicationName = document.getString("medicationName")
+                                val checkedTime = document.getString("checkedTime")
+
+                                if (medicationName != null && checkedTime != null) {
+                                    val medicationInfo =
+                                        "$medicationName, Godzina wzięcia: $checkedTime"
+                                    medicationsList.add(medicationInfo)
+                                }
+                            }
+
+                            if (medicationsList.isNotEmpty()) {
+                                // Wyświetl informacje o wziętych lekach
+                                showInfoDialog("Leki wzięte dnia $dateString", medicationsList.joinToString("\n"))
+                            } else {
+                                // Jeśli nie wzięto leków tego dnia, wyświetl odpowiedni komunikat
+                                showInfoDialog("Brak wziętych leków", "Nie wzięto żadnych leków dnia $dateString")
+                            }
+                        }
+                        .addOnFailureListener { _ ->
+                            // Handle failure
+                        }
+                }
+            }
+        })
+
 
         // Przyciski przenoszące do kolejnych layoutów
         val myDosage = findViewById<AppCompatButton>(R.id.myDosage)
@@ -270,5 +331,13 @@ class AfterLoginActivity : AppCompatActivity() {
 
             else -> return super.onOptionsItemSelected(item)
         }
+    }
+    // Funkcja do wyświetlania okna informacyjnego
+    private fun showInfoDialog(title: String, message: String) {
+        val builder = AlertDialog.Builder(this)
+        builder.setTitle(title)
+        builder.setMessage(message)
+        builder.setPositiveButton("OK") { dialog, which -> dialog.dismiss() }
+        builder.show()
     }
 }
