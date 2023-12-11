@@ -60,9 +60,10 @@ class MyFirstAidKit : AppCompatActivity() {
                     for (document in querySnapshot.documents) {
                         val medicationName = document.getString("nazwaProduktu")
                         val expirationDate = document.get("dataWaznosci")
-                        val amount = document.getDouble("pojemnosc")
+                        val amount = document.get("pojemnosc")
+                        val amountNumber = amount.toString().toDoubleOrNull()?:0.0
 
-                        if (medicationName != null && expirationDate != null && amount != null) {
+                        if (medicationName != null && expirationDate != null && amountNumber != 0.0) {
                             val medicationInfo =
                                 "$medicationName \nData ważności: $expirationDate \nPojemność: $amount"
                             medicationsList.add(medicationInfo)
