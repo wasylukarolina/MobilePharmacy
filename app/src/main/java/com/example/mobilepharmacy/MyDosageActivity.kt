@@ -66,8 +66,10 @@ class MyDosageActivity : AppCompatActivity() {
                         val medicationName = document.getString("nazwaProduktu")
                         val medicationDose = document.get("dawkowanie") as? List<*>
                         val expirationDate = document.get("dataWaznosci")
+                        val capacity = document.get("pojemnosc")
+val capacityNumber = capacity.toString().toDoubleOrNull()?:0.0
 
-                        if (medicationName != null && medicationDose != null) {
+                        if (medicationName != null && medicationDose != null && capacityNumber > 0) {
                             val medicationInfo =
                                 "$medicationName \nData ważności: $expirationDate \nDawkowanie: ${medicationDose.joinToString(", ")} "
                             medicationsList.add(medicationInfo)
@@ -87,6 +89,7 @@ class MyDosageActivity : AppCompatActivity() {
         RecyclerView.Adapter<MedicationsAdapter.MedicationViewHolder>() {
 
         private val medicationsList = mutableListOf<String>()
+        private val checkboxStates = mutableMapOf<Int, Boolean>() // Dodaj mapę do przechowywania stanów checkboxów
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MedicationViewHolder {
             val view =
@@ -96,7 +99,7 @@ class MyDosageActivity : AppCompatActivity() {
 
         override fun onBindViewHolder(holder: MedicationViewHolder, position: Int) {
             val medicationInfo = medicationsList[position]
-            holder.bind(medicationInfo)
+            holder.bind(medicationInfo, checkboxStates[position] ?: false)
         }
 
         override fun getItemCount(): Int {
@@ -111,10 +114,11 @@ class MyDosageActivity : AppCompatActivity() {
             private val medicationDoseLayout: LinearLayout =
                 itemView.findViewById(R.id.medicationDoseLayout)
             private val deleteButton: Button = itemView.findViewById(R.id.deleteButton)
-
+            private var isChecked: Boolean = false  // zakliknięcie
             init {
                 deleteButton.setOnClickListener {
                     val position = adapterPosition
+                    isChecked = false
                     if (position != RecyclerView.NO_POSITION) {
                         val deletedMedication = medicationsList[position]
                         updateMedicationFromDatabase(deletedMedication)
@@ -124,7 +128,7 @@ class MyDosageActivity : AppCompatActivity() {
                 }
             }
 
-            fun bind(medicationInfo: String) {
+            fun bind(medicationInfo: String, isChecked: Boolean) {
                 val parts = medicationInfo.split("\n")
                 var medicationName = parts[0]
                 var medicationDate = parts[1]
@@ -141,6 +145,7 @@ class MyDosageActivity : AppCompatActivity() {
                 for (dose in medicationDoseList) {
                     val checkBox = CheckBox(itemView.context)
                     checkBox.text = dose
+                    checkBox.isChecked = isChecked
                     checkBox.setTextColor(itemView.context.resources.getColor(android.R.color.black))
 
                     // Set black color for the checkbox border
@@ -150,6 +155,7 @@ class MyDosageActivity : AppCompatActivity() {
                     }
 
                     checkBox.setOnCheckedChangeListener { _, isChecked ->
+                        checkboxStates[adapterPosition] = isChecked  // Aktualizuj stan checkboxa w mapie
                         if (isChecked) {
                             checkBox.paintFlags = checkBox.paintFlags or Paint.STRIKE_THRU_TEXT_FLAG
                             medicationName = medicationName.trim()
@@ -205,28 +211,27 @@ class MyDosageActivity : AppCompatActivity() {
                         .get()
                         .addOnSuccessListener { querySnapshot ->
                             for (document in querySnapshot.documents) {
-                                var medicationCount = document.getDouble("pojemnosc")
-                                val medicationAmount = document.getString("iloscTabletekJednorazowo")
+                                var medicationCount = document.get("pojemnosc")
+                                var medicationCountDouble = medicationCount.toString().toDoubleOrNull() ?: 0.0
+                                val medicationAmount = document.get("iloscTabletekJednorazowo")
+                                val medicationAmountNumber =
+                                    medicationAmount.toString().toDoubleOrNull() ?: 0.0
 
-                                if (medicationCount != null) {
-                                    if (medicationCount > 0) {
-                                        val medicationAmountLong = medicationAmount?.toDouble()
-                                        // Sprawdź, czy ilość tabletek do odjęcia jest mniejsza niż obecna ilość
-                                        if (medicationAmountLong != null) {
-                                            if (medicationAmountLong <= medicationCount) {
-                                                medicationCount -= medicationAmountLong
-                                            }
-                                        }
+                                if (medicationCountDouble > 0) {
+                                    val medicationAmountLong = medicationAmountNumber
+                                    // Sprawdź, czy ilość tabletek do odjęcia jest mniejsza niż obecna ilość
+                                    if (medicationAmountLong <= medicationCountDouble) {
+                                        medicationCountDouble -= medicationAmountLong
 
                                         document.reference.update(
                                             "pojemnosc",
-                                            medicationCount.toString()
+                                            medicationCountDouble
                                         )
                                             .addOnSuccessListener {
-                                                if (medicationCount <= 10) {
+                                                if (medicationCountDouble <= 10) {
                                                     alertDialogBuilder.setTitle("Mała ilość tabletek w opakowaniu")
                                                     alertDialogBuilder.setMessage("Kończy się ilość tabletek. Dokup kolejne opakowanie. " +
-                                                            "W opakowaniu zostało 5 tabletek.")
+                                                            "W opakowaniu zostało $medicationCountDouble tabletek.")
 
                                                     alertDialogBuilder.setPositiveButton("OK") { dialog, _ ->
                                                         dialog.dismiss()  // Zamknięcie okna dialogowego
@@ -236,7 +241,15 @@ class MyDosageActivity : AppCompatActivity() {
                                                     val alertDialog: AlertDialog = alertDialogBuilder.create()
                                                     alertDialog.show()
                                                 }
-
+                                            }
+                                            .addOnFailureListener { _ ->
+                                                // Handle failure
+                                            }
+                                    } else {
+                                        // Pojemność jest mniejsza niż ilość tabletek do odjęcia, usuń cały rekord
+                                        document.reference.delete()
+                                            .addOnSuccessListener {
+                                                // Rekord został usunięty
                                             }
                                             .addOnFailureListener { _ ->
                                                 // Handle failure
@@ -250,6 +263,7 @@ class MyDosageActivity : AppCompatActivity() {
                         }
                 }
             }
+
         }
 
         private fun updateMedicationFromDatabase(medication: String) {

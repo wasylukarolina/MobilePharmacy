@@ -6,6 +6,7 @@ import android.content.Intent
 import android.icu.text.SimpleDateFormat
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.view.ContextThemeWrapper
 import android.view.MenuItem
 import android.view.View
 import android.widget.ImageView
@@ -374,7 +375,7 @@ class AfterLoginActivity : AppCompatActivity() {
     }
     // Funkcja do wyświetlania okna informacyjnego
     private fun showInfoDialog(title: String, message: String) {
-        val builder = AlertDialog.Builder(this)
+        val builder = AlertDialog.Builder(ContextThemeWrapper(this, R.style.AlertDialogCustom))
         builder.setTitle(title)
         builder.setMessage(message)
         builder.setPositiveButton("OK") { dialog, which -> dialog.dismiss() }
