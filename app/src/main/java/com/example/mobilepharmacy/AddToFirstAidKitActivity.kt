@@ -90,9 +90,14 @@ class AddToFirstAidKitActivity : AppCompatActivity() {
 
         // Nasłuchiwacz wyboru leku z listy
         autoCompleteTextView.setOnItemClickListener { _, _, position, _ ->
-            val selectedMedicineName = adapter.getItem(position)
-            if (selectedMedicineName != null) {
-                checkMedicineInDatabase(selectedMedicineName, firestoreDB, email)
+            if (position >= 0 && position < adapter.count) {
+                val selectedMedicineName = adapter.getItem(position)
+                if (selectedMedicineName != null) {
+                    val selectedMedicine = medicinesList.find { it.nazwaProduktu == selectedMedicineName }
+                    if (selectedMedicine != null) {
+                        checkMedicineInDatabase(selectedMedicineName, firestoreDB, email)
+                    }
+                }
             }
         }
 
