@@ -149,46 +149,86 @@ class AfterLoginActivity : AppCompatActivity() {
             override fun onDayClick(eventDay: EventDay) {
                 val clickedDay = eventDay.calendar
 
+                // Pobierz obecną datę
+                val today = Calendar.getInstance()
+
                 // Pobierz datę w formacie dd/MM/yyyy
                 val dateFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
                 val dateString = dateFormat.format(clickedDay.time)
 
-                // Sprawdź, czy istnieją dane o lekach wziętych danego dnia w bazie
-                val email = firebaseAuth.currentUser?.email
-                if (email != null) {
-                    val userMedicationsRef = firestore.collection("checkedMedications")
-                        .whereEqualTo("email", email)
-                        .whereEqualTo("checkedDate", dateString)
+                if (clickedDay.before(today)) {
+                    // Sprawdź, czy istnieją dane o lekach wziętych danego dnia w bazie
+                    val email = firebaseAuth.currentUser?.email
+                    if (email != null) {
+                        val userMedicationsRef = firestore.collection("checkedMedications")
+                            .whereEqualTo("email", email)
+                            .whereEqualTo("checkedDate", dateString)
 
-                    userMedicationsRef.get()
-                        .addOnSuccessListener { querySnapshot ->
-                            val medicationsList = mutableListOf<String>()
+                        userMedicationsRef.get()
+                            .addOnSuccessListener { querySnapshot ->
+                                val medicationsList = mutableListOf<String>()
 
-                            for (document in querySnapshot.documents) {
-                                val medicationName = document.getString("medicationName")
-                                val checkedTime = document.getString("checkedTime")
+                                for (document in querySnapshot.documents) {
+                                    val medicationName = document.getString("medicationName")
+                                    val checkedTime = document.getString("checkedTime")
 
-                                if (medicationName != null && checkedTime != null) {
-                                    val medicationInfo =
-                                        "$medicationName, Godzina wzięcia: $checkedTime"
-                                    medicationsList.add(medicationInfo)
+                                    if (medicationName != null && checkedTime != null) {
+                                        val medicationInfo =
+                                            "$medicationName, Godzina wzięcia: $checkedTime"
+                                        medicationsList.add(medicationInfo)
+                                    }
+                                }
+
+                                if (medicationsList.isNotEmpty()) {
+                                    // Wyświetl informacje o wziętych lekach
+                                    showInfoDialog("Leki wzięte dnia $dateString", medicationsList.joinToString("\n"))
+                                } else {
+                                    // Jeśli nie wzięto leków tego dnia, wyświetl odpowiedni komunikat
+                                    showInfoDialog("Brak wziętych leków", "Nie wzięto żadnych leków dnia $dateString")
                                 }
                             }
-
-                            if (medicationsList.isNotEmpty()) {
-                                // Wyświetl informacje o wziętych lekach
-                                showInfoDialog("Leki wzięte dnia $dateString", medicationsList.joinToString("\n"))
-                            } else {
-                                // Jeśli nie wzięto leków tego dnia, wyświetl odpowiedni komunikat
-                                showInfoDialog("Brak wziętych leków", "Nie wzięto żadnych leków dnia $dateString")
+                            .addOnFailureListener { _ ->
+                                // Handle failure
                             }
-                        }
-                        .addOnFailureListener { _ ->
-                            // Handle failure
-                        }
+                    }
+                } else {
+                    // Jeśli kliknięty dzień jest dniem przyszłym, pobierz informacje o dawkowaniu z bazy danych
+                    val email = firebaseAuth.currentUser?.email
+                    if (email != null) {
+                        val dosageRef = firestore.collection("leki")
+                            .whereEqualTo("email", email)
+
+                        dosageRef.get()
+                            .addOnSuccessListener { querySnapshot ->
+                                val dosageList = mutableListOf<String>()
+
+                                for (document in querySnapshot.documents) {
+                                    val medicationName = document.getString("nazwaProduktu")
+                                    val dosageInfo = document.get("dawkowanie") as List<String>?
+
+                                    if (medicationName != null && dosageInfo != null) {
+                                        val dosage =
+                                            "$medicationName, Dawkowanie: ${dosageInfo.joinToString(", ")}"
+                                        dosageList.add(dosage)
+                                    }
+                                }
+
+                                if (dosageList.isNotEmpty()) {
+                                    // Wyświetl informacje o dawkowaniu
+                                    showInfoDialog("Dawkowanie na dzień $dateString", dosageList.joinToString("\n"))
+                                } else {
+                                    // Jeśli brak informacji o dawkowaniu tego dnia, wyświetl odpowiedni komunikat
+                                    showInfoDialog("Brak informacji o dawkowaniu", "Brak danych o dawkowaniu na dzień $dateString")
+                                }
+                            }
+                            .addOnFailureListener { _ ->
+                                // Handle failure
+                            }
+                    }
                 }
             }
         })
+
 
 
         // Przyciski przenoszące do kolejnych layoutów
